@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 140" fill="none" role="img" aria-label="conference freeze stamp">
+  <g transform="rotate(-5 180 70)" stroke="#517982" stroke-width="6" stroke-linejoin="round">
+    <rect x="18" y="24" width="324" height="92" rx="4"/>
+    <path d="M42 50h276M42 92h276" stroke-width="2"/>
+    <path d="M70 70h220" stroke-width="2" stroke-dasharray="8 8"/>
+  </g>
+  <text x="180" y="65" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="27" font-weight="700" fill="#517982" transform="rotate(-5 180 70)">CONFERENCE FREEZE</text>
+  <text x="180" y="96" text-anchor="middle" font-family="ui-monospace, Menlo, monospace" font-size="18" fill="#517982" transform="rotate(-5 180 70)">会议冻结</text>
+</svg>

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 140" fill="none" role="img" aria-label="low credibility miracle stamp">
+  <g transform="rotate(-6 180 70)" stroke="#7f6f91" stroke-width="6" stroke-linejoin="round">
+    <rect x="18" y="24" width="324" height="92" rx="4"/>
+    <rect x="34" y="40" width="292" height="60" rx="2" stroke-width="2" stroke-dasharray="10 8"/>
+    <path d="M52 70h256" stroke-width="2" stroke-dasharray="6 6"/>
+    <path d="M72 96 288 44" stroke-width="2" opacity=".75"/>
+  </g>
+  <text x="180" y="62" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="25" font-weight="700" fill="#7f6f91" transform="rotate(-6 180 70)">LOW CREDIBILITY</text>
+  <text x="180" y="92" text-anchor="middle" font-family="ui-monospace, Menlo, monospace" font-size="18" fill="#7f6f91" transform="rotate(-6 180 70)">ANOMALY / 低可信奇迹</text>
+</svg>

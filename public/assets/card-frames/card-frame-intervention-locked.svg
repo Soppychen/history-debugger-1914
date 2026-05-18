@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 440" fill="none" role="img" aria-label="intervention locked card frame">
+  <rect width="320" height="440" rx="4" fill="#181c23"/>
+  <rect x="12" y="12" width="296" height="416" rx="4" fill="#8f8264" opacity=".72" stroke="#59616a" stroke-width="2"/>
+  <path d="M28 58h264M28 318h264M28 372h264" stroke="#59616a" stroke-width="1"/>
+  <rect x="118" y="178" width="84" height="58" rx="3" stroke="#59616a" stroke-width="5"/>
+  <path d="M136 178v-22a24 24 0 0 1 48 0v22" stroke="#59616a" stroke-width="5"/>
+</svg>

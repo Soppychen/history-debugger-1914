@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" fill="none">
+  <rect width="800" height="450" fill="currentColor" opacity=".04"/>
+  <path d="M80 320C150 260 210 270 280 220s125-80 215-48 118 6 205-42" stroke="currentColor" opacity=".18" stroke-width="2"/>
+  <path d="M120 120h560M120 180h560M120 240h560M120 300h560M160 80v290M260 80v290M360 80v290M460 80v290M560 80v290" stroke="currentColor" opacity=".08"/>
+  <circle cx="320" cy="210" r="5" fill="currentColor" opacity=".22"/>
+  <circle cx="515" cy="170" r="5" fill="currentColor" opacity=".22"/>
+  <path d="M320 210 515 170" stroke="currentColor" opacity=".18" stroke-dasharray="8 8"/>
+</svg>

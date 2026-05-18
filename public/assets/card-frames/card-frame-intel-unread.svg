@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 220" fill="none" role="img" aria-label="intel unread card frame">
+  <rect width="300" height="220" rx="4" fill="#202428"/>
+  <rect x="10" y="10" width="280" height="200" rx="3" fill="#c8b98e" stroke="#9a7a3d" stroke-width="2"/>
+  <path d="M28 48h244M28 168h244" stroke="#6b5841"/>
+  <circle cx="266" cy="34" r="8" fill="#d09a36"/>
+</svg>

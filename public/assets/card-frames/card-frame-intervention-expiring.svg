@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 440" fill="none" role="img" aria-label="intervention expiring card frame">
+  <rect width="320" height="440" rx="4" fill="#3a2c1d"/>
+  <rect x="12" y="12" width="296" height="416" rx="4" fill="#c8b98e" stroke="#d09a36" stroke-width="3"/>
+  <path d="M12 78h296" stroke="#d09a36" stroke-width="10"/>
+  <path d="M28 318h264M28 372h264" stroke="#6b5841" stroke-width="1"/>
+  <path d="M250 34h34l-17 28z" fill="#d09a36"/>
+</svg>

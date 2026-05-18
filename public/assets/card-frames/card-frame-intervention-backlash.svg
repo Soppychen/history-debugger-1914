@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 440" fill="none" role="img" aria-label="intervention backlash card frame">
+  <rect width="320" height="440" rx="4" fill="#3a1f1b"/>
+  <rect x="10" y="10" width="300" height="420" rx="4" fill="#c8b98e" stroke="#b52b2f" stroke-width="4"/>
+  <path d="M28 58h264M28 318h264M28 372h264" stroke="#6b5841" stroke-width="1"/>
+  <path d="M36 84c74 74 145 134 248 224" stroke="#b52b2f" stroke-width="6" opacity=".85"/>
+  <path d="M210 305h74v-74" stroke="#b52b2f" stroke-width="6"/>
+</svg>

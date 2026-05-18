@@ -1,0 +1,664 @@
+[
+  {
+    "id": "I01",
+    "title": "萨拉热窝刺杀报告",
+    "type": "事件报告",
+    "turnRange": [
+      1,
+      1
+    ],
+    "summary": "费迪南大公在萨拉热窝遇刺。刺杀者与南斯拉夫民族主义网络有关，但塞尔维亚政府的直接责任并不简单清晰。",
+    "reveals": [
+      "nationalist_pressure"
+    ],
+    "unlocks": [
+      "C01",
+      "C14"
+    ],
+    "tags": [
+      "刺杀",
+      "民族主义",
+      "司法叙事"
+    ],
+    "quote": "火星已经落下，但谁把火药堆在这里，仍需要调查。"
+  },
+  {
+    "id": "I02",
+    "title": "维也纳内部备忘录",
+    "type": "政府文件",
+    "turnRange": [
+      1,
+      1
+    ],
+    "summary": "奥匈高层认为，如果不严厉回应刺杀，帝国威信将进一步下降，内部民族问题会更难控制。",
+    "reveals": [
+      "austrian_hardline"
+    ],
+    "unlocks": [
+      "C04",
+      "C11"
+    ],
+    "tags": [
+      "奥匈",
+      "强硬派",
+      "帝国威信"
+    ],
+    "quote": "这不是一次谋杀案，这是帝国权威的伤口。"
+  },
+  {
+    "id": "I03",
+    "title": "塞尔维亚政府的公开否认",
+    "type": "外交声明",
+    "turnRange": [
+      1,
+      1
+    ],
+    "summary": "塞尔维亚政府否认直接策划刺杀，表示愿意调查，但拒绝接受侵犯主权的外部控制。",
+    "reveals": [
+      "serbian_compromise"
+    ],
+    "unlocks": [
+      "C12"
+    ],
+    "tags": [
+      "塞尔维亚",
+      "主权",
+      "外交声明"
+    ],
+    "quote": "他们愿意调查，但不愿把国家主权交出去。"
+  },
+  {
+    "id": "I04",
+    "title": "德国对奥匈支持信号",
+    "type": "外交电报",
+    "turnRange": [
+      2,
+      2
+    ],
+    "summary": "德国倾向支持奥匈对塞尔维亚采取强硬措施，希望危机局部化，同时低估俄国与法国的反应。",
+    "reveals": [
+      "german_risk_perception",
+      "alliance_lock_in"
+    ],
+    "unlocks": [
+      "C05"
+    ],
+    "tags": [
+      "德国",
+      "奥匈",
+      "空白支票"
+    ],
+    "quote": "盟友的承诺一旦没有边界，就会变成冒险的燃料。"
+  },
+  {
+    "id": "I05",
+    "title": "德皇与总参谋部的风险误判",
+    "type": "战略评估",
+    "turnRange": [
+      2,
+      2
+    ],
+    "summary": "德国部分决策者认为俄国未必会为塞尔维亚冒全面战争风险，即便战争发生，越早解决越有利。",
+    "reveals": [
+      "german_risk_perception",
+      "military_timetable_rigidity"
+    ],
+    "unlocks": [
+      "C07"
+    ],
+    "tags": [
+      "德国",
+      "总参谋部",
+      "误判"
+    ],
+    "quote": "最危险的误判，往往披着理性计算的外衣。"
+  },
+  {
+    "id": "I06",
+    "title": "奥匈担忧大国干涉",
+    "type": "内部评估",
+    "turnRange": [
+      2,
+      2
+    ],
+    "summary": "奥匈担心若行动太慢，其他大国会介入调停，使惩罚塞尔维亚的机会消失。",
+    "reveals": [
+      "austrian_hardline"
+    ],
+    "unlocks": [
+      "C16",
+      "C24"
+    ],
+    "tags": [
+      "奥匈",
+      "干涉",
+      "时间压力"
+    ],
+    "quote": "他们害怕的不是失败，而是还没开枪就被别人拉回会议桌。"
+  },
+  {
+    "id": "I07",
+    "title": "最后通牒草案",
+    "type": "外交文本",
+    "turnRange": [
+      3,
+      3
+    ],
+    "summary": "奥匈草拟最后通牒，其中若干条款可能被塞尔维亚视为侵犯主权，接受概率较低。",
+    "reveals": [
+      "serbian_compromise",
+      "austrian_hardline"
+    ],
+    "unlocks": [
+      "C10"
+    ],
+    "tags": [
+      "最后通牒",
+      "塞尔维亚",
+      "外交文本"
+    ],
+    "quote": "战争有时先藏在文本里，再藏进炮膛。"
+  },
+  {
+    "id": "I08",
+    "title": "塞尔维亚主权底线",
+    "type": "外交分析",
+    "turnRange": [
+      3,
+      3
+    ],
+    "summary": "塞尔维亚可能接受调查和惩处，但很难接受奥匈人员直接进入其司法和行政体系。",
+    "reveals": [
+      "serbian_compromise"
+    ],
+    "unlocks": [
+      "C19"
+    ],
+    "tags": [
+      "主权",
+      "塞尔维亚",
+      "仲裁"
+    ],
+    "quote": "让步可以谈，主权很难切成小块。"
+  },
+  {
+    "id": "I09",
+    "title": "奥匈军方的时间压力",
+    "type": "军事备忘录",
+    "turnRange": [
+      3,
+      3
+    ],
+    "summary": "奥匈军方认为拖延会削弱威慑，且动员准备本身会不断推动政治决策。",
+    "reveals": [
+      "military_timetable_rigidity"
+    ],
+    "unlocks": [],
+    "tags": [
+      "军方",
+      "动员",
+      "时间表"
+    ],
+    "quote": "军队一旦开始准备，政治就不再完全坐在驾驶座上。"
+  },
+  {
+    "id": "I10",
+    "title": "奥匈报刊的复仇呼声",
+    "type": "媒体观察",
+    "turnRange": [
+      4,
+      4
+    ],
+    "summary": "奥匈报刊不断强化复仇、荣誉和帝国威信叙事，使政府后退空间缩小。",
+    "reveals": [
+      "media_agitation",
+      "nationalist_pressure"
+    ],
+    "unlocks": [
+      "C03",
+      "C15"
+    ],
+    "tags": [
+      "媒体",
+      "复仇",
+      "民族主义"
+    ],
+    "quote": "报纸把悲伤翻译成愤怒，把愤怒翻译成要求开火。"
+  },
+  {
+    "id": "I11",
+    "title": "贝尔格莱德街头情绪",
+    "type": "社会观察",
+    "turnRange": [
+      4,
+      4
+    ],
+    "summary": "塞尔维亚国内既有恐惧，也有反奥匈民族情绪。政府让步越大，越可能激化内部反弹。",
+    "reveals": [
+      "serbian_compromise",
+      "nationalist_pressure"
+    ],
+    "unlocks": [],
+    "tags": [
+      "塞尔维亚",
+      "街头",
+      "国内政治"
+    ],
+    "quote": "政府可以签字，但街头未必同意。"
+  },
+  {
+    "id": "I12",
+    "title": "欧洲媒体连锁报道",
+    "type": "媒体网络",
+    "turnRange": [
+      4,
+      4
+    ],
+    "summary": "各国报纸互相引用、夸大、误读，使危机叙事更快跨国传播。",
+    "reveals": [
+      "media_agitation",
+      "diplomatic_trust"
+    ],
+    "unlocks": [
+      "C13"
+    ],
+    "tags": [
+      "媒体网络",
+      "误读",
+      "舆论"
+    ],
+    "quote": "坏消息跨国传播时，比外交电报更快、更响。"
+  },
+  {
+    "id": "I13",
+    "title": "最后通牒正式文本",
+    "type": "外交文件",
+    "turnRange": [
+      5,
+      5
+    ],
+    "summary": "最后通牒发出，期限极短，部分条款几乎注定引发争议。",
+    "reveals": [
+      "military_timetable_rigidity",
+      "serbian_compromise"
+    ],
+    "unlocks": [
+      "C16"
+    ],
+    "tags": [
+      "最后通牒",
+      "期限",
+      "外交文件"
+    ],
+    "quote": "期限一旦写下，时间就开始替强硬派工作。"
+  },
+  {
+    "id": "I14",
+    "title": "俄国对塞尔维亚的保护压力",
+    "type": "大国信誉",
+    "turnRange": [
+      5,
+      5
+    ],
+    "summary": "俄国若再次退让，将损害其在巴尔干与斯拉夫世界中的声望。",
+    "reveals": [
+      "russian_mobilization_pressure"
+    ],
+    "unlocks": [
+      "C21"
+    ],
+    "tags": [
+      "俄国",
+      "塞尔维亚",
+      "大国信誉"
+    ],
+    "quote": "大国有时不是想行动，而是无法承受不行动。"
+  },
+  {
+    "id": "I15",
+    "title": "英国外交部的犹豫",
+    "type": "外交观察",
+    "turnRange": [
+      5,
+      5
+    ],
+    "summary": "英国尚未明确表示会在何种情况下参战。德国可能将这种模糊解释为英国不会介入。",
+    "reveals": [
+      "british_redline_clarity"
+    ],
+    "unlocks": [
+      "C18"
+    ],
+    "tags": [
+      "英国",
+      "红线",
+      "外交模糊"
+    ],
+    "quote": "沉默不是中立，它也可能被别人当成许可。"
+  },
+  {
+    "id": "I16",
+    "title": "塞尔维亚回应文本",
+    "type": "外交文件",
+    "turnRange": [
+      6,
+      6
+    ],
+    "summary": "塞尔维亚接受大量条款，但对涉及主权的核心条款做出保留。",
+    "reveals": [
+      "serbian_compromise"
+    ],
+    "unlocks": [
+      "C20"
+    ],
+    "tags": [
+      "塞尔维亚",
+      "回应",
+      "有限胜利"
+    ],
+    "quote": "这份回应既像让步，也像最后的抵抗。"
+  },
+  {
+    "id": "I17",
+    "title": "奥匈对回应的不满",
+    "type": "政府反应",
+    "turnRange": [
+      6,
+      6
+    ],
+    "summary": "奥匈强硬派认为塞尔维亚回应不够彻底，仍然主张军事惩罚。",
+    "reveals": [
+      "austrian_hardline"
+    ],
+    "unlocks": [
+      "C20"
+    ],
+    "tags": [
+      "奥匈",
+      "强硬派",
+      "回应不满"
+    ],
+    "quote": "他们不是没看见让步，只是不愿承认让步足够。"
+  },
+  {
+    "id": "I18",
+    "title": "俄国宫廷会议纪要",
+    "type": "内部会议",
+    "turnRange": [
+      6,
+      6
+    ],
+    "summary": "俄国高层在克制与动员之间摇摆。退让会被视为外交失败，动员则可能刺激德国。",
+    "reveals": [
+      "russian_mobilization_pressure",
+      "military_timetable_rigidity"
+    ],
+    "unlocks": [
+      "C21"
+    ],
+    "tags": [
+      "俄国",
+      "动员",
+      "宫廷会议"
+    ],
+    "quote": "克制看起来理性，但在宫廷里可能像软弱。"
+  },
+  {
+    "id": "I19",
+    "title": "奥匈军事准备",
+    "type": "军事情报",
+    "turnRange": [
+      7,
+      7
+    ],
+    "summary": "奥匈军事准备进入更高阶段。即便政治层仍可谈判，军方行动已经开始制造惯性。",
+    "reveals": [
+      "military_timetable_rigidity"
+    ],
+    "unlocks": [
+      "C22",
+      "C24"
+    ],
+    "tags": [
+      "奥匈",
+      "军事准备",
+      "惯性"
+    ],
+    "quote": "部队开始移动后，外交桌会变得越来越小。"
+  },
+  {
+    "id": "I20",
+    "title": "俄国不能再次退让的记忆",
+    "type": "历史记忆",
+    "turnRange": [
+      7,
+      7
+    ],
+    "summary": "此前巴尔干危机中的退让记忆，使俄国高层更难接受再次无所作为。",
+    "reveals": [
+      "russian_mobilization_pressure"
+    ],
+    "unlocks": [],
+    "tags": [
+      "俄国",
+      "巴尔干",
+      "历史记忆"
+    ],
+    "quote": "历史记忆不是过去，它会坐在会议桌边发言。"
+  },
+  {
+    "id": "I21",
+    "title": "法国对俄国的支持信号",
+    "type": "同盟信号",
+    "turnRange": [
+      7,
+      7
+    ],
+    "summary": "法国作为俄国盟友，其支持信号会影响俄国的信心，也会增加德国焦虑。",
+    "reveals": [
+      "franco_russian_coordination",
+      "german_risk_perception"
+    ],
+    "unlocks": [
+      "C23"
+    ],
+    "tags": [
+      "法国",
+      "俄国",
+      "同盟"
+    ],
+    "quote": "给盟友信心，也可能给对手恐惧。"
+  },
+  {
+    "id": "I22",
+    "title": "俄国动员方案分歧",
+    "type": "军事制度",
+    "turnRange": [
+      8,
+      8
+    ],
+    "summary": "俄国在局部动员和总动员之间存在制度难题。局部动员不一定可执行，总动员又会刺激德国。",
+    "reveals": [
+      "russian_mobilization_pressure",
+      "military_timetable_rigidity"
+    ],
+    "unlocks": [
+      "C25"
+    ],
+    "tags": [
+      "俄国",
+      "局部动员",
+      "总动员"
+    ],
+    "quote": "温和方案如果不可执行，就只是纸上的温和。"
+  },
+  {
+    "id": "I23",
+    "title": "德国总参谋部对俄国动员的恐惧",
+    "type": "军事心理",
+    "turnRange": [
+      8,
+      8
+    ],
+    "summary": "德国军事计划对俄国动员高度敏感。俄国越早动员，德国越倾向抢先行动。",
+    "reveals": [
+      "german_risk_perception",
+      "military_timetable_rigidity"
+    ],
+    "unlocks": [],
+    "tags": [
+      "德国",
+      "俄国动员",
+      "总参谋部"
+    ],
+    "quote": "对手的准备，在恐惧里会变成自己的倒计时。"
+  },
+  {
+    "id": "I24",
+    "title": "动员时间表的不可逆性",
+    "type": "制度分析",
+    "turnRange": [
+      8,
+      8
+    ],
+    "summary": "铁路、预备役、补给、战区计划互相咬合，使动员计划一旦启动就很难政治刹车。",
+    "reveals": [
+      "military_timetable_rigidity"
+    ],
+    "unlocks": [],
+    "tags": [
+      "动员",
+      "铁路",
+      "不可逆"
+    ],
+    "quote": "这不是一个按钮，是一台已经开始转动的机器。"
+  },
+  {
+    "id": "I25",
+    "title": "德国最后通牒",
+    "type": "外交文件",
+    "turnRange": [
+      9,
+      9
+    ],
+    "summary": "德国要求俄国停止动员，并要求法国说明立场。外交窗口迅速收窄。",
+    "reveals": [
+      "alliance_lock_in",
+      "war_probability"
+    ],
+    "unlocks": [],
+    "tags": [
+      "德国",
+      "最后通牒",
+      "德俄"
+    ],
+    "quote": "当最后通牒出现时，语言已经接近炮火。"
+  },
+  {
+    "id": "I26",
+    "title": "施里芬计划压力",
+    "type": "战略计划",
+    "turnRange": [
+      9,
+      11
+    ],
+    "summary": "德国战略计划倾向先西后东，意味着一旦启动，对法国和比利时的压力迅速上升。",
+    "reveals": [
+      "military_timetable_rigidity"
+    ],
+    "unlocks": [
+      "C30"
+    ],
+    "tags": [
+      "德国",
+      "施里芬计划",
+      "比利时"
+    ],
+    "quote": "战略计划最可怕的时候，是它开始替政治选择方向。"
+  },
+  {
+    "id": "I27",
+    "title": "法国的战略困境",
+    "type": "同盟困境",
+    "turnRange": [
+      9,
+      10
+    ],
+    "summary": "法国既不能轻易抛弃俄国，也不想单独刺激德国。其模糊态度会被双方解读。",
+    "reveals": [
+      "franco_russian_coordination",
+      "alliance_lock_in"
+    ],
+    "unlocks": [],
+    "tags": [
+      "法国",
+      "俄国",
+      "同盟困境"
+    ],
+    "quote": "含糊可以争取时间，也可以制造更多误读。"
+  },
+  {
+    "id": "I28",
+    "title": "德俄宣战风险",
+    "type": "临界警报",
+    "turnRange": [
+      10,
+      10
+    ],
+    "summary": "德俄关系进入临界状态。任何动员、误传或强硬声明都可能触发宣战。",
+    "reveals": [
+      "war_probability",
+      "russian_mobilization_pressure"
+    ],
+    "unlocks": [],
+    "tags": [
+      "德俄",
+      "宣战",
+      "临界"
+    ],
+    "quote": "系统进入红区后，小错误也会有大战争的重量。"
+  },
+  {
+    "id": "I29",
+    "title": "比利时中立的战略意义",
+    "type": "国际法 / 战略",
+    "turnRange": [
+      10,
+      11
+    ],
+    "summary": "比利时中立是英国政策的重要红线之一。德国若越过它，英国参战概率显著提高。",
+    "reveals": [
+      "british_redline_clarity"
+    ],
+    "unlocks": [
+      "C29"
+    ],
+    "tags": [
+      "比利时",
+      "英国",
+      "国际法"
+    ],
+    "quote": "一条小国边界，可能是大国参战的开关。"
+  },
+  {
+    "id": "I30",
+    "title": "英国内阁分歧",
+    "type": "国内政治",
+    "turnRange": [
+      11,
+      11
+    ],
+    "summary": "英国国内对是否参战存在分歧。比利时中立和欧洲均势会改变内阁态度。",
+    "reveals": [
+      "british_redline_clarity",
+      "diplomatic_trust"
+    ],
+    "unlocks": [],
+    "tags": [
+      "英国",
+      "内阁",
+      "参战"
+    ],
+    "quote": "英国不是自动入场，它也需要被现实推过门槛。"
+  }
+]

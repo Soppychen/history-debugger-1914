@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 220" fill="none" role="img" aria-label="intel important card frame">
+  <rect width="300" height="220" rx="4" fill="#202428"/>
+  <rect x="10" y="10" width="280" height="200" rx="3" fill="#c8b98e" stroke="#d09a36" stroke-width="3"/>
+  <path d="M20 10v200" stroke="#d09a36" stroke-width="8"/>
+  <path d="M34 48h238M34 168h238" stroke="#6b5841"/>
+  <path d="M260 26v18M260 54h.01" stroke="#b52b2f" stroke-width="4" stroke-linecap="round"/>
+</svg>

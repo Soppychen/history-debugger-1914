@@ -1,0 +1,26 @@
+node_modules/
+dist/
+.DS_Store
+*.tsbuildinfo
+
+.env
+.env.*
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Local source materials and production backups that are not needed for web deployment.
+PMFiles/
+Soundtrack/
+art-direction/
+design-backups/
+history_debugger_1914_json_pack/
+history_debugger_1914_timeline_and_specs/
+*.docx
+~$*
+ART_PRODUCTION_BRIEF.md
+DESIGN.md
+PLAYER_ACCOUNT_ANALYTICS_DESIGN.md
+历史现场调试器_*.md

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 140" fill="none" role="img" aria-label="delayed war stamp">
+  <g transform="rotate(-5 180 70)" stroke="#d09a36" stroke-width="6" stroke-linejoin="round">
+    <rect x="18" y="24" width="324" height="92" rx="4"/>
+    <path d="M40 45h280M40 95h280" stroke-width="2"/>
+    <path d="M50 104 310 36" stroke-width="2"/>
+  </g>
+  <text x="180" y="68" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="32" font-weight="700" fill="#d09a36" transform="rotate(-5 180 70)">DELAYED WAR</text>
+  <text x="180" y="96" text-anchor="middle" font-family="ui-monospace, Menlo, monospace" font-size="18" fill="#d09a36" transform="rotate(-5 180 70)">延迟战争</text>
+</svg>

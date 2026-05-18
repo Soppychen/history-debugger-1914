@@ -1,0 +1,138 @@
+:root {
+  /* Typography */
+  --font-title: "Noto Serif SC", "Source Han Serif SC", Georgia, "Times New Roman", serif;
+  --font-body: "Noto Sans SC", "Source Han Sans SC", Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  --font-sans: var(--font-body);
+
+  --font-size-xs: 12px;
+  --font-size-sm: 13px;
+  --font-size-md: 15px;
+  --font-size-lg: 18px;
+  --font-size-xl: 24px;
+  --font-size-xxl: 32px;
+
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.5;
+  --line-height-loose: 1.8;
+
+  /* Canonical art direction palette */
+  --color-bg: #111315;
+  --color-panel: #171a1d;
+  --color-panel-raised: #202428;
+  --color-panel-sunken: #0d0f10;
+  --color-paper: #c8b98e;
+  --color-paper-dim: #8f8264;
+  --color-ink: #ded6bd;
+  --color-ink-muted: #a79f88;
+  --color-black-ink: #1b1812;
+  --color-brown: #6b5841;
+  --color-brass: #9a7a3d;
+  --color-steel: #59616a;
+  --color-cyan: #517982;
+  --color-amber: #d09a36;
+  --color-risk: #8e3a32;
+  --color-alert: #b52b2f;
+  --color-success: #7f8d65;
+
+  /* Implementation aliases */
+  --color-bg-base: var(--color-bg);
+  --color-bg-panel: var(--color-panel);
+  --color-bg-panel-elevated: var(--color-panel-raised);
+  --color-bg-card: #242a35;
+  --color-bg-card-muted: #1b2028;
+  --color-bg-paper: var(--color-paper);
+  --color-bg-paper-dark: var(--color-paper-dim);
+
+  --color-text-primary: var(--color-ink);
+  --color-text-secondary: var(--color-ink-muted);
+  --color-text-muted: #82796c;
+  --color-text-inverse: var(--color-black-ink);
+  --color-text-danger: #f0b0a6;
+  --color-ink-subtle: var(--color-text-muted);
+
+  --color-archive-gold: #c6a15b;
+  --color-archive-ink: #3b3024;
+  --color-archive-paper: #d8c59a;
+  --color-archive-stamp: #8e3b2f;
+
+  --color-debug-green: #6faf8d;
+  --color-debug-blue: #6b9ecf;
+  --color-debug-line: #566070;
+  --color-debug-breakpoint: #d55a4a;
+
+  --color-risk-low: #4e9f70;
+  --color-risk-medium: #d6a84f;
+  --color-risk-high: #c85c4a;
+  --color-risk-critical: #9e2f2f;
+  --color-risk-irreversible: #4a0e0e;
+
+  --color-border-subtle: #343946;
+  --color-border-strong: #59606e;
+  --color-border-warning: #b8893b;
+  --color-border-danger: #a94438;
+
+  --color-card-default: #242a35;
+  --color-card-hover: #2b3340;
+  --color-card-selected: #303a4a;
+  --color-card-disabled: #181c23;
+  --color-card-expiring: #3a2c1d;
+  --color-card-expired: #1a1715;
+  --color-card-backlash: #3a1f1b;
+
+  /* Legacy aliases kept so existing low-fi layout can remain stable */
+  --color-paper-surface: var(--color-bg-paper);
+  --color-canvas: var(--color-bg-base);
+  --color-canvas-muted: var(--color-bg-panel-elevated);
+  --color-line: var(--color-border-strong);
+  --color-line-muted: var(--color-border-subtle);
+  --color-line-soft: var(--color-debug-line);
+  --color-primary: var(--color-archive-gold);
+  --color-primary-hover: var(--color-card-hover);
+  --color-accent: var(--color-cyan);
+  --color-accent-soft: var(--color-bg-card-muted);
+  --color-success-soft: color-mix(in srgb, var(--color-success), transparent 78%);
+  --color-warning: var(--color-amber);
+  --color-warning-soft: color-mix(in srgb, var(--color-amber), transparent 78%);
+  --color-danger: var(--color-alert);
+  --color-danger-soft: color-mix(in srgb, var(--color-alert), transparent 78%);
+  --color-highlight: color-mix(in srgb, var(--color-amber), transparent 84%);
+  --color-disabled: var(--color-card-disabled);
+  --color-bar-track: var(--color-panel-sunken);
+  --color-bar-fill: var(--color-cyan);
+  --color-overlay: rgb(0 0 0 / 64%);
+
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 40px;
+  --space-8: 48px;
+  --panel-padding: 16px;
+  --card-padding: 14px;
+
+  /* Shape */
+  --radius-none: 0;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+  /* Shadows and borders */
+  --shadow-none: none;
+  --shadow-panel: 0 8px 24px rgb(0 0 0 / 28%);
+  --shadow-card: 0 4px 14px rgb(0 0 0 / 22%);
+  --shadow-alert: 0 0 18px rgb(200 92 74 / 22%);
+  --shadow-focus: 0 0 0 2px var(--color-border-warning);
+  --shadow-modal: 0 18px 50px rgb(0 0 0 / 34%);
+
+  --border-width: 1px;
+  --border-width-strong: 2px;
+  --transition-fast: 120ms ease;
+
+  /* Asset fallbacks */
+  --texture-paper: linear-gradient(135deg, rgb(255 255 255 / 5%), rgb(0 0 0 / 8%));
+  --texture-panel: radial-gradient(circle at 20% 10%, rgb(255 255 255 / 4%), transparent 26%), linear-gradient(180deg, rgb(255 255 255 / 2%), transparent);
+}

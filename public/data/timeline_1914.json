@@ -1,0 +1,872 @@
+[
+  {
+    "turn": 1,
+    "dateRange": "1914.06.29—1914.07.03",
+    "title": "火星落下",
+    "narrative": "费迪南大公遇刺后，维也纳内部开始讨论如何惩罚塞尔维亚。各国表面哀悼，实则观望奥匈反应。",
+    "defaultPressure": [
+      {
+        "variable": "austrian_hardline",
+        "delta": 6,
+        "reason": "奥匈内部要求强硬回应"
+      },
+      {
+        "variable": "nationalist_pressure",
+        "delta": 5,
+        "reason": "刺杀激化民族主义情绪"
+      },
+      {
+        "variable": "media_agitation",
+        "delta": 4,
+        "reason": "报刊开始煽动复仇叙事"
+      },
+      {
+        "variable": "diplomatic_trust",
+        "delta": -2,
+        "reason": "各国互相猜疑加深"
+      },
+      {
+        "variable": "war_probability",
+        "delta": 3,
+        "reason": "局部危机出现扩散迹象"
+      }
+    ],
+    "recommendedIntel": [
+      "I01",
+      "I02",
+      "I03"
+    ],
+    "recommendedCards": [
+      "C01",
+      "C02",
+      "C03",
+      "C04"
+    ],
+    "goalHint": "你现在面对的不是一次孤立刺杀，而是刺杀被政治系统解释和利用的方式。",
+    "specialRules": [
+      {
+        "id": "unlock_international_investigation_deadline",
+        "description": "如果玩家使用第三方调查团，下回合解锁国际调查期限。",
+        "conditions": [
+          {
+            "type": "card_used",
+            "key": "C02",
+            "value": true
+          }
+        ],
+        "effects": [],
+        "flags": [
+          {
+            "flag": "third_party_investigation_started",
+            "value": true
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "turn": 2,
+    "dateRange": "1914.07.04—1914.07.06",
+    "title": "盟友的承诺",
+    "narrative": "奥匈向德国寻求支持。德国可能给出强力背书，使奥匈更敢冒险。",
+    "defaultPressure": [
+      {
+        "variable": "german_risk_perception",
+        "delta": -4,
+        "reason": "德国低估全面战争风险"
+      },
+      {
+        "variable": "austrian_hardline",
+        "delta": 5,
+        "reason": "德国支持增强奥匈信心"
+      },
+      {
+        "variable": "alliance_lock_in",
+        "delta": 4,
+        "reason": "同盟承诺推动危机绑定"
+      },
+      {
+        "variable": "war_probability",
+        "delta": 4,
+        "reason": "空白支票窗口开启"
+      }
+    ],
+    "recommendedIntel": [
+      "I04",
+      "I05",
+      "I06"
+    ],
+    "recommendedCards": [
+      "C05",
+      "C06",
+      "C07",
+      "C08"
+    ],
+    "goalHint": "如果盟友承诺没有边界，它就会变成升级危机的燃料。",
+    "specialRules": [
+      {
+        "id": "blank_check_reinforced",
+        "description": "若德国风险判断过低，空白支票强化。",
+        "conditions": [
+          {
+            "type": "variable_max",
+            "key": "german_risk_perception",
+            "value": 25
+          }
+        ],
+        "effects": [
+          {
+            "variable": "austrian_hardline",
+            "delta": 6,
+            "reason": "德国低估风险，奥匈更敢冒险"
+          },
+          {
+            "variable": "alliance_lock_in",
+            "delta": 4,
+            "reason": "同盟承诺进一步锁定"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "turn": 3,
+    "dateRange": "1914.07.07—1914.07.12",
+    "title": "文字里的战争",
+    "narrative": "奥匈开始准备对塞尔维亚的最后通牒。措辞越严厉，塞尔维亚接受可能性越低，但奥匈国内越满意。",
+    "defaultPressure": [
+      {
+        "variable": "austrian_hardline",
+        "delta": 5,
+        "reason": "奥匈继续草拟强硬文本"
+      },
+      {
+        "variable": "serbian_compromise",
+        "delta": -3,
+        "reason": "塞尔维亚预期条款侵犯主权"
+      },
+      {
+        "variable": "media_agitation",
+        "delta": 3,
+        "reason": "报刊继续追逐强硬叙事"
+      },
+      {
+        "variable": "war_probability",
+        "delta": 3,
+        "reason": "最后通牒路径逐渐成形"
+      }
+    ],
+    "recommendedIntel": [
+      "I07",
+      "I08",
+      "I09"
+    ],
+    "recommendedCards": [
+      "C09",
+      "C10",
+      "C11",
+      "C12"
+    ],
+    "goalHint": "外交文本不是文字游戏。每一个不可接受的条款，都是一条通往动员的边。",
+    "specialRules": [
+      {
+        "id": "ultimatum_harshness_high",
+        "description": "若未能降低奥匈强硬度，最后通牒苛刻度标记为 high。",
+        "conditions": [
+          {
+            "type": "variable_min",
+            "key": "austrian_hardline",
+            "value": 70
+          }
+        ],
+        "effects": [],
+        "flags": [
+          {
+            "flag": "ultimatum_harshness",
+            "value": "high"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "turn": 4,
+    "dateRange": "1914.07.13—1914.07.18",
+    "title": "报纸比外交官更快",
+    "narrative": "各国媒体不断放大荣誉、复仇、民族屈辱。外交退让的国内成本变高。",
+    "defaultPressure": [
+      {
+        "variable": "nationalist_pressure",
+        "delta": 6,
+        "reason": "街头与报刊强化民族主义压力"
+      },
+      {
+        "variable": "media_agitation",
+        "delta": 7,
+        "reason": "欧洲媒体连锁报道放大危机"
+      },
+      {
+        "variable": "diplomatic_trust",
+        "delta": -3,
+        "reason": "各国信号被舆论噪声扭曲"
+      },
+      {
+        "variable": "serbian_compromise",
+        "delta": -2,
+        "reason": "塞尔维亚国内让步成本提高"
+      },
+      {
+        "variable": "war_probability",
+        "delta": 4,
+        "reason": "舆论压力推动强硬政策"
+      }
+    ],
+    "recommendedIntel": [
+      "I10",
+      "I11",
+      "I12"
+    ],
+    "recommendedCards": [
+      "C03",
+      "C13",
+      "C14",
+      "C15"
+    ],
+    "goalHint": "当舆论把妥协解释为懦弱，外交官就会失去回旋空间。",
+    "specialRules": [
+      {
+        "id": "hardline_public_opinion_lock",
+        "description": "若媒体煽动度过高，强硬舆论锁定。",
+        "conditions": [
+          {
+            "type": "variable_min",
+            "key": "media_agitation",
+            "value": 75
+          }
+        ],
+        "effects": [
+          {
+            "variable": "austrian_hardline",
+            "delta": 5,
+            "reason": "奥匈强硬派获得舆论加成"
+          },
+          {
+            "variable": "serbian_compromise",
+            "delta": -5,
+            "reason": "塞尔维亚让步空间缩小"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "turn": 5,
+    "dateRange": "1914.07.19—1914.07.23",
+    "title": "倒计时开始",
+    "narrative": "奥匈向塞尔维亚发出最后通牒。危机进入正式倒计时。",
+    "defaultPressure": [
+      {
+        "variable": "alliance_lock_in",
+        "delta": 5,
+        "reason": "最后通牒使同盟压力具体化"
+      },
+      {
+        "variable": "military_timetable_rigidity",
+        "delta": 4,
+        "reason": "军事准备开始压缩外交时间"
+      },
+      {
+        "variable": "serbian_compromise",
+        "delta": -4,
+        "reason": "苛刻条款降低接受意愿"
+      },
+      {
+        "variable": "war_probability",
+        "delta": 6,
+        "reason": "期限压力显著提高升级风险"
+      }
+    ],
+    "recommendedIntel": [
+      "I13",
+      "I14",
+      "I15"
+    ],
+    "recommendedCards": [
+      "C10",
+      "C16",
+      "C17",
+      "C18"
+    ],
+    "goalHint": "现在时间本身成为敌人。你必须争取小时，而不是争取善意。",
+    "specialRules": [
+      {
+        "id": "serbia_rejects_core_terms",
+        "description": "若最后通牒苛刻且塞尔维亚妥协度不足，塞尔维亚拒绝核心条款。",
+        "conditions": [
+          {
+            "type": "flag_exists",
+            "key": "ultimatum_harshness",
+            "value": "high"
+          },
+          {
+            "type": "variable_max",
+            "key": "serbian_compromise",
+            "value": 45
+          }
+        ],
+        "effects": [
+          {
+            "variable": "austrian_hardline",
+            "delta": 6,
+            "reason": "奥匈认为塞尔维亚拒绝核心要求"
+          },
+          {
+            "variable": "war_probability",
+            "delta": 5,
+            "reason": "拒绝核心条款推动军事路径"
+          }
+        ],
+        "flags": [
+          {
+            "flag": "serbia_rejected_core_terms",
+            "value": true
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "turn": 6,
+    "dateRange": "1914.07.24—1914.07.25",
+    "title": "接受多少才算接受",
+    "narrative": "塞尔维亚回应最后通牒。它可能接受大部分条款，但拒绝侵犯主权的部分。",
+    "defaultPressure": [
+      {
+        "variable": "austrian_hardline",
+        "delta": 4,
+        "reason": "奥匈强硬派认为回应仍不够彻底"
+      },
+      {
+        "variable": "russian_mobilization_pressure",
+        "delta": 4,
+        "reason": "俄国保护塞尔维亚压力提高"
+      },
+      {
+        "variable": "diplomatic_trust",
+        "delta": -2,
+        "reason": "各国对回应文本解释不同"
+      },
+      {
+        "variable": "war_probability",
+        "delta": 4,
+        "reason": "奥匈与塞尔维亚分歧仍未解决"
+      }
+    ],
+    "recommendedIntel": [
+      "I16",
+      "I17",
+      "I18"
+    ],
+    "recommendedCards": [
+      "C17",
+      "C19",
+      "C20",
+      "C21"
+    ],
+    "goalHint": "有时候，和平需要的不是正义，而是每个人都能带回国内的一句解释。",
+    "specialRules": [
+      {
+        "id": "limited_victory_path_open",
+        "description": "若奥匈强硬度下降且塞尔维亚妥协度较高，开启有限胜利路径。",
+        "conditions": [
+          {
+            "type": "variable_max",
+            "key": "austrian_hardline",
+            "value": 60
+          },
+          {
+            "type": "variable_min",
+            "key": "serbian_compromise",
+            "value": 55
+          }
+        ],
+        "effects": [],
+        "flags": [
+          {
+            "flag": "limited_victory_possible",
+            "value": true
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "turn": 7,
+    "dateRange": "1914.07.26—1914.07.28",
+    "title": "局部战争之门",
+    "narrative": "奥匈可能对塞尔维亚宣战。局部战争本身未必引发全面战争，但会显著提高俄国介入压力。",
+    "defaultPressure": [
+      {
+        "variable": "austrian_hardline",
+        "delta": 5,
+        "reason": "宣战压力上升"
+      },
+      {
+        "variable": "russian_mobilization_pressure",
+        "delta": 7,
+        "reason": "俄国保护塞尔维亚压力进一步上升"
+      },
+      {
+        "variable": "alliance_lock_in",
+        "delta": 5,
+        "reason": "局部战争开始牵动同盟体系"
+      },
+      {
+        "variable": "war_probability",
+        "delta": 6,
+        "reason": "局部危机逼近扩散边界"
+      }
+    ],
+    "recommendedIntel": [
+      "I19",
+      "I20",
+      "I21"
+    ],
+    "recommendedCards": [
+      "C22",
+      "C21",
+      "C23",
+      "C24"
+    ],
+    "goalHint": "局部战争不一定等于全面战争。关键是能不能把火墙建起来。",
+    "specialRules": [
+      {
+        "id": "russian_partial_mobilization_discussion",
+        "description": "若俄国动员压力过高，触发局部动员讨论。",
+        "conditions": [
+          {
+            "type": "variable_min",
+            "key": "russian_mobilization_pressure",
+            "value": 70
+          }
+        ],
+        "effects": [
+          {
+            "variable": "military_timetable_rigidity",
+            "delta": 6,
+            "reason": "俄国局部动员讨论推动军方准备"
+          }
+        ],
+        "flags": [
+          {
+            "flag": "russian_partial_mobilization_discussed",
+            "value": true
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "turn": 8,
+    "dateRange": "1914.07.29—1914.07.30",
+    "title": "动员不是按钮，是滑坡",
+    "narrative": "俄国面临保护塞尔维亚和维护大国信誉的压力。局部动员和总动员的边界变得危险。",
+    "defaultPressure": [
+      {
+        "variable": "russian_mobilization_pressure",
+        "delta": 8,
+        "reason": "俄国信誉与保护压力继续上升"
+      },
+      {
+        "variable": "german_risk_perception",
+        "delta": 3,
+        "reason": "德国开始感知俄国动员风险"
+      },
+      {
+        "variable": "military_timetable_rigidity",
+        "delta": 8,
+        "reason": "军事系统开始接管时间表"
+      },
+      {
+        "variable": "alliance_lock_in",
+        "delta": 5,
+        "reason": "同盟关系被动员压力绑定"
+      },
+      {
+        "variable": "war_probability",
+        "delta": 7,
+        "reason": "动员讨论接近不可逆区"
+      }
+    ],
+    "recommendedIntel": [
+      "I22",
+      "I23",
+      "I24"
+    ],
+    "recommendedCards": [
+      "C25",
+      "C26",
+      "C23",
+      "C27"
+    ],
+    "goalHint": "在军事官僚体系里，预案一旦启动，就会开始替政治做决定。",
+    "specialRules": [
+      {
+        "id": "russian_general_mobilization",
+        "description": "若俄国动员压力过高，触发俄国总动员。",
+        "conditions": [
+          {
+            "type": "variable_min",
+            "key": "russian_mobilization_pressure",
+            "value": 82
+          }
+        ],
+        "effects": [
+          {
+            "variable": "german_risk_perception",
+            "delta": 12,
+            "reason": "德国认为俄国总动员构成直接威胁"
+          },
+          {
+            "variable": "war_probability",
+            "delta": 10,
+            "reason": "总动员显著推动全面战争路径"
+          }
+        ],
+        "flags": [
+          {
+            "flag": "russian_general_mobilization",
+            "value": true
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "turn": 9,
+    "dateRange": "1914.07.31",
+    "title": "时间表接管政治",
+    "narrative": "德国向俄国和法国施压。若俄国动员不停止，德国军事系统将进入更刚性的预案。",
+    "defaultPressure": [
+      {
+        "variable": "german_risk_perception",
+        "delta": 5,
+        "reason": "德国风险感知上升但偏向军事化解释"
+      },
+      {
+        "variable": "military_timetable_rigidity",
+        "delta": 7,
+        "reason": "德国军事时间表压缩政治选择"
+      },
+      {
+        "variable": "alliance_lock_in",
+        "delta": 6,
+        "reason": "德俄法关系逐渐锁死"
+      },
+      {
+        "variable": "diplomatic_trust",
+        "delta": -4,
+        "reason": "最后通牒降低互信"
+      },
+      {
+        "variable": "war_probability",
+        "delta": 8,
+        "reason": "德俄战争路径逼近"
+      }
+    ],
+    "recommendedIntel": [
+      "I25",
+      "I26",
+      "I27"
+    ],
+    "recommendedCards": [
+      "C26",
+      "C28",
+      "C18",
+      "C29"
+    ],
+    "goalHint": "现在最危险的变量不是愤怒，而是每个国家都相信“再慢一步就会输”。",
+    "specialRules": [
+      {
+        "id": "germany_ultimatum_hardens",
+        "description": "若军事时间表刚性过高，德国对俄宣战风险增加。",
+        "conditions": [
+          {
+            "type": "variable_min",
+            "key": "military_timetable_rigidity",
+            "value": 85
+          }
+        ],
+        "effects": [
+          {
+            "variable": "war_probability",
+            "delta": 8,
+            "reason": "德国军事预案进入高压状态"
+          }
+        ],
+        "flags": [
+          {
+            "flag": "german_war_risk_high",
+            "value": true
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "turn": 10,
+    "dateRange": "1914.08.01",
+    "title": "第一道闸门打开",
+    "narrative": "德国可能对俄国宣战。若德俄开战，法国被卷入概率大幅上升。",
+    "defaultPressure": [
+      {
+        "variable": "alliance_lock_in",
+        "delta": 8,
+        "reason": "德俄对抗牵动法俄同盟"
+      },
+      {
+        "variable": "franco_russian_coordination",
+        "delta": 6,
+        "reason": "法国更难脱离俄国"
+      },
+      {
+        "variable": "war_probability",
+        "delta": 10,
+        "reason": "第一道大战闸门即将打开"
+      },
+      {
+        "variable": "diplomatic_trust",
+        "delta": -5,
+        "reason": "外交信任接近崩溃"
+      }
+    ],
+    "recommendedIntel": [
+      "I28",
+      "I27",
+      "I29"
+    ],
+    "recommendedCards": [
+      "C30",
+      "C29",
+      "C18",
+      "C25"
+    ],
+    "goalHint": "一旦第一道闸门打开，后面的闸门不需要仇恨，只需要惯性。",
+    "specialRules": [
+      {
+        "id": "germany_declares_war_on_russia",
+        "description": "若战争概率和联盟锁定均高，触发德国对俄宣战节点。",
+        "conditions": [
+          {
+            "type": "variable_min",
+            "key": "war_probability",
+            "value": 75
+          },
+          {
+            "type": "variable_min",
+            "key": "alliance_lock_in",
+            "value": 70
+          }
+        ],
+        "effects": [
+          {
+            "variable": "franco_russian_coordination",
+            "delta": 10,
+            "reason": "法国卷入风险上升"
+          },
+          {
+            "variable": "war_probability",
+            "delta": 8,
+            "reason": "德俄宣战推动全面战争"
+          }
+        ],
+        "flags": [
+          {
+            "flag": "germany_declared_war_on_russia",
+            "value": true
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "turn": 11,
+    "dateRange": "1914.08.02—1914.08.03",
+    "title": "一条小国边界改变帝国选择",
+    "narrative": "德国西线计划涉及比利时中立。英国是否参战，很大程度取决于德国是否越过这条红线。",
+    "defaultPressure": [
+      {
+        "variable": "british_redline_clarity",
+        "delta": 5,
+        "reason": "比利时问题使英国红线更清晰"
+      },
+      {
+        "variable": "military_timetable_rigidity",
+        "delta": 6,
+        "reason": "西线预案继续推动德国行动"
+      },
+      {
+        "variable": "war_probability",
+        "delta": 8,
+        "reason": "比利时节点接近触发"
+      },
+      {
+        "variable": "alliance_lock_in",
+        "delta": 5,
+        "reason": "英法俄德关系进一步绑定"
+      }
+    ],
+    "recommendedIntel": [
+      "I29",
+      "I30",
+      "I26"
+    ],
+    "recommendedCards": [
+      "C29",
+      "C30",
+      "C18",
+      "C27"
+    ],
+    "goalHint": "小国的边界，有时是大国道德、法律和战略利益的交汇点。",
+    "specialRules": [
+      {
+        "id": "germany_invades_belgium",
+        "description": "若军事时间表刚性过高且英国红线不清晰，触发德国入侵比利时。",
+        "conditions": [
+          {
+            "type": "variable_min",
+            "key": "military_timetable_rigidity",
+            "value": 88
+          },
+          {
+            "type": "variable_max",
+            "key": "british_redline_clarity",
+            "value": 65
+          }
+        ],
+        "effects": [
+          {
+            "variable": "war_probability",
+            "delta": 20,
+            "reason": "入侵比利时大幅提高英国参战概率"
+          },
+          {
+            "variable": "alliance_lock_in",
+            "delta": 10,
+            "reason": "英国参战路径基本锁定"
+          }
+        ],
+        "flags": [
+          {
+            "flag": "germany_invaded_belgium",
+            "value": true
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "turn": 12,
+    "dateRange": "1914.08.04",
+    "title": "系统是否崩溃",
+    "narrative": "英国是否参战，欧洲是否进入全面战争，取决于前 11 回合形成的变量状态。",
+    "defaultPressure": [
+      {
+        "variable": "war_probability",
+        "delta": 0,
+        "reason": "最终结算回合，基础压力不再额外上升"
+      }
+    ],
+    "recommendedIntel": [
+      "I30",
+      "I29",
+      "I28"
+    ],
+    "recommendedCards": [
+      "C29",
+      "C30",
+      "C18",
+      "C27"
+    ],
+    "goalHint": "现在系统给出结果。但请记住：真正有价值的不是结局，而是你找到的因果链。",
+    "specialRules": [
+      {
+        "id": "final_belgium_penalty",
+        "description": "若德国入侵比利时，最终战争概率大幅提高。",
+        "conditions": [
+          {
+            "type": "flag_exists",
+            "key": "germany_invaded_belgium",
+            "value": true
+          }
+        ],
+        "effects": [
+          {
+            "variable": "war_probability",
+            "delta": 20,
+            "reason": "比利时问题触发英国参战路径"
+          }
+        ]
+      },
+      {
+        "id": "final_russian_mobilization_penalty",
+        "description": "若俄国总动员已触发，最终战争概率提高。",
+        "conditions": [
+          {
+            "type": "flag_exists",
+            "key": "russian_general_mobilization",
+            "value": true
+          }
+        ],
+        "effects": [
+          {
+            "variable": "war_probability",
+            "delta": 10,
+            "reason": "俄国总动员使德俄冲突更难逆转"
+          }
+        ]
+      },
+      {
+        "id": "final_diplomatic_trust_bonus",
+        "description": "若外交信任度较高，最终战争概率下降。",
+        "conditions": [
+          {
+            "type": "variable_min",
+            "key": "diplomatic_trust",
+            "value": 60
+          }
+        ],
+        "effects": [
+          {
+            "variable": "war_probability",
+            "delta": -10,
+            "reason": "外交信任为最终调停保留空间"
+          }
+        ]
+      },
+      {
+        "id": "final_clear_redline_bonus",
+        "description": "若英国红线清晰且德国风险判断较高，最终战争概率下降。",
+        "conditions": [
+          {
+            "type": "variable_min",
+            "key": "british_redline_clarity",
+            "value": 70
+          },
+          {
+            "type": "variable_min",
+            "key": "german_risk_perception",
+            "value": 65
+          }
+        ],
+        "effects": [
+          {
+            "variable": "war_probability",
+            "delta": -12,
+            "reason": "清晰威慑使德国重新计算代价"
+          }
+        ]
+      }
+    ]
+  }
+]

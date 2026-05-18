@@ -1,0 +1,98 @@
+[
+  {
+    "key": "war_probability",
+    "label": "全面战争概率",
+    "initialValue": 42,
+    "min": 0,
+    "max": 100,
+    "description": "欧洲危机升级为多大国全面战争的风险。达到高位后将触发失败或高风险结局。"
+  },
+  {
+    "key": "austrian_hardline",
+    "label": "奥匈强硬度",
+    "initialValue": 68,
+    "min": 0,
+    "max": 100,
+    "description": "奥匈帝国对塞尔维亚采取军事惩罚的倾向。"
+  },
+  {
+    "key": "serbian_compromise",
+    "label": "塞尔维亚妥协度",
+    "initialValue": 48,
+    "min": 0,
+    "max": 100,
+    "description": "塞尔维亚接受调查、让步、合作的可能性。"
+  },
+  {
+    "key": "german_risk_perception",
+    "label": "德国风险判断",
+    "initialValue": 36,
+    "min": 0,
+    "max": 100,
+    "description": "德国对危机升级为全面战争的风险感知。越高越可能约束奥匈。"
+  },
+  {
+    "key": "russian_mobilization_pressure",
+    "label": "俄国动员压力",
+    "initialValue": 52,
+    "min": 0,
+    "max": 100,
+    "description": "俄国保护塞尔维亚、维持大国信誉、进行军事准备的压力。"
+  },
+  {
+    "key": "franco_russian_coordination",
+    "label": "法俄协调度",
+    "initialValue": 55,
+    "min": 0,
+    "max": 100,
+    "description": "法国与俄国在危机中的同盟协调程度。"
+  },
+  {
+    "key": "british_redline_clarity",
+    "label": "英国红线清晰度",
+    "initialValue": 32,
+    "min": 0,
+    "max": 100,
+    "description": "英国是否明确表达参战条件，尤其是比利时中立问题。"
+  },
+  {
+    "key": "alliance_lock_in",
+    "label": "联盟锁定度",
+    "initialValue": 58,
+    "min": 0,
+    "max": 100,
+    "description": "各国被同盟、承诺、信誉、战略预期绑入危机的程度。"
+  },
+  {
+    "key": "military_timetable_rigidity",
+    "label": "军事时间表刚性",
+    "initialValue": 46,
+    "min": 0,
+    "max": 100,
+    "description": "动员计划、铁路调度、战争预案对政治决策的反向控制程度。"
+  },
+  {
+    "key": "nationalist_pressure",
+    "label": "民族主义压力",
+    "initialValue": 64,
+    "min": 0,
+    "max": 100,
+    "description": "国内舆论、街头情绪、荣誉叙事对政府强硬政策的推动。"
+  },
+  {
+    "key": "diplomatic_trust",
+    "label": "外交信任度",
+    "initialValue": 38,
+    "min": 0,
+    "max": 100,
+    "description": "各国是否相信彼此信号、承诺、让步与威慑。"
+  },
+  {
+    "key": "media_agitation",
+    "label": "媒体煽动度",
+    "initialValue": 54,
+    "min": 0,
+    "max": 100,
+    "description": "报刊舆论对复仇、荣誉、恐惧和民族情绪的放大程度。"
+  }
+]

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 440" fill="none" role="img" aria-label="intervention default card frame">
+  <rect width="320" height="440" rx="4" fill="#242a35"/>
+  <rect x="12" y="12" width="296" height="416" rx="4" fill="#c8b98e" stroke="#9a7a3d" stroke-width="2"/>
+  <path d="M28 58h264M28 318h264M28 372h264" stroke="#6b5841" stroke-width="1"/>
+  <path d="M28 28h48M244 28h48M28 412h48M244 412h48" stroke="#9a7a3d" stroke-width="2"/>
+</svg>

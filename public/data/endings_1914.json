@@ -1,0 +1,178 @@
+[
+  {
+    "id": "E01",
+    "type": "total_war",
+    "title": "全面战争",
+    "priority": 100,
+    "conditions": [
+      {
+        "type": "variable_min",
+        "key": "war_probability",
+        "value": 80
+      },
+      {
+        "type": "variable_min",
+        "key": "alliance_lock_in",
+        "value": 70
+      }
+    ],
+    "rating": "D",
+    "credibilityScore": 95,
+    "summary": "局部危机完成升级。欧洲系统进入全面战争。你的干预未能打破联盟与动员机制的连锁调用。",
+    "reportTemplate": "你处理了若干表层风险，但没有阻断联盟锁定、动员时间表和民族主义压力之间的互相放大。",
+    "shareLine": "你阻止了一些错误，但没有改变错误被不断制造的机制。"
+  },
+  {
+    "id": "E02",
+    "type": "delayed_war",
+    "title": "延迟战争",
+    "priority": 80,
+    "conditions": [
+      {
+        "type": "variable_min",
+        "key": "war_probability",
+        "value": 50
+      },
+      {
+        "type": "variable_max",
+        "key": "war_probability",
+        "value": 79
+      }
+    ],
+    "rating": "C+",
+    "credibilityScore": 82,
+    "summary": "1914 年的战争被推迟，但核心结构未被移除。下一次巴尔干危机仍可能触发系统崩溃。",
+    "reportTemplate": "你成功推迟了火星落下的时间，但火药桶仍在原地。",
+    "shareLine": "你没有拯救欧洲，只是让它晚一点爆炸。"
+  },
+  {
+    "id": "E03",
+    "type": "localized_war",
+    "title": "巴尔干局部战争",
+    "priority": 85,
+    "conditions": [
+      {
+        "type": "variable_min",
+        "key": "austrian_hardline",
+        "value": 60
+      },
+      {
+        "type": "variable_max",
+        "key": "alliance_lock_in",
+        "value": 75
+      },
+      {
+        "type": "variable_max",
+        "key": "russian_mobilization_pressure",
+        "value": 55
+      }
+    ],
+    "rating": "B",
+    "credibilityScore": 78,
+    "summary": "战争被限制在巴尔干。代价仍然巨大，但欧洲没有整体燃烧。",
+    "reportTemplate": "你未能阻止局部战争，但成功建立了阻止危机扩散的防火墙。",
+    "shareLine": "你没有熄灭火焰，但阻止了整座仓库燃烧。"
+  },
+  {
+    "id": "E04",
+    "type": "conference_freeze",
+    "title": "国际会议冻结危机",
+    "priority": 90,
+    "conditions": [
+      {
+        "type": "variable_min",
+        "key": "diplomatic_trust",
+        "value": 60
+      },
+      {
+        "type": "variable_min",
+        "key": "british_redline_clarity",
+        "value": 60
+      },
+      {
+        "type": "variable_min",
+        "key": "german_risk_perception",
+        "value": 65
+      }
+    ],
+    "rating": "A-",
+    "credibilityScore": 74,
+    "summary": "大国在最后窗口停下脚步。危机被冻结，但没有真正解决。",
+    "reportTemplate": "你通过清晰红线、风险判断和外交信任争取了临时会议空间。",
+    "shareLine": "和平不是因为善意，而是因为风险终于被看见。"
+  },
+  {
+    "id": "E05",
+    "type": "coercive_peace",
+    "title": "高压和平",
+    "priority": 95,
+    "conditions": [
+      {
+        "type": "variable_max",
+        "key": "austrian_hardline",
+        "value": 50
+      },
+      {
+        "type": "variable_min",
+        "key": "serbian_compromise",
+        "value": 60
+      },
+      {
+        "type": "variable_max",
+        "key": "media_agitation",
+        "value": 50
+      },
+      {
+        "type": "flag_exists",
+        "key": "limited_victory_possible",
+        "value": true
+      }
+    ],
+    "rating": "A",
+    "credibilityScore": 80,
+    "summary": "塞尔维亚接受有限调查，奥匈获得政治台阶。和平不是因为善意，而是因为每一方都得到了可以带回国内的解释。",
+    "reportTemplate": "你没有让所有人满意，但让所有人都找到了停止升级的理由。",
+    "shareLine": "你把退让包装成了胜利，于是和平暂时成立。"
+  },
+  {
+    "id": "E06",
+    "type": "low_credibility_miracle",
+    "title": "低可信奇迹结局",
+    "priority": 60,
+    "conditions": [
+      {
+        "type": "cards_used_min",
+        "key": "low_feasibility_cards",
+        "value": 4
+      },
+      {
+        "type": "variable_max",
+        "key": "war_probability",
+        "value": 45
+      }
+    ],
+    "rating": "特殊",
+    "credibilityScore": 35,
+    "summary": "你达成了和平，但该路径高度依赖小概率人格改变与异常信息透明。适合娱乐，不适合作为严肃反事实推演。",
+    "reportTemplate": "这个结局很漂亮，但它更像寓言，不像历史。",
+    "shareLine": "你赢了，但历史学家皱起了眉头。"
+  },
+  {
+    "id": "E07",
+    "type": "temporary_deescalation",
+    "title": "危机暂时降温",
+    "priority": 10,
+    "conditions": [
+      {
+        "type": "variable_max",
+        "key": "war_probability",
+        "value": 49
+      }
+    ],
+    "rating": "B-",
+    "credibilityScore": 70,
+    "summary": "危机没有进入全面战争，但也没有形成稳固、可解释的和平机制。欧洲暂时退回外交等待区。",
+    "reportTemplate": "你降低了直接爆炸的概率，但部分结构性压力仍然留在系统内。下一次危机仍需要重新调试。",
+    "shareLine": "你让机器停下了，但还没有证明它不会再次启动。"
+  }
+]

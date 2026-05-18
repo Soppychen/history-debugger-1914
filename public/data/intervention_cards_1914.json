@@ -1,0 +1,1787 @@
+[
+  {
+    "id": "C01",
+    "name": "加强对刺杀网络的公开调查",
+    "type": [
+      "judicial",
+      "intelligence"
+    ],
+    "cost": 1,
+    "feasibility": "A",
+    "turnRange": [
+      1,
+      12
+    ],
+    "requirements": [],
+    "effects": [
+      {
+        "variable": "diplomatic_trust",
+        "delta": 5,
+        "reason": "公开调查提高外部信任"
+      },
+      {
+        "variable": "serbian_compromise",
+        "delta": 4,
+        "reason": "司法叙事为塞尔维亚让步提供空间"
+      },
+      {
+        "variable": "media_agitation",
+        "delta": -3,
+        "reason": "调查削弱复仇叙事"
+      }
+    ],
+    "risks": [
+      {
+        "id": "austrian_hardliners_dislike_delay",
+        "description": "若奥匈强硬度过高，强硬派认为调查拖延惩罚。",
+        "conditions": [
+          {
+            "type": "variable_min",
+            "key": "austrian_hardline",
+            "value": 75
+          }
+        ],
+        "effects": [
+          {
+            "variable": "austrian_hardline",
+            "delta": 3,
+            "reason": "强硬派反弹"
+          }
+        ]
+      }
+    ],
+    "description": "公开调查能把危机从复仇叙事拉回司法叙事，但无法满足所有强硬派。",
+    "flavor": "火星已经落下，但谁把火药堆在这里，仍需要调查。"
+  },
+  {
+    "id": "C02",
+    "name": "推动第三方调查团",
+    "type": [
+      "institutional",
+      "diplomacy"
+    ],
+    "cost": 2,
+    "feasibility": "B",
+    "turnRange": [
+      1,
+      12
+    ],
+    "requirements": [],
+    "effects": [
+      {
+        "variable": "diplomatic_trust",
+        "delta": 8,
+        "reason": "第三方机制提高可信度"
+      },
+      {
+        "variable": "serbian_compromise",
+        "delta": 6,
+        "reason": "塞尔维亚更容易接受中立调查"
+      },
+      {
+        "variable": "austrian_hardline",
+        "delta": -5,
+        "reason": "奥匈获得非军事解决路径"
+      },
+      {
+        "variable": "war_probability",
+        "delta": -4,
+        "reason": "危机暂时降温"
+      }
+    ],
+    "risks": [
+      {
+        "id": "austrian_softness_accusation",
+        "description": "奥匈国内报刊认为这是软弱。",
+        "conditions": [],
+        "effects": [
+          {
+            "variable": "nationalist_pressure",
+            "delta": 3,
+            "reason": "国内质疑调停"
+          }
+        ]
+      }
+    ],
+    "description": "第三方调查不保证真相，但能争取时间。危机中，时间本身就是资源。",
+    "flavor": "你没有熄灭火药，只是把火柴从桌边挪开了一点。",
+    "flagsAdded": [
+      {
+        "flag": "third_party_investigation_started",
+        "value": true
+      }
+    ],
+    "unlocks": [
+      "C09"
+    ]
+  },
+  {
+    "id": "C03",
+    "name": "降低报刊煽动",
+    "type": [
+      "media",
+      "domestic_politics"
+    ],
+    "cost": 1,
+    "feasibility": "B",
+    "turnRange": [
+      1,
+      12
+    ],
+    "requirements": [],
+    "effects": [
+      {
+        "variable": "media_agitation",
+        "delta": -10,
+        "reason": "压低复仇与荣誉叙事"
+      },
+      {
+        "variable": "nationalist_pressure",
+        "delta": -4,
+        "reason": "街头情绪降温"
+      },
+      {
+        "variable": "diplomatic_trust",
+        "delta": 2,
+        "reason": "外交空间扩大"
+      }
+    ],
+    "risks": [
+      {
+        "id": "censorship_suspicion",
+        "description": "连续使用可能触发审查质疑。",
+        "conditions": [
+          {
+            "type": "flag_exists",
+            "key": "media_control_used_once",
+            "value": true
+          }
+        ],
+        "effects": [
+          {
+            "variable": "diplomatic_trust",
+            "delta": -3,
+            "reason": "外界怀疑政府压制信息"
+          }
+        ]
+      }
+    ],
+    "description": "降低舆论热度可以让外交官重新获得空间，但过度控制也会被解释为掩盖真相。",
+    "flavor": "报纸比外交官更快，尤其是在所有人都想听见怒火的时候。",
+    "flagsAdded": [
+      {
+        "flag": "media_control_used_once",
+        "value": true
+      }
+    ]
+  },
+  {
+    "id": "C04",
+    "name": "安抚奥匈宫廷强硬派",
+    "type": [
+      "domestic_politics"
+    ],
+    "cost": 1,
+    "feasibility": "B",
+    "turnRange": [
+      1,
+      12
+    ],
+    "requirements": [],
+    "effects": [
+      {
+        "variable": "austrian_hardline",
+        "delta": -6,
+        "reason": "强硬派获得内部安抚"
+      },
+      {
+        "variable": "nationalist_pressure",
+        "delta": -2,
+        "reason": "宫廷信号压低街头情绪"
+      }
+    ],
+    "risks": [
+      {
+        "id": "no_serbian_concession_backlash",
+        "description": "如果塞尔维亚没有同步让步，安抚效果会反弹。",
+        "conditions": [
+          {
+            "type": "variable_max",
+            "key": "serbian_compromise",
+            "value": 40
+          }
+        ],
+        "effects": [
+          {
+            "variable": "austrian_hardline",
+            "delta": 4,
+            "reason": "强硬派认为被拖延"
+          }
+        ]
+      }
+    ],
+    "description": "强硬派需要的未必是战争，有时是面子、保证和可向国内交代的姿态。",
+    "flavor": "退一步之前，要先让他们相信自己并没有后退。"
+  },
+  {
+    "id": "C05",
+    "name": "让德国支持附带限制条件",
+    "type": [
+      "diplomacy"
+    ],
+    "cost": 2,
+    "feasibility": "B",
+    "turnRange": [
+      2,
+      12
+    ],
+    "requirements": [
+      {
+        "type": "turn_min",
+        "value": 2
+      }
+    ],
+    "effects": [
+      {
+        "variable": "german_risk_perception",
+        "delta": 12,
+        "reason": "柏林意识到承诺必须有边界"
+      },
+      {
+        "variable": "austrian_hardline",
+        "delta": -8,
+        "reason": "奥匈冒险空间缩小"
+      },
+      {
+        "variable": "alliance_lock_in",
+        "delta": -4,
+        "reason": "同盟承诺被部分松绑"
+      },
+      {
+        "variable": "war_probability",
+        "delta": -6,
+        "reason": "危机升级速度放缓"
+      }
+    ],
+    "risks": [
+      {
+        "id": "austria_doubts_germany",
+        "description": "奥匈怀疑德国支持不够坚决。",
+        "conditions": [],
+        "effects": [
+          {
+            "variable": "diplomatic_trust",
+            "delta": -5,
+            "reason": "盟友互信下降"
+          }
+        ]
+      }
+    ],
+    "description": "没有边界的支持会纵容冒险。有限支持则可能被盟友视为背叛。",
+    "flavor": "同盟不是空白支票。至少它不该是。"
+  },
+  {
+    "id": "C06",
+    "name": "提前释放英国可能介入信号",
+    "type": [
+      "diplomacy"
+    ],
+    "cost": 1,
+    "feasibility": "B",
+    "turnRange": [
+      2,
+      12
+    ],
+    "requirements": [
+      {
+        "type": "turn_min",
+        "value": 2
+      }
+    ],
+    "effects": [
+      {
+        "variable": "british_redline_clarity",
+        "delta": 12,
+        "reason": "英国立场更清晰"
+      },
+      {
+        "variable": "german_risk_perception",
+        "delta": 6,
+        "reason": "德国更重视英国介入可能"
+      },
+      {
+        "variable": "war_probability",
+        "delta": -4,
+        "reason": "威慑初步生效"
+      }
+    ],
+    "risks": [
+      {
+        "id": "germany_accelerates_if_underestimates_risk",
+        "description": "若德国仍低估风险，可能转向抢时间。",
+        "conditions": [
+          {
+            "type": "variable_max",
+            "key": "german_risk_perception",
+            "value": 30
+          }
+        ],
+        "effects": [
+          {
+            "variable": "military_timetable_rigidity",
+            "delta": 4,
+            "reason": "德国军方加快预案"
+          }
+        ]
+      }
+    ],
+    "description": "清晰的红线可以威慑，也可能让对手决定抢在红线落地前行动。",
+    "flavor": "威慑的艺术，是让对方相信你会来，而不是逼他马上动手。"
+  },
+  {
+    "id": "C07",
+    "name": "向柏林递交风险评估备忘录",
+    "type": [
+      "intelligence",
+      "diplomacy"
+    ],
+    "cost": 1,
+    "feasibility": "A",
+    "turnRange": [
+      2,
+      12
+    ],
+    "requirements": [
+      {
+        "type": "turn_min",
+        "value": 2
+      }
+    ],
+    "effects": [
+      {
+        "variable": "german_risk_perception",
+        "delta": 10,
+        "reason": "风险被量化呈现"
+      },
+      {
+        "variable": "diplomatic_trust",
+        "delta": 3,
+        "reason": "专业评估减少误判"
+      }
+    ],
+    "risks": [
+      {
+        "id": "media_noise_weakens_risk_memo",
+        "description": "舆论噪声过高时，理性评估影响下降。",
+        "conditions": [
+          {
+            "type": "variable_min",
+            "key": "media_agitation",
+            "value": 70
+          }
+        ],
+        "effects": [
+          {
+            "variable": "german_risk_perception",
+            "delta": -3,
+            "reason": "舆论噪声削弱评估效果"
+          }
+        ]
+      }
+    ],
+    "description": "风险评估不能阻止野心，但能让误判的成本变得可见。",
+    "flavor": "把灾难写成数字，有时能让人慢半拍开枪。"
+  },
+  {
+    "id": "C08",
+    "name": "安排秘密外交沟通",
+    "type": [
+      "diplomacy"
+    ],
+    "cost": 2,
+    "feasibility": "B",
+    "turnRange": [
+      2,
+      12
+    ],
+    "requirements": [
+      {
+        "type": "turn_min",
+        "value": 2
+      }
+    ],
+    "effects": [
+      {
+        "variable": "diplomatic_trust",
+        "delta": 10,
+        "reason": "秘密渠道减少误解"
+      },
+      {
+        "variable": "alliance_lock_in",
+        "delta": -3,
+        "reason": "同盟承诺获得解释空间"
+      },
+      {
+        "variable": "war_probability",
+        "delta": -4,
+        "reason": "危机缓和"
+      }
+    ],
+    "risks": [
+      {
+        "id": "secret_channel_leak",
+        "description": "秘密沟通若泄露，会被强硬派攻击。",
+        "conditions": [
+          {
+            "type": "variable_min",
+            "key": "media_agitation",
+            "value": 75
+          }
+        ],
+        "effects": [
+          {
+            "variable": "media_agitation",
+            "delta": 8,
+            "reason": "媒体攻击秘密交易"
+          },
+          {
+            "variable": "diplomatic_trust",
+            "delta": -5,
+            "reason": "泄露导致互信受损"
+          }
+        ]
+      }
+    ],
+    "description": "公开场合越强硬，秘密渠道越重要。但秘密一旦泄露，温和者会被吞噬。",
+    "flavor": "外交桌下面的脚，有时比桌上的话更重要。"
+  },
+  {
+    "id": "C09",
+    "name": "设立国际调查期限",
+    "type": [
+      "institutional",
+      "diplomacy"
+    ],
+    "cost": 1,
+    "feasibility": "B",
+    "turnRange": [
+      3,
+      12
+    ],
+    "requirements": [
+      {
+        "type": "turn_min",
+        "value": 3
+      },
+      {
+        "type": "flag_exists",
+        "key": "third_party_investigation_started",
+        "value": true
+      }
+    ],
+    "effects": [
+      {
+        "variable": "diplomatic_trust",
+        "delta": 6,
+        "reason": "调查期限提高可信度"
+      },
+      {
+        "variable": "austrian_hardline",
+        "delta": -4,
+        "reason": "奥匈获得等待理由"
+      },
+      {
+        "variable": "military_timetable_rigidity",
+        "delta": -3,
+        "reason": "军事准备被外交程序拖慢"
+      }
+    ],
+    "risks": [
+      {
+        "id": "deadline_seen_as_delay",
+        "description": "强硬舆论认为调查期限只是拖延。",
+        "conditions": [],
+        "effects": [
+          {
+            "variable": "nationalist_pressure",
+            "delta": 3,
+            "reason": "民族主义压力反弹"
+          }
+        ]
+      }
+    ],
+    "description": "期限让拖延变得可以接受。没有期限的调查只是另一种逃避。",
+    "flavor": "你给和平买了一张临时票。"
+  },
+  {
+    "id": "C10",
+    "name": "调整最后通牒措辞",
+    "type": [
+      "diplomacy"
+    ],
+    "cost": 2,
+    "feasibility": "B",
+    "turnRange": [
+      3,
+      5
+    ],
+    "requirements": [
+      {
+        "type": "turn_min",
+        "value": 3
+      },
+      {
+        "type": "turn_max",
+        "value": 5
+      }
+    ],
+    "effects": [
+      {
+        "variable": "serbian_compromise",
+        "delta": 12,
+        "reason": "塞尔维亚更可能接受文本"
+      },
+      {
+        "variable": "austrian_hardline",
+        "delta": -6,
+        "reason": "通牒变得可谈判"
+      },
+      {
+        "variable": "war_probability",
+        "delta": -5,
+        "reason": "拒绝概率下降"
+      }
+    ],
+    "risks": [
+      {
+        "id": "wording_softness_backlash",
+        "description": "民族主义压力过高时，措辞软化引发反弹。",
+        "conditions": [
+          {
+            "type": "variable_min",
+            "key": "nationalist_pressure",
+            "value": 70
+          }
+        ],
+        "effects": [
+          {
+            "variable": "austrian_hardline",
+            "delta": 4,
+            "reason": "国内强硬派不满"
+          }
+        ]
+      }
+    ],
+    "description": "有时一场战争就藏在几个形容词和一个不可接受的条款里。",
+    "flavor": "外交文本不是文字游戏，它是战争路径的源代码。"
+  },
+  {
+    "id": "C11",
+    "name": "提供奥匈国内政治台阶",
+    "type": [
+      "domestic_politics",
+      "diplomacy"
+    ],
+    "cost": 1,
+    "feasibility": "A",
+    "turnRange": [
+      3,
+      12
+    ],
+    "requirements": [
+      {
+        "type": "turn_min",
+        "value": 3
+      }
+    ],
+    "effects": [
+      {
+        "variable": "austrian_hardline",
+        "delta": -8,
+        "reason": "退让被包装为胜利"
+      },
+      {
+        "variable": "nationalist_pressure",
+        "delta": -3,
+        "reason": "强硬舆论获得象征性满足"
+      }
+    ],
+    "risks": [
+      {
+        "id": "weak_if_serbia_not_compromising",
+        "description": "若塞尔维亚妥协度过低，政治台阶缺乏可信素材。",
+        "conditions": [
+          {
+            "type": "variable_max",
+            "key": "serbian_compromise",
+            "value": 40
+          }
+        ],
+        "effects": [
+          {
+            "variable": "austrian_hardline",
+            "delta": 4,
+            "reason": "奥匈强硬派认为台阶不足"
+          }
+        ]
+      }
+    ],
+    "description": "退让必须被包装成胜利，否则强硬派不会接受。",
+    "flavor": "政治不是让所有人满意，而是让关键群体有话可说。"
+  },
+  {
+    "id": "C12",
+    "name": "向塞尔维亚施压预先让步",
+    "type": [
+      "diplomacy"
+    ],
+    "cost": 1,
+    "feasibility": "A",
+    "turnRange": [
+      3,
+      12
+    ],
+    "requirements": [
+      {
+        "type": "turn_min",
+        "value": 3
+      }
+    ],
+    "effects": [
+      {
+        "variable": "serbian_compromise",
+        "delta": 10,
+        "reason": "塞尔维亚提前释放合作信号"
+      },
+      {
+        "variable": "austrian_hardline",
+        "delta": -3,
+        "reason": "奥匈强硬理由略有减弱"
+      },
+      {
+        "variable": "war_probability",
+        "delta": -3,
+        "reason": "拒绝路径暂时降温"
+      }
+    ],
+    "risks": [
+      {
+        "id": "serbian_radicals_backlash",
+        "description": "塞尔维亚让步会刺激国内激进派。",
+        "conditions": [],
+        "effects": [
+          {
+            "variable": "nationalist_pressure",
+            "delta": 5,
+            "reason": "塞尔维亚国内民族主义反弹"
+          }
+        ]
+      }
+    ],
+    "description": "小国的让步可以争取时间，但每一次让步都可能被本国激进者记账。",
+    "flavor": "让步不是免费资源，它会消耗政府的国内信用。"
+  },
+  {
+    "id": "C13",
+    "name": "发布克制性联合声明",
+    "type": [
+      "media",
+      "diplomacy"
+    ],
+    "cost": 2,
+    "feasibility": "B",
+    "turnRange": [
+      4,
+      12
+    ],
+    "requirements": [
+      {
+        "type": "turn_min",
+        "value": 4
+      }
+    ],
+    "effects": [
+      {
+        "variable": "media_agitation",
+        "delta": -8,
+        "reason": "多国共同压低报刊煽动"
+      },
+      {
+        "variable": "diplomatic_trust",
+        "delta": 6,
+        "reason": "公开信号减少误读"
+      },
+      {
+        "variable": "nationalist_pressure",
+        "delta": -4,
+        "reason": "街头情绪略有降温"
+      }
+    ],
+    "risks": [
+      {
+        "id": "vague_redlines_reduce_statement",
+        "description": "若英国红线仍不清晰，联合声明被视为空话。",
+        "conditions": [
+          {
+            "type": "variable_max",
+            "key": "british_redline_clarity",
+            "value": 40
+          }
+        ],
+        "effects": [
+          {
+            "variable": "diplomatic_trust",
+            "delta": -3,
+            "reason": "声明缺乏可信威慑"
+          }
+        ]
+      }
+    ],
+    "description": "联合声明不是和平本身，但它能阻止各国只听见自己的回声。",
+    "flavor": "把各国声音放在同一页纸上，本身就是一次降噪。"
+  },
+  {
+    "id": "C14",
+    "name": "引导遇刺事件转向司法叙事",
+    "type": [
+      "judicial",
+      "media"
+    ],
+    "cost": 1,
+    "feasibility": "A",
+    "turnRange": [
+      4,
+      12
+    ],
+    "requirements": [
+      {
+        "type": "turn_min",
+        "value": 4
+      }
+    ],
+    "effects": [
+      {
+        "variable": "media_agitation",
+        "delta": -6,
+        "reason": "复仇叙事被司法叙事替代"
+      },
+      {
+        "variable": "nationalist_pressure",
+        "delta": -5,
+        "reason": "街头情绪下降"
+      },
+      {
+        "variable": "serbian_compromise",
+        "delta": 3,
+        "reason": "塞尔维亚更容易参与调查"
+      }
+    ],
+    "risks": [
+      {
+        "id": "austria_impatient_with_legalism",
+        "description": "奥匈强硬派认为司法流程太慢。",
+        "conditions": [],
+        "effects": [
+          {
+            "variable": "austrian_hardline",
+            "delta": 2,
+            "reason": "奥匈强硬派不满司法化"
+          }
+        ]
+      }
+    ],
+    "description": "把复仇改写成审判，是文明社会最脆弱也最必要的操作。",
+    "flavor": "法院语言比炮兵语言慢，但它至少还不是炮兵语言。"
+  },
+  {
+    "id": "C15",
+    "name": "安排王室/政府公开哀悼仪式",
+    "type": [
+      "symbolic_politics",
+      "domestic_politics"
+    ],
+    "cost": 1,
+    "feasibility": "A",
+    "turnRange": [
+      4,
+      12
+    ],
+    "requirements": [
+      {
+        "type": "turn_min",
+        "value": 4
+      }
+    ],
+    "effects": [
+      {
+        "variable": "nationalist_pressure",
+        "delta": -6,
+        "reason": "哀悼仪式吸收部分复仇情绪"
+      },
+      {
+        "variable": "austrian_hardline",
+        "delta": -3,
+        "reason": "宫廷情绪获得出口"
+      },
+      {
+        "variable": "media_agitation",
+        "delta": -3,
+        "reason": "报刊转向仪式报道"
+      }
+    ],
+    "risks": [
+      {
+        "id": "media_too_hot_for_ritual",
+        "description": "若媒体煽动度过高，仪式被解读为战争动员。",
+        "conditions": [
+          {
+            "type": "variable_min",
+            "key": "media_agitation",
+            "value": 80
+          }
+        ],
+        "effects": [
+          {
+            "variable": "nationalist_pressure",
+            "delta": 3,
+            "reason": "仪式被强硬舆论重新解释"
+          }
+        ]
+      }
+    ],
+    "description": "仪式不能解决危机，但可以给愤怒一个不必立刻开火的出口。",
+    "flavor": "有些国家情绪需要被安放，而不是马上被点燃。"
+  },
+  {
+    "id": "C16",
+    "name": "延长最后通牒期限",
+    "type": [
+      "diplomacy"
+    ],
+    "cost": 2,
+    "feasibility": "C",
+    "turnRange": [
+      5,
+      5
+    ],
+    "requirements": [
+      {
+        "type": "turn_min",
+        "value": 5
+      },
+      {
+        "type": "turn_max",
+        "value": 5
+      }
+    ],
+    "effects": [
+      {
+        "variable": "military_timetable_rigidity",
+        "delta": -8,
+        "reason": "外交窗口被延长"
+      },
+      {
+        "variable": "diplomatic_trust",
+        "delta": 5,
+        "reason": "各国看到缓和信号"
+      },
+      {
+        "variable": "war_probability",
+        "delta": -5,
+        "reason": "短期升级风险下降"
+      }
+    ],
+    "risks": [
+      {
+        "id": "deadline_extension_backlash",
+        "description": "延长期限引发奥匈强硬派反弹。",
+        "conditions": [],
+        "effects": [
+          {
+            "variable": "austrian_hardline",
+            "delta": 5,
+            "reason": "强硬派质疑拖延"
+          },
+          {
+            "variable": "nationalist_pressure",
+            "delta": 4,
+            "reason": "国内舆论不满"
+          }
+        ]
+      }
+    ],
+    "description": "你买到了时间，也买到了质疑。强硬派会问：为什么还不动手？",
+    "flavor": "危机里最昂贵的东西，是多出来的二十四小时。"
+  },
+  {
+    "id": "C17",
+    "name": "让塞尔维亚接受大部分条款",
+    "type": [
+      "diplomacy"
+    ],
+    "cost": 2,
+    "feasibility": "B",
+    "turnRange": [
+      5,
+      6
+    ],
+    "requirements": [
+      {
+        "type": "turn_min",
+        "value": 5
+      },
+      {
+        "type": "turn_max",
+        "value": 6
+      }
+    ],
+    "effects": [
+      {
+        "variable": "serbian_compromise",
+        "delta": 15,
+        "reason": "塞尔维亚大幅让步"
+      },
+      {
+        "variable": "austrian_hardline",
+        "delta": -6,
+        "reason": "奥匈惩罚理由减弱"
+      },
+      {
+        "variable": "war_probability",
+        "delta": -6,
+        "reason": "危机降温"
+      }
+    ],
+    "risks": [
+      {
+        "id": "serbian_underground_radicalization",
+        "description": "过度让步使塞尔维亚激进组织潜伏化。",
+        "conditions": [],
+        "effects": [
+          {
+            "variable": "nationalist_pressure",
+            "delta": 3,
+            "reason": "民族主义反弹"
+          }
+        ],
+        "flags": [
+          {
+            "flag": "serbian_radicals_underground",
+            "value": true
+          }
+        ]
+      }
+    ],
+    "description": "接受大部分条款可能阻止战争，却会在国内留下新的裂纹。",
+    "flavor": "有些和平，是把伤口缝上，但针还留在里面。"
+  },
+  {
+    "id": "C18",
+    "name": "英国提前明确红线",
+    "type": [
+      "diplomacy"
+    ],
+    "cost": 2,
+    "feasibility": "B",
+    "turnRange": [
+      5,
+      12
+    ],
+    "requirements": [
+      {
+        "type": "turn_min",
+        "value": 5
+      }
+    ],
+    "effects": [
+      {
+        "variable": "british_redline_clarity",
+        "delta": 22,
+        "reason": "英国参战条件变清晰"
+      },
+      {
+        "variable": "german_risk_perception",
+        "delta": 12,
+        "reason": "德国重新评估英国风险"
+      },
+      {
+        "variable": "war_probability",
+        "delta": -8,
+        "reason": "威慑效果降低升级"
+      }
+    ],
+    "risks": [
+      {
+        "id": "germany_feels_encircled",
+        "description": "若德国风险判断仍低，红线会刺激军方抢时间。",
+        "conditions": [
+          {
+            "type": "variable_max",
+            "key": "german_risk_perception",
+            "value": 35
+          }
+        ],
+        "effects": [
+          {
+            "variable": "military_timetable_rigidity",
+            "delta": 6,
+            "reason": "德国军方加速预案"
+          }
+        ]
+      },
+      {
+        "id": "too_clear_redline_backlash",
+        "description": "红线过清晰可能激发德国被包围叙事。",
+        "conditions": [
+          {
+            "type": "variable_min",
+            "key": "british_redline_clarity",
+            "value": 80
+          }
+        ],
+        "effects": [
+          {
+            "variable": "media_agitation",
+            "delta": 4,
+            "reason": "德国舆论出现被包围叙事"
+          }
+        ]
+      }
+    ],
+    "description": "威慑最难的地方在于，必须让对手相信你会行动，却又不让他觉得已经无路可退。",
+    "flavor": "红线不是墙，是一条要让对方看清的悬崖边。"
+  },
+  {
+    "id": "C19",
+    "name": "将争议条款交由海牙仲裁",
+    "type": [
+      "international_law",
+      "institutional"
+    ],
+    "cost": 2,
+    "feasibility": "B",
+    "turnRange": [
+      6,
+      12
+    ],
+    "requirements": [
+      {
+        "type": "turn_min",
+        "value": 6
+      }
+    ],
+    "effects": [
+      {
+        "variable": "diplomatic_trust",
+        "delta": 12,
+        "reason": "国际法机制提高可信度"
+      },
+      {
+        "variable": "serbian_compromise",
+        "delta": 8,
+        "reason": "塞尔维亚更容易接受第三方处理"
+      },
+      {
+        "variable": "austrian_hardline",
+        "delta": -5,
+        "reason": "奥匈获得非战争路径"
+      },
+      {
+        "variable": "war_probability",
+        "delta": -6,
+        "reason": "升级风险下降"
+      }
+    ],
+    "risks": [
+      {
+        "id": "austria_rejects_legal_constraint",
+        "description": "若奥匈强硬度过高，仲裁被视为限制惩罚权。",
+        "conditions": [
+          {
+            "type": "variable_min",
+            "key": "austrian_hardline",
+            "value": 78
+          }
+        ],
+        "effects": [
+          {
+            "variable": "austrian_hardline",
+            "delta": 3,
+            "reason": "奥匈强硬派反弹"
+          }
+        ]
+      }
+    ],
+    "description": "仲裁不是为了让所有人满意，而是为了让各方暂时不用开枪。",
+    "flavor": "当双方都不肯退，第三张桌子就很重要。"
+  },
+  {
+    "id": "C20",
+    "name": "促成奥匈宣布“有限胜利”",
+    "type": [
+      "domestic_politics",
+      "diplomacy"
+    ],
+    "cost": 2,
+    "feasibility": "B",
+    "turnRange": [
+      6,
+      12
+    ],
+    "requirements": [
+      {
+        "type": "turn_min",
+        "value": 6
+      },
+      {
+        "type": "variable_min",
+        "key": "serbian_compromise",
+        "value": 55
+      }
+    ],
+    "effects": [
+      {
+        "variable": "austrian_hardline",
+        "delta": -15,
+        "reason": "奥匈获得国内解释"
+      },
+      {
+        "variable": "nationalist_pressure",
+        "delta": -6,
+        "reason": "复仇压力被胜利叙事吸收"
+      },
+      {
+        "variable": "war_probability",
+        "delta": -10,
+        "reason": "危机显著降温"
+      }
+    ],
+    "risks": [
+      {
+        "id": "media_agitation_weakens_limited_victory",
+        "description": "媒体煽动度过高时，有限胜利不够强硬。",
+        "conditions": [
+          {
+            "type": "variable_min",
+            "key": "media_agitation",
+            "value": 70
+          }
+        ],
+        "effects": [
+          {
+            "variable": "austrian_hardline",
+            "delta": 6,
+            "reason": "报刊质疑有限胜利"
+          }
+        ]
+      }
+    ],
+    "description": "政治常常不是解决问题，而是创造一种让人愿意停止升级的说法。",
+    "flavor": "把退让说成胜利，是危机管理里最不优雅也最有用的技术。",
+    "flagsAdded": [
+      {
+        "flag": "limited_victory_possible",
+        "value": true
+      }
+    ]
+  },
+  {
+    "id": "C21",
+    "name": "向俄国提供外交台阶",
+    "type": [
+      "diplomacy"
+    ],
+    "cost": 1,
+    "feasibility": "A",
+    "turnRange": [
+      6,
+      12
+    ],
+    "requirements": [
+      {
+        "type": "turn_min",
+        "value": 6
+      }
+    ],
+    "effects": [
+      {
+        "variable": "russian_mobilization_pressure",
+        "delta": -10,
+        "reason": "俄国获得不动员也能交代的理由"
+      },
+      {
+        "variable": "diplomatic_trust",
+        "delta": 4,
+        "reason": "俄国与他国沟通改善"
+      },
+      {
+        "variable": "alliance_lock_in",
+        "delta": -3,
+        "reason": "同盟绑定略微松动"
+      }
+    ],
+    "risks": [
+      {
+        "id": "serbia_too_uncompromising",
+        "description": "若塞尔维亚妥协度过低，俄国难以接受台阶。",
+        "conditions": [
+          {
+            "type": "variable_max",
+            "key": "serbian_compromise",
+            "value": 35
+          }
+        ],
+        "effects": [
+          {
+            "variable": "russian_mobilization_pressure",
+            "delta": 5,
+            "reason": "俄国仍需保护塞尔维亚"
+          }
+        ]
+      }
+    ],
+    "description": "大国不只需要利益，也需要解释自己为什么没有退缩。",
+    "flavor": "有些台阶不是给脚走的，是给面子走的。"
+  },
+  {
+    "id": "C22",
+    "name": "将冲突限制为边境惩戒",
+    "type": [
+      "military",
+      "diplomacy"
+    ],
+    "cost": 2,
+    "feasibility": "C",
+    "turnRange": [
+      7,
+      12
+    ],
+    "requirements": [
+      {
+        "type": "turn_min",
+        "value": 7
+      }
+    ],
+    "effects": [
+      {
+        "variable": "alliance_lock_in",
+        "delta": -8,
+        "reason": "冲突范围被局部化"
+      },
+      {
+        "variable": "russian_mobilization_pressure",
+        "delta": -6,
+        "reason": "俄国全面介入理由减弱"
+      },
+      {
+        "variable": "war_probability",
+        "delta": -7,
+        "reason": "全面战争风险下降"
+      }
+    ],
+    "risks": [
+      {
+        "id": "austrian_army_resists_limited_war",
+        "description": "奥匈军方不满有限作战目标。",
+        "conditions": [],
+        "effects": [
+          {
+            "variable": "austrian_hardline",
+            "delta": 4,
+            "reason": "军方要求更彻底惩罚"
+          }
+        ]
+      }
+    ],
+    "description": "限制战争目标可以防止扩散，但军方往往不喜欢打“刚刚好”的战争。",
+    "flavor": "火可以控制在炉子里，但必须有人盯着炉门。"
+  },
+  {
+    "id": "C23",
+    "name": "法国劝告俄国暂缓动员",
+    "type": [
+      "diplomacy"
+    ],
+    "cost": 2,
+    "feasibility": "B",
+    "turnRange": [
+      7,
+      12
+    ],
+    "requirements": [
+      {
+        "type": "turn_min",
+        "value": 7
+      }
+    ],
+    "effects": [
+      {
+        "variable": "russian_mobilization_pressure",
+        "delta": -12,
+        "reason": "俄国受到盟友克制劝告"
+      },
+      {
+        "variable": "franco_russian_coordination",
+        "delta": -5,
+        "reason": "法俄协调度下降"
+      },
+      {
+        "variable": "war_probability",
+        "delta": -7,
+        "reason": "危机扩散放缓"
+      }
+    ],
+    "risks": [
+      {
+        "id": "germany_reads_alliance_weakness",
+        "description": "若德国风险判断过低，会误读法俄同盟不稳。",
+        "conditions": [
+          {
+            "type": "variable_max",
+            "key": "german_risk_perception",
+            "value": 35
+          }
+        ],
+        "effects": [
+          {
+            "variable": "austrian_hardline",
+            "delta": 4,
+            "reason": "德奥冒险倾向提高"
+          }
+        ]
+      }
+    ],
+    "description": "劝盟友克制会降低危机，也可能让对手误读为软弱。",
+    "flavor": "同盟管理的难点是：你既要拉住朋友，又不能让对手看见你在拉。"
+  },
+  {
+    "id": "C24",
+    "name": "暂停奥匈军事行动 72 小时",
+    "type": [
+      "military",
+      "diplomacy"
+    ],
+    "cost": 2,
+    "feasibility": "C",
+    "turnRange": [
+      7,
+      7
+    ],
+    "requirements": [
+      {
+        "type": "turn_min",
+        "value": 7
+      },
+      {
+        "type": "turn_max",
+        "value": 7
+      }
+    ],
+    "effects": [
+      {
+        "variable": "military_timetable_rigidity",
+        "delta": -10,
+        "reason": "军事行动被短暂停住"
+      },
+      {
+        "variable": "russian_mobilization_pressure",
+        "delta": -5,
+        "reason": "俄国动员压力下降"
+      },
+      {
+        "variable": "war_probability",
+        "delta": -6,
+        "reason": "外交窗口扩大"
+      }
+    ],
+    "risks": [
+      {
+        "id": "austria_delay_backlash",
+        "description": "暂停行动刺激奥匈强硬派和媒体。",
+        "conditions": [],
+        "effects": [
+          {
+            "variable": "austrian_hardline",
+            "delta": 6,
+            "reason": "奥匈强硬派反扑"
+          },
+          {
+            "variable": "media_agitation",
+            "delta": 5,
+            "reason": "媒体攻击拖延"
+          }
+        ]
+      }
+    ],
+    "description": "72 小时足够拯救危机，也足够让强硬派组织反扑。",
+    "flavor": "你按下暂停键，但机器并没有断电。"
+  },
+  {
+    "id": "C25",
+    "name": "将俄国总动员降级为局部动员",
+    "type": [
+      "military"
+    ],
+    "cost": 2,
+    "feasibility": "C",
+    "turnRange": [
+      8,
+      12
+    ],
+    "requirements": [
+      {
+        "type": "turn_min",
+        "value": 8
+      }
+    ],
+    "effects": [
+      {
+        "variable": "russian_mobilization_pressure",
+        "delta": -10,
+        "reason": "俄国采取有限军事姿态"
+      },
+      {
+        "variable": "german_risk_perception",
+        "delta": -5,
+        "reason": "德国短期恐惧下降"
+      },
+      {
+        "variable": "military_timetable_rigidity",
+        "delta": -10,
+        "reason": "动员系统刚性降低"
+      },
+      {
+        "variable": "war_probability",
+        "delta": -8,
+        "reason": "全面战争风险下降"
+      }
+    ],
+    "risks": [
+      {
+        "id": "russian_army_efficiency_anxiety",
+        "description": "俄国军方担心局部动员不可执行。",
+        "conditions": [],
+        "effects": [
+          {
+            "variable": "russian_mobilization_pressure",
+            "delta": 4,
+            "reason": "俄国军方效率焦虑反弹"
+          }
+        ]
+      }
+    ],
+    "description": "局部动员听起来温和，但在庞大军政机器里，温和未必可执行。",
+    "flavor": "动员不是开关，是一整套铁路、军官和恐惧的齿轮。"
+  },
+  {
+    "id": "C26",
+    "name": "建立德俄直接热线",
+    "type": [
+      "crisis_management",
+      "diplomacy"
+    ],
+    "cost": 1,
+    "feasibility": "B",
+    "turnRange": [
+      8,
+      12
+    ],
+    "requirements": [
+      {
+        "type": "turn_min",
+        "value": 8
+      }
+    ],
+    "effects": [
+      {
+        "variable": "diplomatic_trust",
+        "delta": 8,
+        "reason": "德俄直接沟通减少误解"
+      },
+      {
+        "variable": "german_risk_perception",
+        "delta": 5,
+        "reason": "德国更准确评估俄国意图"
+      },
+      {
+        "variable": "russian_mobilization_pressure",
+        "delta": -5,
+        "reason": "俄国压力略降"
+      },
+      {
+        "variable": "war_probability",
+        "delta": -4,
+        "reason": "误判风险下降"
+      }
+    ],
+    "risks": [
+      {
+        "id": "hotline_attacked_by_press",
+        "description": "媒体煽动度过高时，热线被国内强硬派攻击。",
+        "conditions": [
+          {
+            "type": "variable_min",
+            "key": "media_agitation",
+            "value": 80
+          }
+        ],
+        "effects": [
+          {
+            "variable": "nationalist_pressure",
+            "delta": 3,
+            "reason": "强硬舆论攻击秘密妥协"
+          }
+        ]
+      }
+    ],
+    "description": "危机中，误解的速度常常比火车动员还快。热线至少能让误解慢一点。",
+    "flavor": "一根电话线不能拯救欧洲，但能少传错一句话。"
+  },
+  {
+    "id": "C27",
+    "name": "公开限定战争目标",
+    "type": [
+      "war_aims",
+      "diplomacy"
+    ],
+    "cost": 1,
+    "feasibility": "B",
+    "turnRange": [
+      8,
+      12
+    ],
+    "requirements": [
+      {
+        "type": "turn_min",
+        "value": 8
+      }
+    ],
+    "effects": [
+      {
+        "variable": "alliance_lock_in",
+        "delta": -6,
+        "reason": "他国对扩大战争的恐惧下降"
+      },
+      {
+        "variable": "british_redline_clarity",
+        "delta": 5,
+        "reason": "英国更容易判断局势"
+      },
+      {
+        "variable": "diplomatic_trust",
+        "delta": 4,
+        "reason": "各国对行动边界更清楚"
+      }
+    ],
+    "risks": [
+      {
+        "id": "austria_dislikes_limited_aims",
+        "description": "奥匈强硬度过高时，限定目标被视为自缚手脚。",
+        "conditions": [
+          {
+            "type": "variable_min",
+            "key": "austrian_hardline",
+            "value": 75
+          }
+        ],
+        "effects": [
+          {
+            "variable": "austrian_hardline",
+            "delta": 3,
+            "reason": "奥匈强硬派不满有限目标"
+          }
+        ]
+      }
+    ],
+    "description": "限定目标可以降低他国恐惧，但也会限制自己的行动自由。",
+    "flavor": "说清楚不做什么，有时比说清楚要做什么更重要。"
+  },
+  {
+    "id": "C28",
+    "name": "德国宣布防御性动员",
+    "type": [
+      "military",
+      "diplomacy"
+    ],
+    "cost": 2,
+    "feasibility": "C",
+    "turnRange": [
+      9,
+      12
+    ],
+    "requirements": [
+      {
+        "type": "turn_min",
+        "value": 9
+      }
+    ],
+    "effects": [
+      {
+        "variable": "franco_russian_coordination",
+        "delta": -4,
+        "reason": "法国和俄国对德国攻击意图判断略降"
+      },
+      {
+        "variable": "british_redline_clarity",
+        "delta": 6,
+        "reason": "英国更易区分红线"
+      },
+      {
+        "variable": "war_probability",
+        "delta": -5,
+        "reason": "德国暂时避免最坏信号"
+      }
+    ],
+    "risks": [
+      {
+        "id": "defensive_mobilization_impossible_if_rigid",
+        "description": "若军事时间表刚性过高，防御性声明无法执行。",
+        "conditions": [
+          {
+            "type": "variable_min",
+            "key": "military_timetable_rigidity",
+            "value": 80
+          }
+        ],
+        "effects": [
+          {
+            "variable": "war_probability",
+            "delta": 4,
+            "reason": "声明与军事行动脱节"
+          }
+        ]
+      }
+    ],
+    "description": "声明是政治语言，动员是军事语言。两种语言不总是互相翻译。",
+    "flavor": "纸上写着防御，铁轨却可能通向进攻。"
+  },
+  {
+    "id": "C29",
+    "name": "比利时中立保障会议",
+    "type": [
+      "international_law",
+      "diplomacy"
+    ],
+    "cost": 2,
+    "feasibility": "B",
+    "turnRange": [
+      9,
+      12
+    ],
+    "requirements": [
+      {
+        "type": "turn_min",
+        "value": 9
+      }
+    ],
+    "effects": [
+      {
+        "variable": "british_redline_clarity",
+        "delta": 18,
+        "reason": "英国红线显著清晰"
+      },
+      {
+        "variable": "german_risk_perception",
+        "delta": 10,
+        "reason": "德国重新评估比利时风险"
+      },
+      {
+        "variable": "war_probability",
+        "delta": -8,
+        "reason": "英国参战触发概率下降"
+      }
+    ],
+    "risks": [
+      {
+        "id": "german_general_staff_resists_belgium_constraint",
+        "description": "军事时间表刚性过高时，德国军方反对保障会议。",
+        "conditions": [
+          {
+            "type": "variable_min",
+            "key": "military_timetable_rigidity",
+            "value": 85
+          }
+        ],
+        "effects": [
+          {
+            "variable": "war_probability",
+            "delta": 3,
+            "reason": "军方反对比利时约束"
+          }
+        ]
+      }
+    ],
+    "description": "比利时不是棋盘边缘的小格子，它是英国是否参战的法律和道德开关。",
+    "flavor": "一条小国边界，能让帝国重新计算代价。"
+  },
+  {
+    "id": "C30",
+    "name": "冻结西线计划 48 小时",
+    "type": [
+      "military"
+    ],
+    "cost": 2,
+    "feasibility": "C",
+    "turnRange": [
+      10,
+      12
+    ],
+    "requirements": [
+      {
+        "type": "turn_min",
+        "value": 10
+      }
+    ],
+    "effects": [
+      {
+        "variable": "military_timetable_rigidity",
+        "delta": -12,
+        "reason": "西线预案被强行延后"
+      },
+      {
+        "variable": "german_risk_perception",
+        "delta": 8,
+        "reason": "德国政治层重新介入"
+      },
+      {
+        "variable": "war_probability",
+        "delta": -10,
+        "reason": "全面战争路径被延迟"
+      }
+    ],
+    "risks": [
+      {
+        "id": "german_army_anxiety_after_freeze",
+        "description": "冻结西线计划引发德国军方焦虑。",
+        "conditions": [],
+        "effects": [
+          {
+            "variable": "military_timetable_rigidity",
+            "delta": 5,
+            "reason": "军方试图恢复时间表"
+          }
+        ]
+      },
+      {
+        "id": "russia_pressure_makes_freeze_costly",
+        "description": "若俄国动员压力过高，冻结计划被视为灾难性延误。",
+        "conditions": [
+          {
+            "type": "variable_min",
+            "key": "russian_mobilization_pressure",
+            "value": 80
+          }
+        ],
+        "effects": [
+          {
+            "variable": "war_probability",
+            "delta": 5,
+            "reason": "德国担心失去先机"
+          }
+        ]
+      }
+    ],
+    "description": "48 小时可能救下欧洲，也可能让德国军方相信自己正在输掉战争的第一天。",
+    "flavor": "你暂时拦住了火车，但铁轨还在那里。"
+  }
+]

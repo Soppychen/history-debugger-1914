@@ -1,0 +1,300 @@
+.ui-panel {
+  background: var(--color-bg-panel);
+  background-image: var(--texture-panel);
+  border: var(--border-width) solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-panel);
+  color: var(--color-text-primary);
+  padding: var(--panel-padding);
+}
+
+.ui-button {
+  background: var(--color-bg-paper);
+  border: var(--border-width) solid var(--color-brass);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-inverse);
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  padding: var(--space-2) var(--space-3);
+  transition: background var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast), opacity var(--transition-fast);
+}
+
+.ui-button:hover {
+  background: var(--color-archive-paper);
+  border-color: var(--color-cyan);
+  transform: translateY(-1px);
+}
+
+.ui-button--primary {
+  background: var(--color-amber);
+  border-color: var(--color-border-warning);
+  color: var(--color-black-ink);
+}
+
+.ui-button--primary:disabled {
+  background: var(--color-card-disabled);
+  border-color: var(--color-steel);
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}
+
+.ui-card {
+  background: var(--color-card-default);
+  border: var(--border-width) solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-card);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  min-height: 128px;
+  padding: var(--card-padding);
+  position: relative;
+  text-align: left;
+  transition: background var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast), opacity var(--transition-fast), transform var(--transition-fast);
+}
+
+.ui-card::before {
+  background: var(--color-brass);
+  content: "";
+  height: 100%;
+  left: 0;
+  opacity: 0.45;
+  position: absolute;
+  top: 0;
+  width: 3px;
+}
+
+.ui-card:hover,
+.ui-card[data-variant="hover"] {
+  background: var(--color-card-hover);
+  border-color: var(--color-cyan);
+  transform: translateY(-1px);
+}
+
+.ui-card[data-variant="selected"] {
+  background: var(--color-card-selected);
+  border-color: var(--color-cyan);
+  box-shadow: var(--shadow-focus);
+}
+
+.ui-card[data-variant="requirementLocked"],
+.ui-card[data-variant="apInsufficient"],
+.ui-card[data-variant="used"],
+.ui-card[data-variant="expiredMissedWindow"] {
+  background: var(--color-card-disabled);
+  border-color: var(--color-steel);
+  color: var(--color-text-muted);
+}
+
+.ui-card[data-variant="apInsufficient"]::before,
+.ui-card[data-variant="expiringThisTurn"]::before {
+  background: var(--color-amber);
+}
+
+.ui-card[data-variant="requirementLocked"]::before,
+.ui-card[data-variant="backlashTriggered"]::before {
+  background: var(--color-alert);
+}
+
+.ui-card[data-variant="apInsufficient"] {
+  opacity: 0.72;
+}
+
+.ui-card[data-variant="expiringThisTurn"] {
+  background: var(--color-card-expiring);
+  border-color: var(--color-border-warning);
+}
+
+.ui-card[data-variant="read"] {
+  background: var(--color-bg-card-muted);
+  border-style: dashed;
+}
+
+.ui-card[data-variant="unread"] {
+  border-color: var(--color-brass);
+}
+
+.ui-card[data-variant="important"],
+.ui-card[data-variant="unlocksCard"] {
+  border-color: var(--color-cyan);
+}
+
+.ui-card[data-variant="disputedSource"] {
+  border-color: var(--color-border-warning);
+}
+
+.ui-card__meta {
+  color: var(--color-archive-gold);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  letter-spacing: 0;
+}
+
+.ui-state-label {
+  border: var(--border-width) solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-secondary);
+  display: inline-flex;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  gap: var(--space-1);
+  padding: 2px var(--space-2);
+}
+
+.ui-lock-reason {
+  color: var(--color-text-danger);
+  display: block;
+  font-family: var(--font-mono);
+  font-weight: 700;
+}
+
+.ui-delta {
+  border: var(--border-width) solid currentcolor;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-style: normal;
+  font-weight: 700;
+  min-width: 38px;
+  padding: 1px 5px;
+  text-align: center;
+}
+
+.ui-delta[data-status="increasedThisTurn"],
+.ui-delta[data-status="high"],
+.ui-delta[data-status="critical"] {
+  color: var(--color-amber);
+}
+
+.ui-delta[data-status="decreasedThisTurn"],
+.ui-delta[data-status="low"] {
+  color: var(--color-debug-green);
+}
+
+.ui-variable-bar {
+  background: var(--color-panel-sunken);
+  border: var(--border-width) solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  height: 12px;
+  overflow: hidden;
+  position: relative;
+}
+
+.ui-variable-bar::after {
+  background: linear-gradient(90deg, transparent 39%, var(--color-border-subtle) 39% 40%, transparent 40% 69%, var(--color-border-warning) 69% 70%, transparent 70% 84%, var(--color-border-danger) 84% 85%, transparent 85%);
+  content: "";
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+}
+
+.ui-variable-bar__fill {
+  background: var(--color-cyan);
+  display: block;
+  height: 100%;
+}
+
+.ui-variable-bar[data-status="low"] .ui-variable-bar__fill {
+  background: var(--color-steel);
+}
+
+.ui-variable-bar[data-status="medium"] .ui-variable-bar__fill {
+  background: var(--color-cyan);
+}
+
+.ui-variable-bar[data-status="high"],
+.ui-variable-bar[data-status="increasedThisTurn"] {
+  box-shadow: inset 0 0 0 1px var(--color-border-warning);
+}
+
+.ui-variable-bar[data-status="high"] .ui-variable-bar__fill,
+.ui-variable-bar[data-status="increasedThisTurn"] .ui-variable-bar__fill {
+  background: var(--color-risk-medium);
+}
+
+.ui-variable-bar[data-status="critical"] {
+  box-shadow: var(--shadow-alert);
+}
+
+.ui-variable-bar[data-status="critical"] .ui-variable-bar__fill {
+  background: var(--color-risk-critical);
+}
+
+.ui-variable-bar[data-status="decreasedThisTurn"] .ui-variable-bar__fill {
+  background: var(--color-debug-green);
+}
+
+.ui-timeline-node {
+  border-left: 4px solid var(--color-steel);
+  border-radius: var(--radius-sm);
+  display: grid;
+  gap: 3px;
+  margin-bottom: var(--space-2);
+  padding: var(--space-2);
+}
+
+.ui-timeline-node[data-status="current"] {
+  background: color-mix(in srgb, var(--color-amber), transparent 86%);
+  border-color: var(--color-amber);
+  box-shadow: inset 0 0 0 1px var(--color-border-warning);
+}
+
+.ui-timeline-node[data-status="past"] {
+  color: var(--color-text-muted);
+}
+
+.ui-timeline-node[data-status="future"] {
+  color: var(--color-steel);
+}
+
+.ui-timeline-node[data-status="warning"] {
+  border-color: var(--color-risk-high);
+}
+
+.ui-timeline-node[data-status="irreversible"],
+.ui-timeline-node[data-status="locked"] {
+  border-color: var(--color-alert);
+  color: var(--color-text-danger);
+}
+
+.ui-modal {
+  background: var(--color-bg-panel);
+  border: var(--border-width-strong) solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-modal);
+  color: var(--color-text-primary);
+}
+
+.ui-modal[data-variant="warning"],
+.ui-modal[data-variant="pressure"] {
+  border-color: var(--color-border-warning);
+}
+
+.ui-modal[data-variant="critical"],
+.ui-modal[data-variant="backlash"],
+.ui-modal[data-variant="irreversible"] {
+  border-color: var(--color-border-danger);
+  box-shadow: var(--shadow-alert), var(--shadow-modal);
+}
+
+.ui-ending-report {
+  background: var(--color-bg-paper);
+  background-image: var(--texture-paper);
+  color: var(--color-text-inverse);
+}
+
+.ui-ending-report[data-variant="totalWar"] {
+  border-color: var(--color-alert);
+}
+
+.ui-ending-report[data-variant="conferenceFreeze"] {
+  border-color: var(--color-cyan);
+}
+
+.ui-ending-report[data-variant="coercivePeace"] {
+  border-color: var(--color-brass);
+}
+
+.ui-ending-report[data-variant="localizedWar"],
+.ui-ending-report[data-variant="delayedWar"] {
+  border-color: var(--color-amber);
+}
