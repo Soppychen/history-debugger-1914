@@ -36,6 +36,7 @@ import {
   VariablePanel,
 } from "./components";
 import { getTurnEventImage } from "./design/artAssets";
+import { generateEndingReport } from "./engine/generateEndingReport";
 import {
   isFailureEnding,
   musicTracks,
@@ -333,6 +334,19 @@ function App() {
   const riskStage = getRiskStage(warProbability);
   const crisisStage = deriveCrisisStage(state);
   const currentMusicTrack = musicTracks[resolveMusicTrack({ state, crisisStage, ending: state.ending })];
+  const displayEnding = state.ending ? displayData.endings.find((ending) => ending.id === state.ending?.id) ?? state.ending : null;
+  const endingReport = displayEnding
+    ? generateEndingReport({
+        caseId: "CASE-001",
+        caseName: t(language, "caseTitle"),
+        dateRange: `${displayData.timeline[0]?.dateRange ?? ""} - ${displayData.timeline[displayData.timeline.length - 1]?.dateRange ?? ""}`,
+        finalGameState: state,
+        variables: displayData.variables,
+        timeline: displayData.timeline,
+        ending: displayEnding,
+        language,
+      })
+    : null;
 
   return (
     <div className="app">
@@ -430,9 +444,10 @@ function App() {
           onClose={() => setBriefingTurn(null)}
         />
       )}
-      {state.ending && (
+      {displayEnding && (
         <EndingReportModal
-          ending={state.ending}
+          ending={displayEnding}
+          report={endingReport!}
           state={state}
           definitions={displayData.variables}
           onRestart={restart}

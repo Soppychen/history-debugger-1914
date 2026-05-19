@@ -35,6 +35,7 @@ import type {
   VariableDefinition,
 } from "./types";
 import type { AudioSettings, MusicTrack } from "./audio/audioConfig";
+import type { EndingReport, RiskLevel } from "./endingReportTypes";
 
 export function TopStatusBar(props: {
   turn: number;
@@ -509,6 +510,7 @@ export function ActionResultModal({ action, language, onClose }: { action: Actio
 
 export function EndingReportModal(props: {
   ending: EndingDefinition;
+  report: EndingReport;
   state: GameState;
   definitions: VariableDefinition[];
   onRestart: () => void;
@@ -516,41 +518,186 @@ export function EndingReportModal(props: {
   language: Language;
   variant?: EndingReportVariant;
 }) {
-  const keyActions = props.state.actionLog.filter((log) => log.kind === "card").slice(0, 8);
+  const [showFullLog, setShowFullLog] = useState(false);
   const variant = props.variant ?? getEndingReportVariant(props.ending.type);
+  const copySummary = () => {
+    const summary = `${props.report.shareCard.title}\n${props.report.endingTitle}\n${t(props.language, "rating")} ${props.report.grade} · ${t(props.language, "historicalCredibility")} ${props.report.historicalCredibility}%\nWAR ${props.report.finalWarProbability}%\n${props.report.shareCard.quote}`;
+    navigator.clipboard?.writeText(summary).catch(() => undefined);
+  };
+  const saveShareCard = () => {
+    const svg = buildShareCardSvg(props.report);
+    const blob = new Blob([svg], { type: "image/svg+xml" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `history-debugger-1914-${props.report.endingType}.svg`;
+    anchor.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <Modal onClose={() => undefined} persistent className="ui-ending-report" variant={variant}>
-      <AssetImage
-        className="report-stamp-image"
-        src={getEndingStamp(props.ending.type)}
-        fallbackLabel={variant === "totalWar" ? "FAILED" : "REPORT"}
-        ariaHidden
-      />
-      <h2>{t(props.language, "endingReport")}：{props.ending.title}</h2>
-      <p className="rating">{t(props.language, "rating")} {props.ending.rating} · {t(props.language, "credibility")} {props.ending.credibilityScore}</p>
-      <p>{props.ending.summary}</p>
-      <blockquote>{props.language === "en" ? props.ending.summary : props.ending.reportTemplate}</blockquote>
-      <h3>{t(props.language, "finalVariables")}</h3>
-      <div className="final-vars">
-        {props.definitions.map((definition) => (
-          <span key={definition.key}>{definition.label}: {props.state.variables[definition.key]}</span>
-        ))}
-      </div>
-      <h3>{t(props.language, "keyActions")}</h3>
-      {keyActions.length === 0 ? <p>{t(props.language, "noInterventions")}</p> : keyActions.map((entry) => (
-        <div className="report-log" key={entry.id}>
-          <b>{props.language === "en" ? `Turn ${entry.turn}: ${translateText(entry.title, props.language)}` : `第 ${entry.turn} 回合：${entry.title}`}</b>
-          <small>{entry.effects.map((effect) => `${translateText(effect.variable, props.language)} ${effect.delta > 0 ? "+" : ""}${effect.delta}`).join(" / ") || t(props.language, "noVariableChanges")}</small>
+      <section className="ending-report-header">
+        <div>
+          <span className="ui-state-label">{props.report.caseId}</span>
+          <h2>{props.report.caseName}</h2>
+          <p>{props.report.dateRange}</p>
+          <h3>{props.report.endingTitle}</h3>
+          <div className="report-metrics">
+            <span>{t(props.language, "rating")} <b>{props.report.grade}</b></span>
+            <span>{t(props.language, "historicalCredibility")} <b>{props.report.historicalCredibility}%</b></span>
+            <span>{t(props.language, "finalWarProbability")} <b>{props.report.finalWarProbability}%</b></span>
+            <span>{t(props.language, "reportStatus")} <b>{t(props.language, "archived")}</b></span>
+          </div>
         </div>
-      ))}
-      <h3>{t(props.language, "shareLine")}</h3>
-      <blockquote>{props.ending.shareLine}</blockquote>
+        <AssetImage
+          className="report-stamp-image"
+          src={getEndingStamp(props.ending.type)}
+          fallbackLabel={variant === "totalWar" ? "FAILED" : "REPORT"}
+          ariaHidden
+        />
+      </section>
+
+      <section className="report-section">
+        <h3>{t(props.language, "executiveSummary")}</h3>
+        <p>{props.report.executiveSummary}</p>
+        <blockquote>{props.report.shareCard.quote}</blockquote>
+      </section>
+
+      <section className="report-section">
+        <h3>{t(props.language, "finalVariables")}</h3>
+        <div className="report-variable-grid">
+          {props.report.finalVariables.map((variable) => (
+            <article className="report-variable" data-risk={variable.riskLevel} key={variable.id}>
+              <div>
+                <b>{variable.label}</b>
+                <span>{variable.value}/100 <em>{variable.delta >= 0 ? "+" : ""}{variable.delta}</em></span>
+              </div>
+              <div className="report-variable-bar"><i style={{ width: `${variable.value}%` }} /></div>
+              <small>{riskLabel(variable.riskLevel, props.language)} · {variable.explanation}</small>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="report-section">
+        <h3>{t(props.language, "keyCausalChain")}</h3>
+        <ol className="causal-chain">
+          {props.report.keyCausalChain.map((node) => (
+            <li data-severity={node.severity} data-type={node.type} key={node.id}>
+              <b>{node.label}</b>
+              <span>{node.turn ? `${t(props.language, "turn")} ${node.turn}${props.language === "zh" ? props.language === "zh" && t(props.language, "turnSuffix") : ""}` : node.type}</span>
+              <p>{node.description}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section className="report-section">
+        <h3>{t(props.language, "keyActions")}</h3>
+        {props.report.keyPlayerActions.length === 0 ? <p>{t(props.language, "noInterventions")}</p> : (
+          <div className="key-action-grid">
+            {props.report.keyPlayerActions.map((action) => (
+              <article className="key-action-card" data-evaluation={action.evaluation} key={`${action.cardId}-${action.turn}`}>
+                <span className="ui-state-label">{props.language === "en" ? `Turn ${action.turn}` : `第 ${action.turn} 回合`}</span>
+                <b>{translateText(action.cardName, props.language)}</b>
+                <small>{translateText(action.effectSummary, props.language)}</small>
+                <p>{action.explanation}</p>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section className="report-section">
+        <h3>{t(props.language, "endingAnalysis")}</h3>
+        <div className="analysis-grid">
+          <div>
+            <h4>{t(props.language, "primaryFactors")}</h4>
+            {props.report.analysis.primaryFactors.map((factor) => (
+              <article className="analysis-factor" data-severity={factor.severity} key={factor.title}>
+                <b>{factor.title}</b>
+                <p>{factor.explanation}</p>
+              </article>
+            ))}
+          </div>
+          <div>
+            <h4>{t(props.language, "residualRisks")}</h4>
+            {props.report.analysis.residualRisks.length === 0 ? <p>{t(props.language, "none")}</p> : (
+              <ul>
+                {props.report.analysis.residualRisks.map((risk) => <li key={risk}>{risk}</li>)}
+              </ul>
+            )}
+            <p className="system-line">{props.report.analysis.credibilityNote}</p>
+          </div>
+        </div>
+      </section>
+
+      <section className="report-section">
+        <h3>{t(props.language, "playerStyle")}</h3>
+        <p><b>{props.report.playerStyle.label}</b></p>
+        <p>{props.report.playerStyle.description}</p>
+        <div className="tags">{props.report.playerStyle.tags.map((tag) => <span key={tag}>{tag}</span>)}</div>
+      </section>
+
+      <section className="report-section share-card-panel">
+        <h3>{t(props.language, "shareCard")}</h3>
+        <div className="share-card">
+          <span>{props.report.shareCard.title}</span>
+          <b>{props.report.shareCard.endingTitle}</b>
+          <div>{t(props.language, "rating")} {props.report.shareCard.grade} · {t(props.language, "historicalCredibility")} {props.report.shareCard.historicalCredibility}%</div>
+          <div>{t(props.language, "finalWarProbability")} {props.report.shareCard.finalWarProbability}%</div>
+          <small>{props.report.shareCard.playerStyleLabel}</small>
+          <blockquote>{props.report.shareCard.quote}</blockquote>
+        </div>
+      </section>
+
+      {showFullLog && (
+        <section className="report-section">
+          <h3>{t(props.language, "fullLog")}</h3>
+          {props.state.actionLog.map((entry) => (
+            <div className="report-log" key={entry.id}>
+              <b>{props.language === "en" ? `Turn ${entry.turn}: ${translateText(entry.title, props.language)}` : `第 ${entry.turn} 回合：${entry.title}`}</b>
+              <small>{entry.effects.map((effect) => `${translateText(effect.variable, props.language)} ${effect.delta > 0 ? "+" : ""}${effect.delta}`).join(" / ") || t(props.language, "noVariableChanges")}</small>
+            </div>
+          ))}
+        </section>
+      )}
+
       <div className="modal-actions">
+        <button className="ui-button" onClick={copySummary}>{t(props.language, "copySummary")}</button>
+        <button className="ui-button" onClick={saveShareCard}>{t(props.language, "saveShareCard")}</button>
+        <button className="ui-button" onClick={() => setShowFullLog((value) => !value)}>{showFullLog ? t(props.language, "hideFullLog") : t(props.language, "fullLog")}</button>
         <button className="ui-button" onClick={props.onExportState}>{t(props.language, "exportState")}</button>
         <button className="primary ui-button ui-button--primary" onClick={props.onRestart}>{t(props.language, "restart")}</button>
       </div>
     </Modal>
   );
+}
+
+function riskLabel(risk: RiskLevel, language: Language): string {
+  if (language === "en") return risk.toUpperCase();
+  if (risk === "critical") return "临界";
+  if (risk === "high") return "高";
+  if (risk === "medium") return "中";
+  return "低";
+}
+
+function buildShareCardSvg(report: EndingReport): string {
+  const escape = (value: string) => value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1500" viewBox="0 0 1200 1500">
+  <rect width="1200" height="1500" fill="#171a1d"/>
+  <rect x="72" y="72" width="1056" height="1356" fill="#202428" stroke="#9a7a3d" stroke-width="4"/>
+  <text x="120" y="170" fill="#c6a15b" font-family="serif" font-size="44">${escape(report.shareCard.title)}</text>
+  <text x="120" y="300" fill="#ded6bd" font-family="serif" font-size="76">${escape(report.shareCard.endingTitle)}</text>
+  <text x="120" y="410" fill="#ded6bd" font-family="monospace" font-size="42">GRADE ${escape(report.shareCard.grade)} · CRED ${report.shareCard.historicalCredibility}%</text>
+  <text x="120" y="490" fill="#f0b0a6" font-family="monospace" font-size="42">WAR ${report.shareCard.finalWarProbability}%</text>
+  <text x="120" y="600" fill="#d09a36" font-family="serif" font-size="46">${escape(report.shareCard.playerStyleLabel)}</text>
+  <foreignObject x="120" y="700" width="960" height="520">
+    <div xmlns="http://www.w3.org/1999/xhtml" style="color:#ded6bd;font-family:serif;font-size:48px;line-height:1.5;">${escape(report.shareCard.quote)}</div>
+  </foreignObject>
+  <text x="120" y="1340" fill="#a79f88" font-family="monospace" font-size="28">CASE 001 / HISTORY DEBUGGER 1914</text>
+</svg>`;
 }
 
 export function AdvanceTurnConfirmModal(props: {
