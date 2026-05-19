@@ -46,6 +46,21 @@ import {
 } from "./audio/audioConfig";
 import { audioManager, loadAudioSettings, saveAudioSettings } from "./audio/audioManager";
 import { localizeDataBundle, t, type Language } from "./i18n";
+import {
+  initializeAnonymousPlayer,
+  loadConsentState,
+  recoverPlayerByCode,
+  saveConsentState,
+  type PlayerSession,
+} from "./auth/anonymousAuth";
+import { getAdminAnalyticsSnapshot, recordAnalyticsEvent } from "./analytics/analyticsClient";
+import { AdminAnalyticsPage } from "./components/AdminAnalyticsPage";
+import { LoadByCodeModal } from "./components/LoadByCodeModal";
+import { PrivacyConsentModal } from "./components/PrivacyConsentModal";
+import { RecoveryCodeModal } from "./components/RecoveryCodeModal";
+import { SaveGamePanel } from "./components/SaveGamePanel";
+import { createAutosave, createEndingArchive, createSaveGame, getSavesForPlayer } from "./save/saveClient";
+import type { AnalyticsEventType, ConsentState, SaveGame } from "./analytics/eventTypes";
 import type {
   ActionLogEntry,
   DataBundle,
@@ -85,7 +100,41 @@ function App() {
   const [audioSettings, setAudioSettings] = useState<AudioSettings>(() => loadAudioSettings());
   const [audioUnlocked, setAudioUnlocked] = useState(() => audioManager.isUnlocked());
   const [language, setLanguage] = useState<Language>(() => (window.localStorage.getItem("history-debugger-1914-language") as Language) || "zh");
+  const [playerSession, setPlayerSession] = useState<PlayerSession | null>(null);
+  const [consent, setConsent] = useState<ConsentState>(() => loadConsentState());
+  const [saves, setSaves] = useState<SaveGame[]>([]);
+  const [accountPanelOpen, setAccountPanelOpen] = useState(false);
+  const [recoveryCodeOpen, setRecoveryCodeOpen] = useState(false);
+  const [loadByCodeOpen, setLoadByCodeOpen] = useState(false);
+  const [privacyOpen, setPrivacyOpen] = useState(() => loadConsentState().decidedAt === null);
+  const [isAdminPage, setIsAdminPage] = useState(() => window.location.hash === "#admin");
+  const [adminSnapshot, setAdminSnapshot] = useState(() => getAdminAnalyticsSnapshot());
   const lastEndingCueRef = useRef<string | null>(null);
+  const sessionRecordedRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    const session = initializeAnonymousPlayer();
+    setPlayerSession(session);
+    setSaves(getSavesForPlayer(session.player.id));
+    if (session.isNewPlayer) setRecoveryCodeOpen(true);
+  }, []);
+
+  useEffect(() => {
+    const onHashChange = () => {
+      const nextIsAdmin = window.location.hash === "#admin";
+      setIsAdminPage(nextIsAdmin);
+      if (nextIsAdmin) setAdminSnapshot(getAdminAnalyticsSnapshot());
+    };
+    window.addEventListener("hashchange", onHashChange);
+    return () => window.removeEventListener("hashchange", onHashChange);
+  }, []);
+
+  useEffect(() => {
+    if (!playerSession || !state || sessionRecordedRef.current === playerSession.anonymousSessionId) return;
+    sessionRecordedRef.current = playerSession.anonymousSessionId;
+    recordEvent("session_start", { isNewPlayer: playerSession.isNewPlayer }, true);
+    recordEvent("case_start", { turn: state.turn, warProbability: state.variables.war_probability }, true);
+  }, [playerSession?.anonymousSessionId, state?.turn]);
 
   useEffect(() => {
     Promise.all([
@@ -186,6 +235,70 @@ function App() {
     }, 520);
   }, [state?.ending]);
 
+  function refreshSaves(session = playerSession) {
+    if (!session) return;
+    setSaves(getSavesForPlayer(session.player.id));
+  }
+
+  function recordEvent(
+    type: AnalyticsEventType,
+    payload: Record<string, unknown> = {},
+    required = false,
+    eventTurn = state?.turn,
+    saveId?: string,
+  ) {
+    if (!playerSession) return null;
+    const event = recordAnalyticsEvent(
+      {
+        playerId: playerSession.player.id,
+        anonymousSessionId: playerSession.anonymousSessionId,
+        type,
+        turn: eventTurn,
+        payload,
+        required,
+        saveId,
+      },
+      consent,
+    );
+    if (isAdminPage) setAdminSnapshot(getAdminAnalyticsSnapshot());
+    return event;
+  }
+
+  function dateForState(nextState: GameState, bundle = displayData): string {
+    return bundle?.timeline.find((turn) => turn.turn === nextState.turn)?.dateRange ?? `Turn ${nextState.turn}`;
+  }
+
+  function persistAutosave(nextState: GameState, required = true) {
+    if (!playerSession) return null;
+    const save = createAutosave({
+      playerId: playerSession.player.id,
+      state: nextState,
+      dateLabel: dateForState(nextState),
+      crisisStage: deriveCrisisStage(nextState),
+    });
+    recordEvent("save_created", { slotType: save.slotType, slotName: save.slotName }, required, nextState.turn, save.id);
+    refreshSaves();
+    return save;
+  }
+
+  function persistEndingArchive(nextState: GameState) {
+    if (!playerSession || !nextState.ending) return null;
+    const save = createEndingArchive({
+      playerId: playerSession.player.id,
+      state: nextState,
+      dateLabel: dateForState(nextState),
+      crisisStage: deriveCrisisStage(nextState),
+    });
+    recordEvent("ending_reached", {
+      endingId: nextState.ending.id,
+      endingType: nextState.ending.type,
+      warProbability: nextState.variables.war_probability,
+    }, true, nextState.turn, save.id);
+    recordEvent("save_created", { slotType: save.slotType, slotName: save.slotName }, true, nextState.turn, save.id);
+    refreshSaves();
+    return save;
+  }
+
   function unlockAudio() {
     audioManager.unlockAudio();
     setAudioUnlocked(audioManager.isUnlocked());
@@ -228,12 +341,15 @@ function App() {
     if (!data) return;
     playSfx("ui_confirm");
     lastEndingCueRef.current = null;
-    setState(createInitialState(data.variables));
+    const nextState = createInitialState(data.variables);
+    setState(nextState);
     setSelectedCardId(null);
     setSelectedIntelId(null);
     setLastAction(null);
     setAdvanceConfirmOpen(false);
     setBriefingTurn(1);
+    recordEvent("restart_case", { previousTurn: state?.turn, hadEnding: Boolean(state?.ending) }, true);
+    persistAutosave(nextState);
   }
 
   function exportStateJson() {
@@ -257,6 +373,7 @@ function App() {
       if (!prev || prev.revealedIntelIds.includes(intelId)) return prev;
       return { ...prev, revealedIntelIds: [...prev.revealedIntelIds, intelId] };
     });
+    recordEvent("intel_opened", { intelId, alreadyRead: Boolean(alreadyRead) }, false);
   }
 
   function selectCard(cardId: string) {
@@ -267,6 +384,14 @@ function App() {
     const apBlocked = state.ap < card.cost;
     playSfx(failure || apBlocked ? "card_locked" : "card_select");
     setSelectedCardId(cardId);
+    recordEvent(failure || apBlocked ? "card_locked_clicked" : "card_selected", {
+      cardId,
+      cardTypes: card.type,
+      failure,
+      apBlocked,
+      cost: card.cost,
+      ap: state.ap,
+    }, false);
   }
 
   function useSelectedCard() {
@@ -286,12 +411,36 @@ function App() {
     playChangeCue(action);
     const afterWarProbability = finalState.variables.war_probability ?? 0;
     playWarRiskCue(beforeWarProbability, afterWarProbability);
+    recordEvent("card_used", {
+      cardId: selectedCard.id,
+      cardTypes: selectedCard.type,
+      feasibility: selectedCard.feasibility,
+      cost: selectedCard.cost,
+      warProbability: afterWarProbability,
+      riskCount: action.risks.length,
+    }, false, finalState.turn);
+    action.effects.forEach((change) => {
+      recordEvent("variable_changed", {
+        source: "card",
+        cardId: selectedCard.id,
+        variable: change.variable,
+        delta: change.delta,
+        before: change.before,
+        after: change.after,
+      }, false, finalState.turn);
+    });
+    action.risks.forEach((risk) => {
+      recordEvent("risk_triggered", { cardId: selectedCard.id, riskId: risk.id, effectCount: risk.effects.length }, false, finalState.turn);
+    });
+    persistAutosave(finalState);
+    if (finalState.ending) persistEndingArchive(finalState);
   }
 
   function openAdvanceConfirm() {
     if (!state?.ending) {
       playSfx("ui_confirm");
       setAdvanceConfirmOpen(true);
+      recordEvent("advance_turn_clicked", { warProbability: state?.variables.war_probability }, false);
     }
   }
 
@@ -322,9 +471,155 @@ function App() {
     const afterIrreversible = getIrreversibleFlags(nextState);
     playWarRiskCue(beforeWarProbability, afterWarProbability);
     if (afterIrreversible.some((flag) => !beforeIrreversible.has(flag))) playSfx("irreversible_lock");
+    recordEvent("advance_turn_confirmed", {
+      fromTurn: state.turn,
+      toTurn: nextState.turn,
+      warProbability: afterWarProbability,
+    }, false, nextState.turn);
+    recordEvent("turn_end", { turnTitle: currentTurn.title, warProbability: afterWarProbability }, false, state.turn);
+    action.effects.forEach((change) => {
+      recordEvent("variable_changed", {
+        source: "turn",
+        variable: change.variable,
+        delta: change.delta,
+        before: change.before,
+        after: change.after,
+      }, false, nextState.turn);
+    });
+    action.risks.forEach((risk) => {
+      recordEvent("risk_triggered", { source: "specialRule", riskId: risk.id, effectCount: risk.effects.length }, false, nextState.turn);
+    });
+    getExpiredCards(data, nextState, 1).forEach((card) => {
+      recordEvent("card_expired", { cardId: card.id, turnRange: card.turnRange }, false, nextState.turn);
+    });
+    afterIrreversible
+      .filter((flag) => !beforeIrreversible.has(flag))
+      .forEach((flag) => recordEvent("irreversible_event_triggered", { flag }, false, nextState.turn));
+    persistAutosave(nextState);
+    if (nextState.ending) persistEndingArchive(nextState);
     if (!ending) {
       window.setTimeout(() => playSfx("turn_briefing"), 360);
     }
+  }
+
+  function handleConsentSave(nextConsent: ConsentState) {
+    saveConsentState(nextConsent);
+    setConsent(nextConsent);
+    setPrivacyOpen(false);
+    recordEvent("settings_changed", { analyticsAccepted: nextConsent.analyticsAccepted }, true);
+  }
+
+  function handleRecover(code: string): boolean {
+    const recovered = recoverPlayerByCode(code);
+    if (!recovered) return false;
+    const recoveredSaves = getSavesForPlayer(recovered.player.id);
+    const latestSave = recoveredSaves[0] ?? null;
+    const previousTurn = state?.turn ?? latestSave?.turn ?? 1;
+    setPlayerSession(recovered);
+    setSaves(recoveredSaves);
+    if (latestSave) {
+      setState(latestSave.gameState);
+      setSelectedCardId(null);
+      setSelectedIntelId(null);
+      setLastAction(null);
+      setAdvanceConfirmOpen(false);
+      setBriefingTurn(latestSave.gameState.ending ? null : latestSave.gameState.turn);
+      lastEndingCueRef.current = latestSave.gameState.ending?.id ?? null;
+    }
+    recordAnalyticsEvent(
+      {
+        playerId: recovered.player.id,
+        anonymousSessionId: recovered.anonymousSessionId,
+        type: "session_start",
+        payload: { recoveredByCode: true, loadedLatestSave: Boolean(latestSave) },
+        required: true,
+      },
+      consent,
+    );
+    if (latestSave) {
+      recordAnalyticsEvent(
+        {
+          playerId: recovered.player.id,
+          anonymousSessionId: recovered.anonymousSessionId,
+          type: "save_loaded",
+          turn: latestSave.turn,
+          saveId: latestSave.id,
+          payload: {
+            saveId: latestSave.id,
+            slotType: latestSave.slotType,
+            slotName: latestSave.slotName,
+            loadedTurn: latestSave.turn,
+            previousTurn,
+            source: "recovery_code",
+          },
+          required: true,
+        },
+        consent,
+      );
+      if (latestSave.turn < previousTurn) {
+        recordAnalyticsEvent(
+          {
+            playerId: recovered.player.id,
+            anonymousSessionId: recovered.anonymousSessionId,
+            type: "rollback_detected",
+            turn: latestSave.turn,
+            saveId: latestSave.id,
+            payload: { fromTurn: previousTurn, toTurn: latestSave.turn, saveId: latestSave.id, source: "recovery_code" },
+          },
+          consent,
+        );
+      }
+    }
+    return true;
+  }
+
+  function handleManualSave(slotName: string) {
+    if (!playerSession || !state) return;
+    const save = createSaveGame({
+      playerId: playerSession.player.id,
+      state,
+      dateLabel: dateForState(state),
+      crisisStage: deriveCrisisStage(state),
+      slotType: "manual",
+      slotName,
+    });
+    recordEvent("save_created", { slotType: save.slotType, slotName: save.slotName }, true, state.turn, save.id);
+    refreshSaves();
+  }
+
+  function handleLoadSave(save: SaveGame) {
+    const previousTurn = state?.turn ?? save.turn;
+    setState(save.gameState);
+    setSelectedCardId(null);
+    setSelectedIntelId(null);
+    setLastAction(null);
+    setAdvanceConfirmOpen(false);
+    setBriefingTurn(save.gameState.ending ? null : save.gameState.turn);
+    lastEndingCueRef.current = save.gameState.ending?.id ?? null;
+    recordEvent("save_loaded", {
+      saveId: save.id,
+      slotType: save.slotType,
+      slotName: save.slotName,
+      loadedTurn: save.turn,
+      previousTurn,
+    }, true, save.turn, save.id);
+    if (save.turn < previousTurn) {
+      recordEvent("rollback_detected", { fromTurn: previousTurn, toTurn: save.turn, saveId: save.id }, false, save.turn, save.id);
+    }
+  }
+
+  if (isAdminPage) {
+    return (
+      <AdminAnalyticsPage
+        snapshot={adminSnapshot}
+        language={language}
+        onRefresh={() => setAdminSnapshot(getAdminAnalyticsSnapshot())}
+        onExit={() => {
+          window.location.hash = "";
+          setIsAdminPage(false);
+        }}
+      />
+    );
   }
 
   if (loadError) return <main className="loading">{t(language, "loadFailed")}：{loadError}</main>;
@@ -372,6 +667,13 @@ function App() {
         onUnlock={unlockAudio}
         onChange={setAudioSettings}
       />
+      {playerSession && (
+        <div className="account-entry">
+          <button type="button" onClick={() => setAccountPanelOpen(true)}>
+            {language === "zh" ? "玩家 / 存档" : "Player / Saves"}
+          </button>
+        </div>
+      )}
 
       <main className="main-layout">
         <TimelinePanel timeline={displayData.timeline} currentTurn={state.turn} actionLog={state.actionLog} language={language} />
@@ -453,6 +755,38 @@ function App() {
           onRestart={restart}
           onExportState={exportStateJson}
           language={language}
+        />
+      )}
+      {accountPanelOpen && playerSession && (
+        <div className="modal-backdrop">
+          <SaveGamePanel
+            recoveryCode={playerSession.recoveryCode}
+            saves={saves}
+            language={language}
+            onClose={() => setAccountPanelOpen(false)}
+            onShowCode={() => setRecoveryCodeOpen(true)}
+            onRecover={() => setLoadByCodeOpen(true)}
+            onManualSave={handleManualSave}
+            onLoadSave={(save) => {
+              handleLoadSave(save);
+              setAccountPanelOpen(false);
+            }}
+          />
+        </div>
+      )}
+      {privacyOpen && <PrivacyConsentModal language={language} onSave={handleConsentSave} />}
+      {recoveryCodeOpen && playerSession && (
+        <RecoveryCodeModal
+          recoveryCode={playerSession.recoveryCode}
+          language={language}
+          onClose={() => setRecoveryCodeOpen(false)}
+        />
+      )}
+      {loadByCodeOpen && (
+        <LoadByCodeModal
+          language={language}
+          onClose={() => setLoadByCodeOpen(false)}
+          onRecover={handleRecover}
         />
       )}
     </div>
