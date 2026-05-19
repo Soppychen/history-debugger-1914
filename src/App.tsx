@@ -44,6 +44,7 @@ import {
   type SfxCueId,
 } from "./audio/audioConfig";
 import { audioManager, loadAudioSettings, saveAudioSettings } from "./audio/audioManager";
+import { localizeDataBundle, t, type Language } from "./i18n";
 import type {
   ActionLogEntry,
   DataBundle,
@@ -82,6 +83,7 @@ function App() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [audioSettings, setAudioSettings] = useState<AudioSettings>(() => loadAudioSettings());
   const [audioUnlocked, setAudioUnlocked] = useState(() => audioManager.isUnlocked());
+  const [language, setLanguage] = useState<Language>(() => (window.localStorage.getItem("history-debugger-1914-language") as Language) || "zh");
   const lastEndingCueRef = useRef<string | null>(null);
 
   useEffect(() => {
@@ -108,6 +110,10 @@ function App() {
   }, [audioSettings]);
 
   useEffect(() => {
+    window.localStorage.setItem("history-debugger-1914-language", language);
+  }, [language]);
+
+  useEffect(() => {
     const unlockOnFirstGesture = () => {
       audioManager.unlockAudio();
       setAudioUnlocked(audioManager.isUnlocked());
@@ -120,21 +126,26 @@ function App() {
     };
   }, []);
 
+  const displayData = useMemo(() => {
+    if (!data) return null;
+    return localizeDataBundle(data, language);
+  }, [data, language]);
+
   const currentTurn = useMemo(() => {
-    if (!data || !state) return null;
-    return data.timeline.find((item) => item.turn === state.turn) ?? data.timeline[0];
-  }, [data, state]);
+    if (!displayData || !state) return null;
+    return displayData.timeline.find((item) => item.turn === state.turn) ?? displayData.timeline[0];
+  }, [displayData, state]);
 
   const currentIntel = useMemo(() => {
-    if (!data || !currentTurn) return [];
+    if (!displayData || !currentTurn) return [];
     const recommended = new Set(currentTurn.recommendedIntel);
-    return data.intelCards.filter((card) => recommended.has(card.id));
-  }, [currentTurn, data]);
+    return displayData.intelCards.filter((card) => recommended.has(card.id));
+  }, [currentTurn, displayData]);
 
   const visibleCards = useMemo(() => {
-    if (!data || !state) return [];
-    return getVisibleCards(data, state);
-  }, [data, state]);
+    if (!displayData || !state) return [];
+    return getVisibleCards(displayData, state);
+  }, [displayData, state]);
 
   const selectedCard = visibleCards.find((card) => card.id === selectedCardId) ?? null;
   const selectedIntel = currentIntel.find((intel) => intel.id === selectedIntelId) ?? null;
@@ -143,17 +154,17 @@ function App() {
     return getExpiringCards(visibleCards, state);
   }, [state, visibleCards]);
   const expiredCards = useMemo(() => {
-    if (!data || !state) return [];
-    return getExpiredCards(data, state);
-  }, [data, state]);
+    if (!displayData || !state) return [];
+    return getExpiredCards(displayData, state);
+  }, [displayData, state]);
   const upcomingEvents = useMemo(() => {
-    if (!data || !state) return [];
-    return getUpcomingCrisisEvents(data, state);
-  }, [data, state]);
+    if (!displayData || !state) return [];
+    return getUpcomingCrisisEvents(displayData, state);
+  }, [displayData, state]);
   const opportunityCosts = useMemo(() => {
-    if (!data || !state) return [];
-    return getOpportunityCosts(data, state, visibleCards);
-  }, [data, state, visibleCards]);
+    if (!displayData || !state) return [];
+    return getOpportunityCosts(displayData, state, visibleCards);
+  }, [displayData, state, visibleCards]);
   const irreversibleFlags = useMemo(() => {
     if (!state) return [];
     return getIrreversibleFlags(state);
@@ -315,8 +326,8 @@ function App() {
     }
   }
 
-  if (loadError) return <main className="loading">数据加载失败：{loadError}</main>;
-  if (!data || !state || !currentTurn) return <main className="loading">正在读取 1914 案件数据...</main>;
+  if (loadError) return <main className="loading">{t(language, "loadFailed")}：{loadError}</main>;
+  if (!data || !displayData || !state || !currentTurn) return <main className="loading">{t(language, "loading")}</main>;
 
   const warProbability = state.variables.war_probability ?? 0;
   const riskStage = getRiskStage(warProbability);
@@ -327,7 +338,7 @@ function App() {
     <div className="app">
       <TopStatusBar
         turn={state.turn}
-        maxTurn={data.timeline.length}
+        maxTurn={displayData.timeline.length}
         dateRange={currentTurn.dateRange}
         ap={state.ap}
         maxAp={state.maxAp}
@@ -336,54 +347,59 @@ function App() {
         status={crisisStage}
         onExportState={exportStateJson}
         onRestart={restart}
+        language={language}
+        onLanguageChange={setLanguage}
       />
       <AudioControlPanel
         settings={audioSettings}
         currentTrack={currentMusicTrack}
         unlocked={audioUnlocked}
+        language={language}
         onUnlock={unlockAudio}
         onChange={setAudioSettings}
       />
 
       <main className="main-layout">
-        <TimelinePanel timeline={data.timeline} currentTurn={state.turn} actionLog={state.actionLog} />
+        <TimelinePanel timeline={displayData.timeline} currentTurn={state.turn} actionLog={state.actionLog} language={language} />
         <section className="event-panel dossier-panel">
           <div className="panel-header">
-            <span>BREAKPOINT / 当前事件</span>
+            <span>{t(language, "currentEvent")}</span>
             <strong>{currentTurn.title}</strong>
           </div>
           <AssetImage className="event-hero-image" src={getTurnEventImage(state.turn)} fallbackLabel={`Turn ${state.turn}`} />
           <div className="event-dateline">{currentTurn.dateRange}</div>
           <p>{currentTurn.narrative}</p>
           <p className="hint">{currentTurn.goalHint}</p>
-          <IrreversibleEventBanner flags={irreversibleFlags} />
-          <UpcomingCrisisEvents events={upcomingEvents} />
-          <CausalGraphPanel state={state} />
+          <IrreversibleEventBanner flags={irreversibleFlags} language={language} />
+          <UpcomingCrisisEvents events={upcomingEvents} language={language} />
+          <CausalGraphPanel state={state} language={language} />
         </section>
-        <VariablePanel definitions={data.variables} state={state} />
+        <VariablePanel definitions={displayData.variables} state={state} language={language} />
       </main>
 
       <section className="bottom-dock">
-        <IntelTray cards={currentIntel} state={state} onReadIntel={readIntel} />
+        <IntelTray cards={currentIntel} state={state} language={language} onReadIntel={readIntel} />
         <InterventionCardTray
           cards={visibleCards}
           state={state}
+          language={language}
           onSelect={selectCard}
           onAdvance={openAdvanceConfirm}
         />
-        <OpportunityCostPanel items={opportunityCosts} />
+        <OpportunityCostPanel items={opportunityCosts} language={language} />
       </section>
 
       {selectedCard && (
         <CardDetailModal
           card={selectedCard}
           state={state}
+          language={language}
           onClose={() => setSelectedCardId(null)}
           onUse={useSelectedCard}
         />
       )}
       {selectedIntel && (
-        <IntelModal intel={selectedIntel} onClose={() => setSelectedIntelId(null)} />
+        <IntelModal intel={selectedIntel} language={language} onClose={() => setSelectedIntelId(null)} />
       )}
       {advanceConfirmOpen && (
         <AdvanceTurnConfirmModal
@@ -392,15 +408,16 @@ function App() {
           expiringCards={expiringCards}
           upcomingEvents={upcomingEvents}
           warProbability={warProbability}
+          language={language}
           onCancel={() => setAdvanceConfirmOpen(false)}
           onConfirm={advanceTurn}
         />
       )}
       {lastAction && !selectedCard && lastAction.kind === "card" && (
-        <ActionResultModal action={lastAction} onClose={() => setLastAction(null)} />
+        <ActionResultModal action={lastAction} language={language} onClose={() => setLastAction(null)} />
       )}
       {lastAction && !selectedCard && lastAction.kind === "turn" && (
-        <TimeAdvanceReportModal action={lastAction} turn={lastAction.turn} turnTitle={lastAction.title} expiredCards={expiredCards} onClose={() => setLastAction(null)} />
+        <TimeAdvanceReportModal action={lastAction} turn={lastAction.turn} turnTitle={lastAction.title} expiredCards={expiredCards} language={language} onClose={() => setLastAction(null)} />
       )}
       {!lastAction && !selectedCard && !selectedIntel && !advanceConfirmOpen && briefingTurn === state.turn && (
         <TurnBriefingModal
@@ -409,6 +426,7 @@ function App() {
           upcomingEvents={upcomingEvents}
           opportunityCosts={opportunityCosts}
           expiringCards={expiringCards}
+          language={language}
           onClose={() => setBriefingTurn(null)}
         />
       )}
@@ -416,9 +434,10 @@ function App() {
         <EndingReportModal
           ending={state.ending}
           state={state}
-          definitions={data.variables}
+          definitions={displayData.variables}
           onRestart={restart}
           onExportState={exportStateJson}
+          language={language}
         />
       )}
     </div>

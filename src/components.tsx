@@ -16,6 +16,14 @@ import {
 } from "./design/componentVariants";
 import { getCrisisStageLabel, getRequirementFailure } from "./gameLogic";
 import { getCardIllustration, getEndingStamp, getTurnEventImage } from "./design/artAssets";
+import {
+  flagLabel,
+  formatTypeList,
+  languageLabels,
+  t,
+  translateText,
+  type Language,
+} from "./i18n";
 import type {
   ActionLogEntry,
   ChangeRecord,
@@ -38,22 +46,31 @@ export function TopStatusBar(props: {
   riskStage: "stable" | "warning" | "critical";
   onExportState: () => void;
   onRestart: () => void;
+  language: Language;
+  onLanguageChange: (language: Language) => void;
   status?: TopStatusBarStatus;
 }) {
-  const label = props.riskStage === "stable" ? "可控" : props.riskStage === "warning" ? "危险" : "临界升级";
+  const label = props.riskStage === "stable" ? t(props.language, "controllable") : props.riskStage === "warning" ? t(props.language, "dangerous") : t(props.language, "criticalEscalation");
   const status = props.status ?? getTopStatusBarStatus(props.warProbability);
   return (
     <header className={`top-status ${props.riskStage}`} data-status={status}>
-      <strong>Case 001：1914 七月危机</strong>
+      <strong>{t(props.language, "caseTitle")}</strong>
       <span className="status-metric">TURN {props.turn}/{props.maxTurn}</span>
       <span className="status-date">{props.dateRange}</span>
       <span className="status-metric">AP {props.ap}/{props.maxAp}</span>
       <span className="status-metric">WAR {props.warProbability}%</span>
-      <span className="status-stage">风险：{label}</span>
-      <CrisisStageBadge status={status} />
+      <span className="status-stage">{t(props.language, "risk")}：{label}</span>
+      <CrisisStageBadge status={status} language={props.language} />
       <div className="status-actions">
-        <button className="ui-button" onClick={props.onExportState}>导出 GameState JSON</button>
-        <button className="ui-button" onClick={props.onRestart}>重新开始</button>
+        <label className="language-switch">
+          <span>{t(props.language, "language")}</span>
+          <select value={props.language} onChange={(event) => props.onLanguageChange(event.target.value as Language)}>
+            <option value="zh">{languageLabels.zh}</option>
+            <option value="en">{languageLabels.en}</option>
+          </select>
+        </label>
+        <button className="ui-button" onClick={props.onExportState}>{t(props.language, "exportState")}</button>
+        <button className="ui-button" onClick={props.onRestart}>{t(props.language, "restart")}</button>
       </div>
     </header>
   );
@@ -63,6 +80,7 @@ export function AudioControlPanel(props: {
   settings: AudioSettings;
   currentTrack: MusicTrack;
   unlocked: boolean;
+  language: Language;
   onUnlock: () => void;
   onChange: (settings: AudioSettings) => void;
 }) {
@@ -71,11 +89,11 @@ export function AudioControlPanel(props: {
     <section className="audio-panel" aria-label="音频控制">
       <div className="audio-panel__track">
         <span className="ui-state-label">AUDIO</span>
-        <b>{props.currentTrack.titleZh}</b>
+        <b>{props.language === "en" ? props.currentTrack.titleEn : props.currentTrack.titleZh}</b>
         <small>{props.currentTrack.titleEn}</small>
       </div>
       {!props.unlocked && (
-        <button className="ui-button ui-button--primary" onClick={props.onUnlock}>启用音频</button>
+        <button className="ui-button ui-button--primary" onClick={props.onUnlock}>{t(props.language, "enableAudio")}</button>
       )}
       <label>
         <input
@@ -83,7 +101,7 @@ export function AudioControlPanel(props: {
           checked={props.settings.musicEnabled}
           onChange={(event) => update({ musicEnabled: event.target.checked })}
         />
-        音乐
+        {t(props.language, "music")}
       </label>
       <input
         type="range"
@@ -91,7 +109,7 @@ export function AudioControlPanel(props: {
         max="1"
         step="0.01"
         value={props.settings.musicVolume}
-        aria-label="音乐音量"
+        aria-label={t(props.language, "musicVolume")}
         onChange={(event) => update({ musicVolume: Number(event.target.value) })}
       />
       <label>
@@ -100,7 +118,7 @@ export function AudioControlPanel(props: {
           checked={props.settings.sfxEnabled}
           onChange={(event) => update({ sfxEnabled: event.target.checked })}
         />
-        音效
+        {t(props.language, "sfx")}
       </label>
       <input
         type="range"
@@ -108,55 +126,55 @@ export function AudioControlPanel(props: {
         max="1"
         step="0.01"
         value={props.settings.sfxVolume}
-        aria-label="音效音量"
+        aria-label={t(props.language, "sfxVolume")}
         onChange={(event) => update({ sfxVolume: Number(event.target.value) })}
       />
     </section>
   );
 }
 
-export function CrisisStageBadge({ status }: { status: TopStatusBarStatus }) {
+export function CrisisStageBadge({ status, language }: { status: TopStatusBarStatus; language: Language }) {
   return (
     <span className="crisis-stage-badge ui-state-label" data-status={status}>
-      危机阶段：{getCrisisStageLabel(status)}
+      {t(language, "crisisStage")}：{translateText(getCrisisStageLabel(status), language)}
     </span>
   );
 }
 
-export function TimelinePanel(props: { timeline: TimelineTurn[]; currentTurn: number; actionLog: ActionLogEntry[] }) {
+export function TimelinePanel(props: { timeline: TimelineTurn[]; currentTurn: number; actionLog: ActionLogEntry[]; language: Language }) {
   return (
     <aside className="timeline panel">
       <div className="panel-title-row">
-        <h2>时间线</h2>
+        <h2>{t(props.language, "timeline")}</h2>
         <span className="ui-state-label">12 TURN RAIL</span>
       </div>
       {props.timeline.map((turn) => {
         const status: TimelineNodeStatus = turn.turn < props.currentTurn ? "past" : turn.turn === props.currentTurn ? "current" : turn.turn - props.currentTurn <= 2 ? "warning" : "future";
         const logs = props.actionLog.filter((log) => log.turn === turn.turn);
         return (
-          <TimelineNode key={turn.turn} turn={turn} logsCount={logs.length} status={status} />
+          <TimelineNode key={turn.turn} turn={turn} logsCount={logs.length} status={status} language={props.language} />
         );
       })}
     </aside>
   );
 }
 
-export function TimelineNode(props: { turn: TimelineTurn; logsCount: number; status: TimelineNodeStatus }) {
+export function TimelineNode(props: { turn: TimelineTurn; logsCount: number; status: TimelineNodeStatus; language: Language }) {
   return (
     <div className="timeline-item timeline-node ui-timeline-node" data-status={props.status}>
       <span className="timeline-index">{String(props.turn.turn).padStart(2, "0")}</span>
       <b>{props.turn.title}</b>
       <span className="timeline-date">{props.turn.dateRange}</span>
-      {props.logsCount > 0 && <small>{props.logsCount} 条日志</small>}
+      {props.logsCount > 0 && <small>{props.language === "en" ? `${props.logsCount} logs` : `${props.logsCount} 条日志`}</small>}
     </div>
   );
 }
 
-export function VariablePanel(props: { definitions: VariableDefinition[]; state: GameState }) {
+export function VariablePanel(props: { definitions: VariableDefinition[]; state: GameState; language: Language }) {
   return (
     <aside className="variables panel">
       <div className="panel-title-row">
-        <h2>变量</h2>
+        <h2>{t(props.language, "variables")}</h2>
         <span className="ui-state-label">STATE INSPECTOR</span>
       </div>
       {props.definitions.map((definition) => {
@@ -190,34 +208,26 @@ export function VariableBar(props: { percent: number; status: VariableBarStatus 
   );
 }
 
-export function CausalGraphPanel({ state }: { state: GameState }) {
-  const nodes = [
-    "刺杀",
-    "最后通牒",
-    "俄国动员",
-    "德国最后通牒",
-    "比利时问题",
-    "联盟锁定",
-    "军事时间表",
-    "民族主义压力",
-    "外交信任",
-    "全面战争概率",
-  ];
+export function CausalGraphPanel({ state, language }: { state: GameState; language: Language }) {
+  const nodes = language === "en"
+    ? ["Assassination", "Ultimatum", "Russian Mobilization", "German Ultimatum", "Belgium", "Alliance Lock-In", "Military Timetables", "Nationalist Pressure", "Diplomatic Trust", "Total War Probability"]
+    : ["刺杀", "最后通牒", "俄国动员", "德国最后通牒", "比利时问题", "联盟锁定", "军事时间表", "民族主义压力", "外交信任", "全面战争概率"];
+  const hotNode = language === "en" ? "Total War Probability" : "全面战争概率";
   return (
     <div className="causal panel">
-      <h2>因果链 MVP</h2>
+      <h2>{t(language, "causalGraph")}</h2>
       <div className="node-grid">
         {nodes.map((node) => (
-          <span className={node === "全面战争概率" && state.variables.war_probability >= 70 ? "hot" : ""} key={node}>
+          <span className={node === hotNode && state.variables.war_probability >= 70 ? "hot" : ""} key={node}>
             {node}
           </span>
         ))}
       </div>
       {Object.keys(state.flags).length > 0 && (
         <div className="flags">
-          <b>系统标记</b>
+          <b>{t(language, "flags")}</b>
           {Object.entries(state.flags).map(([key, value]) => (
-            <small key={key}>{key}: {String(value)}</small>
+            <small key={key}>{flagLabel(key, language)}: {String(value)}</small>
           ))}
         </div>
       )}
@@ -235,23 +245,24 @@ export function UpcomingCrisisEvents(props: {
     relatedVariables: string[];
     severity: string;
   }>;
+  language: Language;
 }) {
   return (
     <section className="upcoming-events">
       <div className="panel-title-row">
-        <h2>即将发生</h2>
+        <h2>{t(props.language, "upcoming")}</h2>
         <span className="ui-state-label">NEXT CRISIS EVENTS</span>
       </div>
       <div className="upcoming-event-list">
         {props.events.map((event) => (
           <article className="upcoming-event" data-severity={event.severity} key={event.id}>
             <div>
-              <b>{event.turnsUntil} 回合后：{event.title}</b>
+              <b>{props.language === "en" ? `${event.turnsUntil} ${t(props.language, "turnsAfter")}: ${event.title}` : `${event.turnsUntil} 回合后：${event.title}`}</b>
               <span>{event.dateRange}</span>
             </div>
             <p>{event.riskSummary}</p>
             <div className="intel-card__refs">
-              {event.relatedVariables.map((variable) => <span key={`${event.id}-${variable}`}>{variable}</span>)}
+              {event.relatedVariables.map((variable) => <span key={`${event.id}-${variable}`}>{translateText(variable, props.language)}</span>)}
             </div>
           </article>
         ))}
@@ -260,37 +271,37 @@ export function UpcomingCrisisEvents(props: {
   );
 }
 
-export function OpportunityCostPanel({ items }: { items: string[] }) {
+export function OpportunityCostPanel({ items, language }: { items: string[]; language: Language }) {
   return (
     <section className="opportunity-cost">
       <div className="panel-title-row">
-        <h2>未处理风险</h2>
+        <h2>{t(language, "opportunityCost")}</h2>
         <span className="ui-state-label">OPPORTUNITY COST</span>
       </div>
-      {items.length === 0 ? <p>当前没有突出的未处理风险。</p> : (
+      {items.length === 0 ? <p>{t(language, "noOpportunityCost")}</p> : (
         <ul>
-          {items.map((item) => <li key={item}>{item}</li>)}
+          {items.map((item) => <li key={item}>{translateText(item, language)}</li>)}
         </ul>
       )}
     </section>
   );
 }
 
-export function IrreversibleEventBanner({ flags }: { flags: string[] }) {
+export function IrreversibleEventBanner({ flags, language }: { flags: string[]; language: Language }) {
   if (flags.length === 0) return null;
   return (
     <section className="irreversible-banner">
-      <b>不可逆节点已触发</b>
-      <span>{flags.join(" / ")}</span>
+      <b>{t(language, "irreversible")}</b>
+      <span>{flags.map((flag) => flagLabel(flag, language)).join(" / ")}</span>
     </section>
   );
 }
 
-export function IntelTray(props: { cards: IntelCardDefinition[]; state: GameState; onReadIntel: (intelId: string) => void }) {
+export function IntelTray(props: { cards: IntelCardDefinition[]; state: GameState; language: Language; onReadIntel: (intelId: string) => void }) {
   return (
     <section className="panel">
       <div className="panel-title-row">
-        <h2>当前回合情报</h2>
+        <h2>{t(props.language, "intelTray")}</h2>
         <span className="ui-state-label">TELEGRAM / DOSSIER</span>
       </div>
       <div className="tray-grid">
@@ -301,6 +312,7 @@ export function IntelTray(props: { cards: IntelCardDefinition[]; state: GameStat
               key={card.id}
               card={card}
               variant={read ? "read" : "unread"}
+              language={props.language}
               onReadIntel={props.onReadIntel}
             />
           );
@@ -310,12 +322,12 @@ export function IntelTray(props: { cards: IntelCardDefinition[]; state: GameStat
   );
 }
 
-export function IntelCard(props: { card: IntelCardDefinition; variant: IntelCardVariant; onReadIntel: (intelId: string) => void }) {
+export function IntelCard(props: { card: IntelCardDefinition; variant: IntelCardVariant; language: Language; onReadIntel: (intelId: string) => void }) {
   return (
     <button className={`intel-card ui-card ${props.variant === "read" ? "read" : ""}`} data-variant={props.variant} onClick={() => props.onReadIntel(props.card.id)}>
       <div className="intel-card__header">
         <span className="card-meta ui-card__meta">{props.card.id} · {props.card.type}</span>
-        <span className="ui-state-label">{props.variant === "read" ? "已阅读" : "SEALED"}</span>
+        <span className="ui-state-label">{props.variant === "read" ? t(props.language, "read") : t(props.language, "sealed")}</span>
       </div>
       <AssetImage
         className="card-media"
@@ -325,8 +337,8 @@ export function IntelCard(props: { card: IntelCardDefinition; variant: IntelCard
       <b>{props.card.title}</b>
       <p>{props.card.summary.slice(0, 78)}...</p>
       <div className="intel-card__refs">
-        {props.card.reveals.slice(0, 2).map((item) => <span key={item}>{item}</span>)}
-        {props.card.unlocks.length > 0 && <span>解锁 {props.card.unlocks.join("/")}</span>}
+        {props.card.reveals.slice(0, 2).map((item) => <span key={item}>{translateText(item, props.language)}</span>)}
+        {props.card.unlocks.length > 0 && <span>{t(props.language, "unlock")} {props.card.unlocks.join("/")}</span>}
       </div>
     </button>
   );
@@ -335,6 +347,7 @@ export function IntelCard(props: { card: IntelCardDefinition; variant: IntelCard
 export function InterventionCardTray(props: {
   cards: InterventionCardDefinition[];
   state: GameState;
+  language: Language;
   onSelect: (cardId: string) => void;
   onAdvance: () => void;
 }) {
@@ -342,17 +355,17 @@ export function InterventionCardTray(props: {
     <section className="panel">
       <div className="card-tray-header">
         <div className="panel-title-row">
-          <h2>可用干预</h2>
+          <h2>{t(props.language, "interventionTray")}</h2>
           <span className="ui-state-label">ACTION CARDS</span>
         </div>
-        <button className="advance ui-button ui-button--primary" onClick={props.onAdvance}>推进时间</button>
+        <button className="advance ui-button ui-button--primary" onClick={props.onAdvance}>{t(props.language, "advanceTime")}</button>
       </div>
       <div className="tray-grid intervention-grid">
         {props.cards.map((card) => {
           const failure = getRequirementFailure(card, props.state);
           const apBlocked = props.state.ap < card.cost;
           const missed = card.turnRange[1] < props.state.turn && !props.state.usedCardIds.includes(card.id);
-          const blockedReason = missed ? `已错过：行动窗口 T${card.turnRange[0]}-T${card.turnRange[1]} 已关闭` : failure ?? (apBlocked ? `AP 不足：需要 ${card.cost}，当前 ${props.state.ap}` : null);
+          const blockedReason = missed ? `${t(props.language, "missed")}：${t(props.language, "window")} T${card.turnRange[0]}-T${card.turnRange[1]}` : failure ?? (apBlocked ? `${t(props.language, "lockReason")}：AP ${card.cost}/${props.state.ap}` : null);
           const expiring = card.turnRange[1] === props.state.turn;
           const variant: InterventionCardVariant = props.state.usedCardIds.includes(card.id)
             ? "used"
@@ -371,6 +384,7 @@ export function InterventionCardTray(props: {
               card={card}
               variant={variant}
               blockedReason={blockedReason}
+              language={props.language}
               onSelect={props.onSelect}
             />
           );
@@ -384,6 +398,7 @@ export function InterventionCard(props: {
   card: InterventionCardDefinition;
   variant: InterventionCardVariant;
   blockedReason: string | null;
+  language: Language;
   onSelect: (cardId: string) => void;
 }) {
   return (
@@ -393,7 +408,7 @@ export function InterventionCard(props: {
       onClick={() => props.onSelect(props.card.id)}
     >
       <div className="intervention-card__topline">
-        <span className="card-meta ui-card__meta">{props.card.id} · {props.card.type.join("/")}</span>
+        <span className="card-meta ui-card__meta">{props.card.id} · {formatTypeList(props.card.type, props.language)}</span>
         <span className="ap-badge">{props.card.cost} AP</span>
       </div>
       <AssetImage
@@ -403,34 +418,34 @@ export function InterventionCard(props: {
       />
       <b>{props.card.name}</b>
       <div className="intervention-card__meta-strip">
-        <span>可行性 {props.card.feasibility}</span>
-        <span>窗口 T{props.card.turnRange[0]}-T{props.card.turnRange[1]}</span>
+        <span>{t(props.language, "feasibility")} {props.card.feasibility}</span>
+        <span>{t(props.language, "window")} T{props.card.turnRange[0]}-T{props.card.turnRange[1]}</span>
       </div>
       <p>{props.card.description}</p>
       {props.blockedReason ? (
-        <small className="lock-reason ui-lock-reason">锁定原因：{props.blockedReason}</small>
+        <small className="lock-reason ui-lock-reason">{t(props.language, "lockReason")}：{translateText(props.blockedReason, props.language)}</small>
       ) : (
         <ul className="effect-list">
           {props.card.effects.slice(0, 4).map((effect) => (
             <li key={`${props.card.id}-${effect.variable}`}>
-              <span>{effect.variable}</span>
+              <span>{translateText(effect.variable, props.language)}</span>
               <b>{effect.delta > 0 ? "+" : ""}{effect.delta}</b>
             </li>
           ))}
         </ul>
       )}
       <div className="card-footer-state">
-        {props.variant === "expiringThisTurn" ? <span className="ui-state-label">本回合后窗口关闭</span> : props.variant === "expiredMissedWindow" ? <span className="ui-state-label">MISSED / 已错过</span> : <span className="ui-state-label">REQ CHECK</span>}
-        {props.card.risks.length > 0 && <span className="risk-tag">RISK {props.card.risks.length}</span>}
+        {props.variant === "expiringThisTurn" ? <span className="ui-state-label">{t(props.language, "expiring")}</span> : props.variant === "expiredMissedWindow" ? <span className="ui-state-label">{t(props.language, "missed")}</span> : <span className="ui-state-label">{t(props.language, "requirementCheck")}</span>}
+        {props.card.risks.length > 0 && <span className="risk-tag">{t(props.language, "riskCount")} {props.card.risks.length}</span>}
       </div>
     </button>
   );
 }
 
-export function CardDetailModal(props: { card: InterventionCardDefinition; state: GameState; onClose: () => void; onUse: () => void }) {
+export function CardDetailModal(props: { card: InterventionCardDefinition; state: GameState; language: Language; onClose: () => void; onUse: () => void }) {
   const failure = getRequirementFailure(props.card, props.state);
   const apBlocked = props.state.ap < props.card.cost;
-  const blockedReason = failure ?? (apBlocked ? `AP 不足：需要 ${props.card.cost}，当前 ${props.state.ap}` : null);
+  const blockedReason = failure ?? (apBlocked ? `${t(props.language, "lockReason")}：AP ${props.card.cost}/${props.state.ap}` : null);
   return (
     <Modal onClose={props.onClose}>
       <h2>{props.card.name}</h2>
@@ -440,21 +455,21 @@ export function CardDetailModal(props: { card: InterventionCardDefinition; state
         fallbackLabel={props.card.type.join(" / ")}
       />
       <p>{props.card.description}</p>
-      <blockquote>{props.card.flavor}</blockquote>
-      <h3>效果</h3>
-      <ChangeList changes={props.card.effects.map((effect) => ({ ...effect, before: 0, after: 0 }))} preview />
-      <h3>潜在反噬</h3>
-      {props.card.risks.length === 0 ? <p>无显性反噬。</p> : props.card.risks.map((risk) => <p key={risk.id}>{risk.description}</p>)}
+      {props.language === "zh" && <blockquote>{props.card.flavor}</blockquote>}
+      <h3>{t(props.language, "effects")}</h3>
+      <ChangeList changes={props.card.effects.map((effect) => ({ ...effect, before: 0, after: 0 }))} language={props.language} preview />
+      <h3>{t(props.language, "backlash")}</h3>
+      {props.card.risks.length === 0 ? <p>{t(props.language, "noBacklash")}</p> : props.card.risks.map((risk) => <p key={risk.id}>{props.language === "en" ? "Conditional backlash may apply." : risk.description}</p>)}
       <div className="modal-actions">
-        {blockedReason && <span className="blocked">{blockedReason}</span>}
-        <button className="ui-button" onClick={props.onClose}>取消</button>
-        <button className="primary ui-button ui-button--primary" disabled={Boolean(blockedReason)} onClick={props.onUse}>确认用卡</button>
+        {blockedReason && <span className="blocked">{translateText(blockedReason, props.language)}</span>}
+        <button className="ui-button" onClick={props.onClose}>{t(props.language, "cancel")}</button>
+        <button className="primary ui-button ui-button--primary" disabled={Boolean(blockedReason)} onClick={props.onUse}>{t(props.language, "useCard")}</button>
       </div>
     </Modal>
   );
 }
 
-export function IntelModal({ intel, onClose }: { intel: IntelCardDefinition; onClose: () => void }) {
+export function IntelModal({ intel, language, onClose }: { intel: IntelCardDefinition; language: Language; onClose: () => void }) {
   return (
     <Modal onClose={onClose}>
       <h2>{intel.title}</h2>
@@ -464,30 +479,30 @@ export function IntelModal({ intel, onClose }: { intel: IntelCardDefinition; onC
         fallbackLabel={intel.type}
       />
       <p>{intel.summary}</p>
-      <blockquote>{intel.quote}</blockquote>
-      <p>揭示变量：{intel.reveals.join("、") || "无"}</p>
-      <p>解锁卡牌：{intel.unlocks.join("、") || "无"}</p>
-      <div className="tags">{intel.tags.map((tag) => <span key={tag}>{tag}</span>)}</div>
+      {language === "zh" && <blockquote>{intel.quote}</blockquote>}
+      <p>{t(language, "revealedVariables")}：{intel.reveals.map((item) => translateText(item, language)).join("、") || t(language, "none")}</p>
+      <p>{t(language, "unlockedCards")}：{intel.unlocks.join("、") || t(language, "none")}</p>
+      {language === "zh" && <div className="tags">{intel.tags.map((tag) => <span key={tag}>{tag}</span>)}</div>}
     </Modal>
   );
 }
 
-export function ActionResultModal({ action, onClose }: { action: ActionLogEntry; onClose: () => void }) {
+export function ActionResultModal({ action, language, onClose }: { action: ActionLogEntry; language: Language; onClose: () => void }) {
   return (
     <Modal onClose={onClose}>
-      <h2>{action.title}</h2>
-      <p>{action.description}</p>
-      {action.flavor && <blockquote>{action.flavor}</blockquote>}
-      <h3>变量变化</h3>
-      <ChangeList changes={action.effects} />
-      <h3>反噬 / 特殊规则</h3>
-      {action.risks.length === 0 ? <p>未触发。</p> : action.risks.map((risk) => (
+      <h2>{translateText(action.title, language)}</h2>
+      <p>{translateText(action.description, language)}</p>
+      {language === "zh" && action.flavor && <blockquote>{action.flavor}</blockquote>}
+      <h3>{t(language, "variableChanges")}</h3>
+      <ChangeList changes={action.effects} language={language} />
+      <h3>{t(language, "specialOrIrreversible")}</h3>
+      {action.risks.length === 0 ? <p>{t(language, "noTriggered")}</p> : action.risks.map((risk) => (
         <div className="risk" key={risk.id}>
-          <b>{risk.description}</b>
-          <ChangeList changes={risk.effects} />
+          <b>{language === "en" ? "Backlash triggered." : risk.description}</b>
+          <ChangeList changes={risk.effects} language={language} />
         </div>
       ))}
-      {action.flagsAdded.length > 0 && <p>新增标记：{action.flagsAdded.map((flag) => `${flag.flag}=${String(flag.value)}`).join("，")}</p>}
+      {action.flagsAdded.length > 0 && <p>{t(language, "flagsAdded")}：{action.flagsAdded.map((flag) => `${flagLabel(flag.flag, language)}=${String(flag.value)}`).join("，")}</p>}
     </Modal>
   );
 }
@@ -498,6 +513,7 @@ export function EndingReportModal(props: {
   definitions: VariableDefinition[];
   onRestart: () => void;
   onExportState: () => void;
+  language: Language;
   variant?: EndingReportVariant;
 }) {
   const keyActions = props.state.actionLog.filter((log) => log.kind === "card").slice(0, 8);
@@ -510,28 +526,28 @@ export function EndingReportModal(props: {
         fallbackLabel={variant === "totalWar" ? "FAILED" : "REPORT"}
         ariaHidden
       />
-      <h2>历史事故报告：{props.ending.title}</h2>
-      <p className="rating">评级 {props.ending.rating} · 可信度 {props.ending.credibilityScore}</p>
+      <h2>{t(props.language, "endingReport")}：{props.ending.title}</h2>
+      <p className="rating">{t(props.language, "rating")} {props.ending.rating} · {t(props.language, "credibility")} {props.ending.credibilityScore}</p>
       <p>{props.ending.summary}</p>
-      <blockquote>{props.ending.reportTemplate}</blockquote>
-      <h3>最终变量</h3>
+      <blockquote>{props.language === "en" ? props.ending.summary : props.ending.reportTemplate}</blockquote>
+      <h3>{t(props.language, "finalVariables")}</h3>
       <div className="final-vars">
         {props.definitions.map((definition) => (
           <span key={definition.key}>{definition.label}: {props.state.variables[definition.key]}</span>
         ))}
       </div>
-      <h3>关键行动日志</h3>
-      {keyActions.length === 0 ? <p>未使用干预卡。</p> : keyActions.map((entry) => (
+      <h3>{t(props.language, "keyActions")}</h3>
+      {keyActions.length === 0 ? <p>{t(props.language, "noInterventions")}</p> : keyActions.map((entry) => (
         <div className="report-log" key={entry.id}>
-          <b>第 {entry.turn} 回合：{entry.title}</b>
-          <small>{entry.effects.map((effect) => `${effect.variable} ${effect.delta > 0 ? "+" : ""}${effect.delta}`).join(" / ") || "无变量变化"}</small>
+          <b>{props.language === "en" ? `Turn ${entry.turn}: ${translateText(entry.title, props.language)}` : `第 ${entry.turn} 回合：${entry.title}`}</b>
+          <small>{entry.effects.map((effect) => `${translateText(effect.variable, props.language)} ${effect.delta > 0 ? "+" : ""}${effect.delta}`).join(" / ") || t(props.language, "noVariableChanges")}</small>
         </div>
       ))}
-      <h3>分享句</h3>
+      <h3>{t(props.language, "shareLine")}</h3>
       <blockquote>{props.ending.shareLine}</blockquote>
       <div className="modal-actions">
-        <button className="ui-button" onClick={props.onExportState}>导出 GameState JSON</button>
-        <button className="primary ui-button ui-button--primary" onClick={props.onRestart}>重新开始</button>
+        <button className="ui-button" onClick={props.onExportState}>{t(props.language, "exportState")}</button>
+        <button className="primary ui-button ui-button--primary" onClick={props.onRestart}>{t(props.language, "restart")}</button>
       </div>
     </Modal>
   );
@@ -543,6 +559,7 @@ export function AdvanceTurnConfirmModal(props: {
   expiringCards: InterventionCardDefinition[];
   upcomingEvents: Array<{ id: string; title: string; turnsUntil: number; severity: string }>;
   warProbability: number;
+  language: Language;
   onCancel: () => void;
   onConfirm: () => void;
   variant?: AdvanceTurnConfirmVariant;
@@ -550,24 +567,24 @@ export function AdvanceTurnConfirmModal(props: {
   const variant = props.variant ?? getAdvanceTurnConfirmVariant(props.warProbability);
   return (
     <Modal onClose={props.onCancel} className="ui-advance-confirm" variant={variant}>
-      <h2>推进时间确认</h2>
-      <p className="modal-kicker">Before the player clicks advance time, they should understand what possibilities they are giving up.</p>
+      <h2>{t(props.language, "advanceConfirm")}</h2>
+      <p className="modal-kicker">{t(props.language, "advanceHint")}</p>
       <div className="advance-summary">
-        <span className="ui-state-label">当前回合 {props.state.turn}</span>
-        <span className="ui-state-label">未使用 AP {props.state.ap}</span>
+        <span className="ui-state-label">{t(props.language, "currentTurn")} {props.state.turn}</span>
+        <span className="ui-state-label">{t(props.language, "unusedAp")} {props.state.ap}</span>
         <span className="ui-state-label">WAR {props.warProbability}%</span>
       </div>
-      <h3>推进后将发生</h3>
-      <ChangeList changes={props.currentTurn.defaultPressure.map((effect) => ({ ...effect, before: 0, after: 0 }))} preview />
-      <h3>可能触发的特殊规则</h3>
-      {props.currentTurn.specialRules.length === 0 ? <p>无特殊规则。</p> : props.currentTurn.specialRules.map((rule) => <p className="system-line" key={rule.id}>{rule.description}</p>)}
-      <h3>即将触发的关键事件</h3>
-      {props.upcomingEvents.length === 0 ? <p>暂无未来事件。</p> : props.upcomingEvents.slice(0, 3).map((event) => <p className="system-line" key={event.id}>{event.turnsUntil} 回合后：{event.title}</p>)}
-      <h3>即将关闭的行动窗口</h3>
-      {props.expiringCards.length === 0 ? <p>本回合没有可见卡牌窗口关闭。</p> : props.expiringCards.map((card) => <p className="system-line" key={card.id}>{card.id} {card.name}</p>)}
+      <h3>{t(props.language, "willHappen")}</h3>
+      <ChangeList changes={props.currentTurn.defaultPressure.map((effect) => ({ ...effect, before: 0, after: 0 }))} language={props.language} preview />
+      <h3>{t(props.language, "specialRules")}</h3>
+      {props.currentTurn.specialRules.length === 0 ? <p>{t(props.language, "none")}</p> : props.currentTurn.specialRules.map((rule) => <p className="system-line" key={rule.id}>{props.language === "en" ? "Conditional special rule may apply." : rule.description}</p>)}
+      <h3>{t(props.language, "keyEvents")}</h3>
+      {props.upcomingEvents.length === 0 ? <p>{t(props.language, "noFutureEvents")}</p> : props.upcomingEvents.slice(0, 3).map((event) => <p className="system-line" key={event.id}>{props.language === "en" ? `${event.turnsUntil} ${t(props.language, "turnsAfter")}: ${event.title}` : `${event.turnsUntil} 回合后：${event.title}`}</p>)}
+      <h3>{t(props.language, "closingWindows")}</h3>
+      {props.expiringCards.length === 0 ? <p>{t(props.language, "noClosingWindows")}</p> : props.expiringCards.map((card) => <p className="system-line" key={card.id}>{card.id} {card.name}</p>)}
       <div className="modal-actions">
-        <button className="ui-button" onClick={props.onCancel}>取消</button>
-        <button className="primary ui-button ui-button--primary" onClick={props.onConfirm}>确认推进时间</button>
+        <button className="ui-button" onClick={props.onCancel}>{t(props.language, "cancel")}</button>
+        <button className="primary ui-button ui-button--primary" onClick={props.onConfirm}>{t(props.language, "confirmAdvance")}</button>
       </div>
     </Modal>
   );
@@ -578,6 +595,7 @@ export function TimeAdvanceReportModal(props: {
   turn: number;
   turnTitle: string;
   expiredCards: InterventionCardDefinition[];
+  language: Language;
   onClose: () => void;
   variant?: TimeAdvanceReportVariant;
 }) {
@@ -585,25 +603,25 @@ export function TimeAdvanceReportModal(props: {
   const variant = props.variant ?? getTimeAdvanceReportVariant(maxDelta);
   return (
     <Modal onClose={props.onClose} className="ui-time-report" variant={variant}>
-      <h2>时间推进报告：{props.turnTitle}</h2>
+      <h2>{t(props.language, "timeReport")}：{translateText(props.turnTitle, props.language)}</h2>
       <AssetImage
         className="modal-hero-image"
         src={getTurnEventImage(props.turn)}
         fallbackLabel={`Turn ${props.turn}`}
       />
-      <p>{props.action.description}</p>
-      <h3>历史压力变化</h3>
-      <ChangeList changes={props.action.effects} />
-      <h3>特殊规则 / 不可逆节点</h3>
-      {props.action.risks.length === 0 ? <p>未触发。</p> : props.action.risks.map((risk) => (
+      <p>{translateText(props.action.description, props.language)}</p>
+      <h3>{t(props.language, "pressureChanges")}</h3>
+      <ChangeList changes={props.action.effects} language={props.language} />
+      <h3>{t(props.language, "specialOrIrreversible")}</h3>
+      {props.action.risks.length === 0 ? <p>{t(props.language, "noTriggered")}</p> : props.action.risks.map((risk) => (
         <div className="risk" key={risk.id}>
-          <b>{risk.description}</b>
-          <ChangeList changes={risk.effects} />
+          <b>{props.language === "en" ? "Special rule triggered." : risk.description}</b>
+          <ChangeList changes={risk.effects} language={props.language} />
         </div>
       ))}
-      <h3>失效卡牌</h3>
-      {props.expiredCards.length === 0 ? <p>本次推进没有新的可见卡牌失效。</p> : props.expiredCards.map((card) => <p className="system-line" key={card.id}>{card.id}「{card.name}」已错过</p>)}
-      {props.action.flagsAdded.length > 0 && <p className="system-line">新增标记：{props.action.flagsAdded.map((flag) => `${flag.flag}=${String(flag.value)}`).join("，")}</p>}
+      <h3>{t(props.language, "expiredCards")}</h3>
+      {props.expiredCards.length === 0 ? <p>{t(props.language, "noExpiredCards")}</p> : props.expiredCards.map((card) => <p className="system-line" key={card.id}>{card.id}「{card.name}」{t(props.language, "missed")}</p>)}
+      {props.action.flagsAdded.length > 0 && <p className="system-line">{t(props.language, "flagsAdded")}：{props.action.flagsAdded.map((flag) => `${flagLabel(flag.flag, props.language)}=${String(flag.value)}`).join("，")}</p>}
     </Modal>
   );
 }
@@ -614,11 +632,12 @@ export function TurnBriefingModal(props: {
   upcomingEvents: Array<{ id: string; title: string; turnsUntil: number; severity: string }>;
   opportunityCosts: string[];
   expiringCards: InterventionCardDefinition[];
+  language: Language;
   onClose: () => void;
 }) {
   return (
     <Modal onClose={props.onClose} className="ui-turn-briefing" variant="standard">
-      <h2>第 {props.state.turn} 回合：{props.currentTurn.title}</h2>
+      <h2>{props.language === "en" ? `Turn ${props.state.turn}: ${props.currentTurn.title}` : `第 ${props.state.turn} 回合：${props.currentTurn.title}`}</h2>
       <AssetImage
         className="modal-hero-image"
         src={getTurnEventImage(props.currentTurn.turn)}
@@ -627,26 +646,26 @@ export function TurnBriefingModal(props: {
       <p className="modal-kicker">{props.currentTurn.dateRange} · AP {props.state.ap}/{props.state.maxAp}</p>
       <p>{props.currentTurn.narrative}</p>
       <blockquote>{props.currentTurn.goalHint}</blockquote>
-      <h3>本回合主要风险</h3>
-      {props.opportunityCosts.length === 0 ? <p>暂无突出风险。</p> : props.opportunityCosts.slice(0, 4).map((item) => <p className="system-line" key={item}>{item}</p>)}
-      <h3>即将触发事件</h3>
-      {props.upcomingEvents.slice(0, 3).map((event) => <p className="system-line" key={event.id}>{event.turnsUntil} 回合后：{event.title}</p>)}
-      <h3>本回合可能失效</h3>
-      {props.expiringCards.length === 0 ? <p>没有可见卡牌将在本回合后失效。</p> : props.expiringCards.map((card) => <p className="system-line" key={card.id}>{card.id}「{card.name}」</p>)}
+      <h3>{t(props.language, "briefingRisks")}</h3>
+      {props.opportunityCosts.length === 0 ? <p>{t(props.language, "noMajorRisks")}</p> : props.opportunityCosts.slice(0, 4).map((item) => <p className="system-line" key={item}>{translateText(item, props.language)}</p>)}
+      <h3>{t(props.language, "upcomingEvents")}</h3>
+      {props.upcomingEvents.slice(0, 3).map((event) => <p className="system-line" key={event.id}>{props.language === "en" ? `${event.turnsUntil} ${t(props.language, "turnsAfter")}: ${event.title}` : `${event.turnsUntil} 回合后：${event.title}`}</p>)}
+      <h3>{t(props.language, "possiblyExpire")}</h3>
+      {props.expiringCards.length === 0 ? <p>{t(props.language, "noExpireThisTurn")}</p> : props.expiringCards.map((card) => <p className="system-line" key={card.id}>{card.id}「{card.name}」</p>)}
     </Modal>
   );
 }
 
-function ChangeList({ changes, preview = false }: { changes: ChangeRecord[]; preview?: boolean }) {
-  if (changes.length === 0) return <p>无变量变化。</p>;
+function ChangeList({ changes, language, preview = false }: { changes: ChangeRecord[]; language: Language; preview?: boolean }) {
+  if (changes.length === 0) return <p>{t(language, "noVariableChanges")}</p>;
   return (
     <ul className="changes">
       {changes.map((change, index) => (
         <li key={`${change.variable}-${index}`}>
-          <b>{change.variable}</b>
+          <b>{translateText(change.variable, language)}</b>
           <span className="delta ui-delta" data-status={change.delta >= 0 ? "increasedThisTurn" : "decreasedThisTurn"}>{change.delta > 0 ? "+" : ""}{change.delta}</span>
           {!preview && <small>{change.before} → {change.after}</small>}
-          <em>{change.reason}</em>
+          <em>{language === "en" ? "Rule effect" : change.reason}</em>
         </li>
       ))}
     </ul>
