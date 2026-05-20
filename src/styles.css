@@ -129,6 +129,168 @@ button {
   padding: 7px var(--space-3);
 }
 
+.weekly-panel {
+  align-items: center;
+  background: color-mix(in srgb, var(--color-bg-panel), transparent 6%);
+  border: var(--border-width) solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-panel);
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: minmax(260px, 1fr) minmax(220px, auto) auto;
+  margin-top: var(--space-3);
+  padding: var(--space-3);
+}
+
+.weekly-panel b {
+  display: block;
+  font-family: var(--font-title);
+  margin-top: var(--space-1);
+}
+
+.weekly-panel p {
+  color: var(--color-text-secondary);
+  margin: var(--space-1) 0 0;
+}
+
+.scenario-deltas,
+.weekly-actions,
+.leaderboard-tabs,
+.mode-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.scenario-deltas span {
+  border: var(--border-width) solid var(--color-line-soft);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-secondary);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  padding: 5px var(--space-2);
+}
+
+.weekly-actions button,
+.leaderboard-tabs button,
+.mode-card {
+  background: var(--color-bg-paper);
+  border: var(--border-width) solid var(--color-brass);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-inverse);
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  padding: 7px var(--space-2);
+}
+
+.mode-modal,
+.leaderboard-modal {
+  max-width: min(1040px, 100%);
+}
+
+.mode-grid {
+  align-items: stretch;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  margin: var(--space-4) 0;
+}
+
+.mode-card {
+  display: grid;
+  gap: var(--space-2);
+  min-height: 150px;
+  padding: var(--space-3);
+  text-align: left;
+}
+
+.mode-card[data-current="true"],
+.leaderboard-tabs button[data-active="true"] {
+  border-color: var(--color-archive-gold);
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--color-archive-gold), transparent 50%);
+}
+
+.mode-card b {
+  color: var(--color-archive-gold);
+  font-family: var(--font-title);
+  font-size: var(--font-size-md);
+}
+
+.mode-card span,
+.mode-card small,
+.weekly-challenge-callout p {
+  color: color-mix(in srgb, var(--color-text-inverse), transparent 24%);
+}
+
+.weekly-challenge-callout {
+  background: color-mix(in srgb, var(--color-bg-paper), transparent 12%);
+  border: var(--border-width) solid var(--color-line-soft);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-inverse);
+  padding: var(--space-3);
+}
+
+.debug-score-panel {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.debug-score-main {
+  align-items: center;
+  display: grid;
+  gap: var(--space-2);
+  grid-template-columns: 1fr auto auto;
+}
+
+.debug-score-main strong {
+  color: var(--color-archive-gold);
+  font-family: var(--font-title);
+  font-size: var(--font-size-xxl);
+}
+
+.debug-score-main b {
+  border: var(--border-width-strong) solid var(--color-archive-stamp);
+  border-radius: var(--radius-sm);
+  color: var(--color-archive-stamp);
+  padding: var(--space-1) var(--space-2);
+}
+
+.score-breakdown-grid {
+  display: grid;
+  gap: var(--space-2);
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.score-breakdown-row {
+  border-bottom: var(--border-width) solid color-mix(in srgb, var(--color-archive-ink), transparent 68%);
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 0;
+}
+
+.leaderboard-tabs {
+  margin-bottom: var(--space-4);
+}
+
+.leaderboard-table {
+  border-collapse: collapse;
+  inline-size: 100%;
+}
+
+.leaderboard-table th,
+.leaderboard-table td {
+  border-bottom: var(--border-width) solid var(--color-line-soft);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  padding: var(--space-2);
+  text-align: left;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
 .status-actions button,
 .modal-actions button:not(.primary) {
   background: var(--color-bg-paper);
@@ -1238,6 +1400,11 @@ blockquote {
 
 @media (max-width: 980px) {
   .main-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .weekly-panel {
+    align-items: start;
     grid-template-columns: 1fr;
   }
 

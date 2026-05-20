@@ -11,7 +11,8 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "validate:data": "node scripts/validate-game-data.mjs",
-    "test": "npm run validate:data && npm run build"
+    "validate:ladder": "node scripts/validate-ladder-system.mjs",
+    "test": "npm run validate:data && npm run validate:ladder && npm run build"
   },
   "dependencies": {
     "react": "^19.0.0",

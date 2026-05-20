@@ -2,7 +2,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import {
   applyCard,
   applyTurnPressure,
-  createInitialState,
   deriveCrisisStage,
   findEnding,
   getExpiredCards,
@@ -37,6 +36,7 @@ import {
 } from "./components";
 import { getTurnEventImage } from "./design/artAssets";
 import { generateEndingReport } from "./engine/generateEndingReport";
+import { initializeSeededGameState } from "./engine/applyScenarioSeed";
 import {
   isFailureEnding,
   musicTracks,
@@ -55,12 +55,22 @@ import {
 } from "./auth/anonymousAuth";
 import { getAdminAnalyticsSnapshot, recordAnalyticsEvent } from "./analytics/analyticsClient";
 import { AdminAnalyticsPage } from "./components/AdminAnalyticsPage";
+import { DebugScoreBreakdownPanel } from "./components/DebugScoreBreakdownPanel";
+import { GameModeSelectModal } from "./components/GameModeSelectModal";
+import { LeaderboardPage } from "./components/LeaderboardPage";
 import { LoadByCodeModal } from "./components/LoadByCodeModal";
 import { PrivacyConsentModal } from "./components/PrivacyConsentModal";
 import { RecoveryCodeModal } from "./components/RecoveryCodeModal";
 import { SaveGamePanel } from "./components/SaveGamePanel";
+import { WeeklyChallengePanel } from "./components/WeeklyChallengePanel";
 import { createAutosave, createEndingArchive, createSaveGame, getSavesForPlayer } from "./save/saveClient";
 import type { AnalyticsEventType, ConsentState, SaveGame } from "./analytics/eventTypes";
+import { currentWeeklyChallenge } from "./challenges/weeklyArchiveChallenge";
+import { getGameModeDefinition, makeStandardSeed, type GameMode } from "./modes/gameModes";
+import { calculateDebugScore } from "./score/calculateDebugScore";
+import type { DebugScoreResult } from "./score/debugScoreTypes";
+import { completeRunAndSubmit, createRunRecord } from "./leaderboard/mockLeaderboardClient";
+import type { RunRecord } from "./leaderboard/leaderboardTypes";
 import type {
   ActionLogEntry,
   DataBundle,
@@ -88,6 +98,35 @@ async function loadJson<T>(url: string): Promise<T> {
   return response.json() as Promise<T>;
 }
 
+function buildDebugScore(state: GameState, mode: GameMode, reloadCount: number): DebugScoreResult {
+  const irreversibleEventCount = getIrreversibleFlags(state).length;
+  const backlashCount = state.actionLog.reduce((sum, action) => sum + action.risks.length, 0);
+  const effectiveActionCount = state.actionLog.filter((action) => {
+    if (action.kind !== "card") return false;
+    return action.effects.some((effect) => effect.variable === "war_probability" && effect.delta < 0) || action.effects.length >= 2;
+  }).length;
+  const localWarCost =
+    (state.variables.austrian_hardline ?? 0) +
+    (state.variables.russian_mobilization_pressure ?? 0) +
+    (state.variables.alliance_lock_in ?? 0);
+
+  return calculateDebugScore({
+    mode,
+    endingType: state.ending?.type ?? "unknown",
+    finalWarProbability: state.variables.war_probability ?? 0,
+    historicalCredibility: Math.max(5, Math.min(98, (state.ending?.credibilityScore ?? 50) - state.lowFeasibilityCardsUsed * 4 - irreversibleEventCount * 7)),
+    irreversibleEventCount,
+    backlashCount,
+    lowCredibilityCardCount: state.lowFeasibilityCardsUsed,
+    reloadCount,
+    localWarCost: Math.round(localWarCost / 3),
+    usedCardCount: state.usedCardIds.length,
+    readIntelCount: state.revealedIntelIds.length,
+    effectiveActionCount,
+    totalTurns: state.turn,
+  });
+}
+
 function App() {
   const [data, setData] = useState<DataBundle | null>(null);
   const [state, setState] = useState<GameState | null>(null);
@@ -109,6 +148,15 @@ function App() {
   const [privacyOpen, setPrivacyOpen] = useState(() => loadConsentState().decidedAt === null);
   const [isAdminPage, setIsAdminPage] = useState(() => window.location.hash === "#admin");
   const [adminSnapshot, setAdminSnapshot] = useState(() => getAdminAnalyticsSnapshot());
+  const [gameMode, setGameMode] = useState<GameMode>("standard");
+  const [runSeed, setRunSeed] = useState<string>(() => makeStandardSeed());
+  const [scenarioDeltas, setScenarioDeltas] = useState<Record<string, number>>({});
+  const [runRecord, setRunRecord] = useState<RunRecord | null>(null);
+  const [reloadCount, setReloadCount] = useState(0);
+  const [modeSelectOpen, setModeSelectOpen] = useState(false);
+  const [leaderboardOpen, setLeaderboardOpen] = useState(false);
+  const [debugScore, setDebugScore] = useState<DebugScoreResult | null>(null);
+  const [submittedRunId, setSubmittedRunId] = useState<string | null>(null);
   const lastEndingCueRef = useRef<string | null>(null);
   const sessionRecordedRef = useRef<string | null>(null);
 
@@ -146,13 +194,20 @@ function App() {
     ])
       .then(([variables, timeline, interventionCards, intelCards, endings]) => {
         const bundle = { variables, timeline, interventionCards, intelCards, endings };
+        const seedResult = initializeSeededGameState(variables, runSeed, gameMode);
         setData(bundle);
-        setState(createInitialState(variables));
+        setState(seedResult.state);
+        setScenarioDeltas(seedResult.appliedDeltas);
       })
       .catch((error: unknown) => {
         setLoadError(error instanceof Error ? error.message : "数据加载失败");
       });
   }, []);
+
+  useEffect(() => {
+    if (!playerSession || runRecord) return;
+    setRunRecord(createRunRecord(playerSession.player.id, gameMode, runSeed));
+  }, [playerSession, runRecord, gameMode, runSeed]);
 
   useEffect(() => {
     audioManager.setSettings(audioSettings);
@@ -234,6 +289,35 @@ function App() {
       playSfx(isFailureEnding(state.ending!) ? "ending_stamp_failure" : "ending_stamp_success");
     }, 520);
   }, [state?.ending]);
+
+  useEffect(() => {
+    if (!state?.ending) {
+      setDebugScore(null);
+      setSubmittedRunId(null);
+      return;
+    }
+    setDebugScore(buildDebugScore(state, gameMode, reloadCount));
+  }, [state?.ending?.id, state?.actionLog.length, gameMode, reloadCount]);
+
+  useEffect(() => {
+    if (!state?.ending || !debugScore || !runRecord || !playerSession || submittedRunId === runRecord.id) return;
+    const reportId = `ending-report-${state.turn}-${state.ending.id}`;
+    completeRunAndSubmit({
+      playerId: playerSession.player.id,
+      displayName: playerSession.player.id.slice(0, 10),
+      run: runRecord,
+      endingType: state.ending.type,
+      debugScoreResult: debugScore,
+      finalWarProbability: state.variables.war_probability ?? 0,
+      historicalCredibility: Math.max(5, Math.min(98, state.ending.credibilityScore - state.lowFeasibilityCardsUsed * 4 - getIrreversibleFlags(state).length * 7)),
+      irreversibleEventCount: getIrreversibleFlags(state).length,
+      usedCardCount: state.usedCardIds.length,
+      readIntelCount: state.revealedIntelIds.length,
+      reloadCount,
+      reportId,
+    });
+    setSubmittedRunId(runRecord.id);
+  }, [debugScore, state?.ending?.id, runRecord?.id, playerSession?.player.id, submittedRunId, reloadCount]);
 
   function refreshSaves(session = playerSession) {
     if (!session) return;
@@ -337,19 +421,39 @@ function App() {
     }
   }
 
-  function restart() {
+  function createSeedForMode(mode: GameMode): string {
+    if (mode === "challenge" || mode === "ironman") return currentWeeklyChallenge.seed;
+    return makeStandardSeed();
+  }
+
+  function startNewRun(mode: GameMode) {
     if (!data) return;
-    playSfx("ui_confirm");
+    const seed = createSeedForMode(mode);
+    const seedResult = initializeSeededGameState(data.variables, seed, mode);
+    const nextRun = playerSession ? createRunRecord(playerSession.player.id, mode, seed) : null;
+    setGameMode(mode);
+    setRunSeed(seed);
+    setScenarioDeltas(seedResult.appliedDeltas);
+    setRunRecord(nextRun);
+    setReloadCount(0);
+    setDebugScore(null);
+    setSubmittedRunId(null);
     lastEndingCueRef.current = null;
-    const nextState = createInitialState(data.variables);
-    setState(nextState);
+    setState(seedResult.state);
     setSelectedCardId(null);
     setSelectedIntelId(null);
     setLastAction(null);
     setAdvanceConfirmOpen(false);
     setBriefingTurn(1);
+    setModeSelectOpen(false);
+    persistAutosave(seedResult.state);
+  }
+
+  function restart() {
+    if (!data) return;
+    playSfx("ui_confirm");
     recordEvent("restart_case", { previousTurn: state?.turn, hadEnding: Boolean(state?.ending) }, true);
-    persistAutosave(nextState);
+    startNewRun(gameMode);
   }
 
   function exportStateJson() {
@@ -574,7 +678,7 @@ function App() {
   }
 
   function handleManualSave(slotName: string) {
-    if (!playerSession || !state) return;
+    if (!playerSession || !state || !getGameModeDefinition(gameMode).allowsManualSave) return;
     const save = createSaveGame({
       playerId: playerSession.player.id,
       state,
@@ -588,7 +692,9 @@ function App() {
   }
 
   function handleLoadSave(save: SaveGame) {
+    if (!getGameModeDefinition(gameMode).allowsLoad) return;
     const previousTurn = state?.turn ?? save.turn;
+    setReloadCount((count) => count + 1);
     setState(save.gameState);
     setSelectedCardId(null);
     setSelectedIntelId(null);
@@ -666,6 +772,14 @@ function App() {
         language={language}
         onUnlock={unlockAudio}
         onChange={setAudioSettings}
+      />
+      <WeeklyChallengePanel
+        language={language}
+        mode={gameMode}
+        seed={runSeed}
+        appliedDeltas={scenarioDeltas}
+        onOpenModeSelect={() => setModeSelectOpen(true)}
+        onOpenLeaderboard={() => setLeaderboardOpen(true)}
       />
       {playerSession && (
         <div className="account-entry">
@@ -755,6 +869,7 @@ function App() {
           onRestart={restart}
           onExportState={exportStateJson}
           language={language}
+          debugScore={debugScore ?? undefined}
         />
       )}
       {accountPanelOpen && playerSession && (
@@ -763,6 +878,7 @@ function App() {
             recoveryCode={playerSession.recoveryCode}
             saves={saves}
             language={language}
+            mode={gameMode}
             onClose={() => setAccountPanelOpen(false)}
             onShowCode={() => setRecoveryCodeOpen(true)}
             onRecover={() => setLoadByCodeOpen(true)}
@@ -787,6 +903,21 @@ function App() {
           language={language}
           onClose={() => setLoadByCodeOpen(false)}
           onRecover={handleRecover}
+        />
+      )}
+      {modeSelectOpen && (
+        <GameModeSelectModal
+          language={language}
+          currentMode={gameMode}
+          onStart={startNewRun}
+          onClose={() => setModeSelectOpen(false)}
+        />
+      )}
+      {leaderboardOpen && (
+        <LeaderboardPage
+          language={language}
+          playerId={playerSession?.player.id}
+          onClose={() => setLeaderboardOpen(false)}
         />
       )}
     </div>

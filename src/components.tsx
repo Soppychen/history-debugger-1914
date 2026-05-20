@@ -36,6 +36,8 @@ import type {
 } from "./types";
 import type { AudioSettings, MusicTrack } from "./audio/audioConfig";
 import type { EndingReport, RiskLevel } from "./endingReportTypes";
+import type { DebugScoreResult } from "./score/debugScoreTypes";
+import { DebugScoreBreakdownPanel } from "./components/DebugScoreBreakdownPanel";
 
 export function TopStatusBar(props: {
   turn: number;
@@ -516,6 +518,7 @@ export function EndingReportModal(props: {
   onRestart: () => void;
   onExportState: () => void;
   language: Language;
+  debugScore?: DebugScoreResult;
   variant?: EndingReportVariant;
 }) {
   const [showFullLog, setShowFullLog] = useState(false);
@@ -563,6 +566,12 @@ export function EndingReportModal(props: {
         <p>{props.report.executiveSummary}</p>
         <blockquote>{props.report.shareCard.quote}</blockquote>
       </section>
+
+      {props.debugScore && (
+        <section className="report-section">
+          <DebugScoreBreakdownPanel result={props.debugScore} language={props.language} />
+        </section>
+      )}
 
       <section className="report-section">
         <h3>{t(props.language, "finalVariables")}</h3>
