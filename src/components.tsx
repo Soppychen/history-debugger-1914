@@ -15,7 +15,15 @@ import {
   type VariableBarStatus,
 } from "./design/componentVariants";
 import { getCrisisStageLabel, getRequirementFailure } from "./gameLogic";
-import { getCardIllustration, getEndingStamp, getTurnEventImage } from "./design/artAssets";
+import {
+  resolveEndingStampAsset,
+  resolveEndingVisualAsset,
+  resolveIntelAsset,
+  resolveInterventionCardAsset,
+  resolveIrreversibleAsset,
+  resolveTurnEventAsset,
+} from "./assets/visualAssetManifest";
+import { VisualAssetImage } from "./components/VisualAssetImage";
 import {
   flagLabel,
   formatTypeList,
@@ -332,9 +340,9 @@ export function IntelCard(props: { card: IntelCardDefinition; variant: IntelCard
         <span className="card-meta ui-card__meta">{props.card.id} · {props.card.type}</span>
         <span className="ui-state-label">{props.variant === "read" ? t(props.language, "read") : t(props.language, "sealed")}</span>
       </div>
-      <AssetImage
+      <VisualAssetImage
         className="card-media"
-        src={getCardIllustration(props.card.type)}
+        asset={resolveIntelAsset(props.card)}
         fallbackLabel={props.card.type}
       />
       <b>{props.card.title}</b>
@@ -414,9 +422,9 @@ export function InterventionCard(props: {
         <span className="card-meta ui-card__meta">{props.card.id} · {formatTypeList(props.card.type, props.language)}</span>
         <span className="ap-badge">{props.card.cost} AP</span>
       </div>
-      <AssetImage
+      <VisualAssetImage
         className="card-media"
-        src={getCardIllustration(props.card.type)}
+        asset={resolveInterventionCardAsset(props.card)}
         fallbackLabel={props.card.type[0] ?? "intervention"}
       />
       <b>{props.card.name}</b>
@@ -452,10 +460,11 @@ export function CardDetailModal(props: { card: InterventionCardDefinition; state
   return (
     <Modal onClose={props.onClose}>
       <h2>{props.card.name}</h2>
-      <AssetImage
+      <VisualAssetImage
         className="modal-hero-image"
-        src={getCardIllustration(props.card.type)}
+        asset={resolveInterventionCardAsset(props.card)}
         fallbackLabel={props.card.type.join(" / ")}
+        showCaption
       />
       <p>{props.card.description}</p>
       {props.language === "zh" && <blockquote>{props.card.flavor}</blockquote>}
@@ -476,10 +485,11 @@ export function IntelModal({ intel, language, onClose }: { intel: IntelCardDefin
   return (
     <Modal onClose={onClose}>
       <h2>{intel.title}</h2>
-      <AssetImage
+      <VisualAssetImage
         className="modal-hero-image"
-        src={getCardIllustration(intel.type)}
+        asset={resolveIntelAsset(intel)}
         fallbackLabel={intel.type}
+        showCaption
       />
       <p>{intel.summary}</p>
       {language === "zh" && <blockquote>{intel.quote}</blockquote>}
@@ -553,9 +563,15 @@ export function EndingReportModal(props: {
             <span>{t(props.language, "reportStatus")} <b>{t(props.language, "archived")}</b></span>
           </div>
         </div>
-        <AssetImage
+        <VisualAssetImage
+          className="report-hero-image"
+          asset={resolveEndingVisualAsset(props.ending)}
+          fallbackLabel={props.report.endingTitle}
+          showCaption
+        />
+        <VisualAssetImage
           className="report-stamp-image"
-          src={getEndingStamp(props.ending.type)}
+          asset={resolveEndingStampAsset(props.ending)}
           fallbackLabel={variant === "totalWar" ? "FAILED" : "REPORT"}
           ariaHidden
         />
@@ -760,10 +776,11 @@ export function TimeAdvanceReportModal(props: {
   return (
     <Modal onClose={props.onClose} className="ui-time-report" variant={variant}>
       <h2>{t(props.language, "timeReport")}：{translateText(props.turnTitle, props.language)}</h2>
-      <AssetImage
+      <VisualAssetImage
         className="modal-hero-image"
-        src={getTurnEventImage(props.turn)}
+        asset={resolveTurnEventAsset({ turn: props.turn, title: props.turnTitle })}
         fallbackLabel={`Turn ${props.turn}`}
+        showCaption
       />
       <p>{translateText(props.action.description, props.language)}</p>
       <h3>{t(props.language, "pressureChanges")}</h3>
@@ -777,6 +794,18 @@ export function TimeAdvanceReportModal(props: {
       ))}
       <h3>{t(props.language, "expiredCards")}</h3>
       {props.expiredCards.length === 0 ? <p>{t(props.language, "noExpiredCards")}</p> : props.expiredCards.map((card) => <p className="system-line" key={card.id}>{card.id}「{card.name}」{t(props.language, "missed")}</p>)}
+      {props.action.flagsAdded.length > 0 && (
+        <div className="irreversible-visual-strip">
+          {props.action.flagsAdded.map((flag) => (
+            <VisualAssetImage
+              key={flag.flag}
+              className="irreversible-thumb"
+              asset={resolveIrreversibleAsset(flag.flag)}
+              fallbackLabel={flagLabel(flag.flag, props.language)}
+            />
+          ))}
+        </div>
+      )}
       {props.action.flagsAdded.length > 0 && <p className="system-line">{t(props.language, "flagsAdded")}：{props.action.flagsAdded.map((flag) => `${flagLabel(flag.flag, props.language)}=${String(flag.value)}`).join("，")}</p>}
     </Modal>
   );
@@ -794,10 +823,11 @@ export function TurnBriefingModal(props: {
   return (
     <Modal onClose={props.onClose} className="ui-turn-briefing" variant="standard">
       <h2>{props.language === "en" ? `Turn ${props.state.turn}: ${props.currentTurn.title}` : `第 ${props.state.turn} 回合：${props.currentTurn.title}`}</h2>
-      <AssetImage
+      <VisualAssetImage
         className="modal-hero-image"
-        src={getTurnEventImage(props.currentTurn.turn)}
+        asset={resolveTurnEventAsset(props.currentTurn)}
         fallbackLabel={`Turn ${props.currentTurn.turn}`}
+        showCaption
       />
       <p className="modal-kicker">{props.currentTurn.dateRange} · AP {props.state.ap}/{props.state.maxAp}</p>
       <p>{props.currentTurn.narrative}</p>

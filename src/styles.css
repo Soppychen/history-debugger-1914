@@ -23,6 +23,19 @@ button {
 .app {
   min-height: 100vh;
   padding: var(--space-4);
+  position: relative;
+}
+
+.app::before {
+  background-image: var(--stage-bg-image);
+  background-position: center;
+  background-size: cover;
+  content: "";
+  inset: 0;
+  opacity: 0.16;
+  pointer-events: none;
+  position: fixed;
+  z-index: -1;
 }
 
 .loading {
@@ -485,6 +498,41 @@ h3 {
   min-height: 92px;
   place-items: center;
   text-transform: uppercase;
+}
+
+.visual-asset-figure {
+  margin: 0;
+}
+
+.visual-asset-figure figcaption {
+  color: var(--color-text-secondary);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  margin: calc(-1 * var(--space-3)) 0 var(--space-4);
+}
+
+.visual-fallback[data-kind="turn_event"],
+.visual-fallback[data-kind="background"] {
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--color-bg-panel), transparent 8%), color-mix(in srgb, var(--color-black-ink), transparent 18%)),
+    url("/assets/backgrounds/bg-map-europe-1914-muted.svg");
+}
+
+.visual-fallback[data-kind="intel_document"] {
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--color-bg-panel), transparent 28%), color-mix(in srgb, var(--color-bg-paper), transparent 12%)),
+    var(--texture-paper);
+}
+
+.visual-fallback[data-kind="irreversible_event"] {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--color-alert), transparent 76%), var(--color-bg-panel));
+  color: var(--color-text-danger);
+}
+
+.visual-fallback[data-kind="ending_visual"] {
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--color-archive-stamp), transparent 74%), var(--color-bg-panel)),
+    url("/assets/backgrounds/bg-map-europe-1914-muted.svg");
 }
 
 .asset-fallback span {
@@ -968,9 +1016,13 @@ blockquote {
   border-bottom: var(--border-width-strong) solid var(--color-archive-stamp);
   display: grid;
   gap: var(--space-4);
-  grid-template-columns: 1fr auto;
+  grid-template-columns: 1fr minmax(260px, 420px) auto;
   margin-bottom: var(--space-5);
   padding-bottom: var(--space-4);
+}
+
+.ending-report-header .visual-asset-figure {
+  align-self: start;
 }
 
 .ending-report-header h2 {
@@ -987,6 +1039,15 @@ blockquote {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2);
+}
+
+.report-hero-image {
+  aspect-ratio: 16 / 9;
+  border: var(--border-width) solid color-mix(in srgb, var(--color-archive-ink), transparent 52%);
+  border-radius: var(--radius-sm);
+  display: block;
+  object-fit: cover;
+  width: 100%;
 }
 
 .report-metrics span,
@@ -1134,6 +1195,22 @@ blockquote {
   color: var(--color-archive-stamp);
   min-height: auto;
   padding: var(--space-1) var(--space-3);
+}
+
+.irreversible-visual-strip {
+  display: grid;
+  gap: var(--space-2);
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  margin: var(--space-3) 0;
+}
+
+.irreversible-thumb {
+  aspect-ratio: 16 / 9;
+  border: var(--border-width) solid var(--color-border-danger);
+  border-radius: var(--radius-sm);
+  display: block;
+  object-fit: cover;
+  width: 100%;
 }
 
 .account-panel {
@@ -1414,6 +1491,10 @@ blockquote {
   }
 
   .admin-player-section {
+    grid-template-columns: 1fr;
+  }
+
+  .ending-report-header {
     grid-template-columns: 1fr;
   }
 }

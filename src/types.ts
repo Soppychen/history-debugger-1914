@@ -55,6 +55,9 @@ export interface InterventionCard {
   flagsAdded?: FlagEffect[];
   flags?: FlagEffect[];
   unlocks?: string[];
+  image?: string;
+  caption?: string;
+  imageCaption?: string;
 }
 
 export interface IntelCard {
@@ -67,6 +70,9 @@ export interface IntelCard {
   unlocks: string[];
   tags: string[];
   quote: string;
+  image?: string;
+  caption?: string;
+  imageCaption?: string;
 }
 
 export interface SpecialRule {
@@ -87,6 +93,9 @@ export interface TimelineTurn {
   recommendedCards: string[];
   goalHint: string;
   specialRules: SpecialRule[];
+  image?: string;
+  caption?: string;
+  imageCaption?: string;
 }
 
 export interface EndingDefinition {
@@ -100,6 +109,11 @@ export interface EndingDefinition {
   summary: string;
   reportTemplate: string;
   shareLine: string;
+  image?: string;
+  visual?: string;
+  stamp?: string;
+  caption?: string;
+  imageCaption?: string;
 }
 
 export type VariableMap = Record<VariableKey, number>;

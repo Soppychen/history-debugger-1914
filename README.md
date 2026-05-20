@@ -90,6 +90,19 @@ http://localhost:5173/#admin
   - 结局报告显示 HDB 调试评分、评级和 breakdown。
   - 完成一局后写入本地 mock 榜单，支持 HDB 总评、最低战争风险、可信和平、最小干预、铁人调试、个人历史。
   - 当前榜单仍是 `localStorage` mock；真实上线时需要后端重算分数并验证行动序列。
+- 根据 `VISUAL_CONTENT_EXPANSION_AND_REPLACEMENT.md` 接入了图片内容系统第一版：
+  - 新增 `src/assets/visualAssetManifest.ts` 统一管理回合事件图、卡牌图例、情报档案图、不可逆节点图、结局主视觉、阶段背景和印章。
+  - 新增 `src/components/VisualAssetImage.tsx`，负责图片显示、caption、加载失败 fallback 和一次性 warning。
+  - 组件优先读取 JSON 中的 `image / caption / visual / stamp` 字段；没有字段时使用 manifest 和卡牌类型映射。
+  - 已预留资源目录：
+    - `public/assets/turn-events/`
+    - `public/assets/card-illustrations/`
+    - `public/assets/intel-documents/`
+    - `public/assets/irreversible-events/`
+    - `public/assets/ending-visuals/`
+    - `public/assets/card-specific/`
+    - `public/assets/backgrounds/`
+  - 美术资源未到位时会显示 CSS fallback，不影响游戏运行。
 - 根据 `AUDIO_CUE_GUIDE.md` 接入了动态配乐和基础音效：
   - 低压/早期阶段播放《战壕的黎明》。
   - 动员、战争迫近、不可逆节点或 WAR 进入高危时切到《钢铁洪流》。
@@ -187,6 +200,7 @@ T11-T12: 直接推进/结算
 - 目前没有浏览器端自动化点击测试；基础测试集中在 JSON、规则执行和构建。
 - 玩家账户、存档和分析后台目前是前端本地模拟层，换浏览器或清理 `localStorage` 后数据会消失；未来接真实后端时应替换 `src/auth`、`src/save`、`src/analytics` 中的 client。
 - 天梯、RunRecord、Weekly Challenge 目前也是前端本地模拟层；如果要做公开排行榜，必须接数据库和后端校验，不能信任客户端分数。
+- 图片系统目前允许新命名资源缺失；美术交付后只需按 manifest 路径替换或在 JSON 中补 `image` 字段。
 - 恢复编码在本地 mock 中会保留一份用于显示；真实后端版本应只保存 hash，并只在创建时返回明文编码。
 - 浏览器要求用户首次点击或按键后才能播放音频；如果没有声音，先点击“启用音频”。
 - 作曲家提供的多个音效合集目前按静音间隔配置了初始切片时间码，后续拿到精确 cue sheet 后，只需更新 `src/audio/audioConfig.ts`。

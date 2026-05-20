@@ -1,0 +1,173 @@
+import { getCardTypeIllustration } from "./cardTypeIllustrationMap";
+import { getCrisisStageBackground } from "./crisisStageBackgroundMap";
+import type { TopStatusBarStatus } from "../design/componentVariants";
+import type { EndingDefinition, IntelCard, InterventionCard, TimelineTurn } from "../types";
+
+export type VisualAssetKind =
+  | "turn_event"
+  | "card_illustration"
+  | "intel_document"
+  | "irreversible_event"
+  | "ending_visual"
+  | "background"
+  | "stamp";
+
+export interface VisualAsset {
+  id: string;
+  kind: VisualAssetKind;
+  src: string;
+  alt: string;
+  caption?: string;
+  fallback?: string;
+}
+
+type ImageCapable = {
+  image?: string;
+  visual?: string;
+  stamp?: string;
+  caption?: string;
+  imageCaption?: string;
+  alt?: string;
+};
+
+export const turnEventVisuals: Record<number, VisualAsset> = {
+  1: asset("turn_01_sarajevo_aftershock", "turn_event", "/assets/turn-events/turn-01-sarajevo-aftershock.png", "萨拉热窝刺杀后的欧洲震动", "事件的冲击正在从萨拉热窝向欧洲系统扩散。"),
+  2: asset("turn_02_blank_check", "turn_event", "/assets/turn-events/turn-02-blank-check.png", "德国空白支票与奥匈外交文件", "支持承诺改变了危机的风险预算。"),
+  3: asset("turn_03_ultimatum_drafted", "turn_event", "/assets/turn-events/turn-03-ultimatum-drafted.png", "最后通牒草案与红线批注", "文本正在变成战争机器的一部分。"),
+  4: asset("turn_04_press_agitation", "turn_event", "/assets/turn-events/turn-04-press-agitation.png", "报纸与民族主义情绪", "公共舆论开始压缩外交回旋空间。"),
+  5: asset("turn_05_countdown", "turn_event", "/assets/turn-events/turn-05-countdown-begins.png", "最后通牒发出前的倒计时", "最后通牒窗口正在关闭。"),
+  6: asset("turn_06_serbian_reply", "turn_event", "/assets/turn-events/turn-06-serbian-reply.png", "塞尔维亚回应文件", "接受与拒绝之间的边界变得危险。"),
+  7: asset("turn_07_local_war_gate", "turn_event", "/assets/turn-events/turn-07-local-war-gate.png", "巴尔干局部战争之门", "局部战争之门打开，外部红线正在靠近。"),
+  8: asset("turn_08_russian_mobilization_pressure", "turn_event", "/assets/turn-events/turn-08-russian-mobilization-pressure.png", "俄国动员压力与铁路图", "动员压力开始改变各国的时间感。"),
+  9: asset("turn_09_timetable_takes_over", "turn_event", "/assets/turn-events/turn-09-timetable-takes-over.png", "军事时间表接管政治", "时间表正在替代谈判成为主导逻辑。"),
+  10: asset("turn_10_german_ultimatum", "turn_event", "/assets/turn-events/turn-10-german-ultimatum.png", "德国最后通牒与电报", "战争路径开始进入自动化流程。"),
+  11: asset("turn_11_belgium_redline", "turn_event", "/assets/turn-events/turn-11-belgium-redline.png", "比利时中立红线", "一条中立边界可能把英国拉入系统。"),
+  12: asset("turn_12_system_collapse_or_freeze", "turn_event", "/assets/turn-events/turn-12-system-collapse-or-freeze.png", "欧洲系统最终判定", "事故报告即将写下最终判定。"),
+};
+
+export const legacyTurnEventVisuals: Record<number, string> = {
+  1: "/assets/turn-events/turn-01-spark-falls.png",
+  3: "/assets/turn-events/turn-03-war-in-the-text.png",
+  4: "/assets/turn-events/turn-04-press-faster-than-diplomacy.png",
+  6: "/assets/turn-events/turn-06-how-much-acceptance.png",
+  8: "/assets/turn-events/turn-08-mobilization-slope.png",
+  10: "/assets/turn-events/turn-10-first-gate-opens.png",
+  12: "/assets/turn-events/turn-12-system-collapse-check.png",
+};
+
+export const intelDocumentVisuals: Record<string, VisualAsset> = {
+  I02: asset("intel_blank_check_telegram", "intel_document", "/assets/intel-documents/intel-blank-check-telegram.png", "空白支票电报档案"),
+  I06: asset("intel_british_cabinet_note", "intel_document", "/assets/intel-documents/intel-british-cabinet-note.png", "英国内阁讨论摘要"),
+  I08: asset("intel_russian_mobilization_memo", "intel_document", "/assets/intel-documents/intel-russian-mobilization-memo.png", "俄国动员备忘录"),
+  I12: asset("intel_serbian_reply_dossier", "intel_document", "/assets/intel-documents/intel-serbian-reply-dossier.png", "塞尔维亚回应档案"),
+  I18: asset("intel_belgium_neutrality_treaty", "intel_document", "/assets/intel-documents/intel-belgium-neutrality-treaty.png", "比利时中立条约档案"),
+};
+
+export const irreversibleEventVisuals: Record<string, VisualAsset> = {
+  ultimatum_harshness: asset("irrev_ultimatum_issued", "irreversible_event", "/assets/irreversible-events/irrev-ultimatum-issued.png", "最后通牒不可逆锁定"),
+  austria_declared_war: asset("irrev_austria_declares_war", "irreversible_event", "/assets/irreversible-events/irrev-austria-declares-war.png", "奥匈宣战不可逆节点"),
+  russian_general_mobilization: asset("irrev_russian_general_mobilization", "irreversible_event", "/assets/irreversible-events/irrev-russian-general-mobilization.png", "俄国总动员不可逆节点"),
+  german_ultimatum: asset("irrev_german_ultimatum", "irreversible_event", "/assets/irreversible-events/irrev-german-ultimatum.png", "德国最后通牒不可逆节点"),
+  germany_invaded_belgium: asset("irrev_belgium_invasion", "irreversible_event", "/assets/irreversible-events/irrev-belgium-invasion.png", "比利时入侵不可逆节点"),
+  britain_enters_war: asset("irrev_britain_enters_war", "irreversible_event", "/assets/irreversible-events/irrev-britain-enters-war.png", "英国参战不可逆节点"),
+};
+
+export const endingVisuals: Record<string, VisualAsset> = {
+  total_war: asset("ending_total_war", "ending_visual", "/assets/ending-visuals/ending-total-war.png", "欧洲系统进入全面战争的结局档案图", "系统崩溃：全面战争。"),
+  delayed_war: asset("ending_delayed_war", "ending_visual", "/assets/ending-visuals/ending-delayed-war.png", "战争被推迟但系统未修复的结局档案图"),
+  localized_war: asset("ending_localized_war", "ending_visual", "/assets/ending-visuals/ending-localized-war.png", "战争被限制在巴尔干的结局档案图"),
+  conference_freeze: asset("ending_conference_freeze", "ending_visual", "/assets/ending-visuals/ending-conference-freeze.png", "国际会议冻结危机的结局档案图"),
+  coercive_peace: asset("ending_coercive_peace", "ending_visual", "/assets/ending-visuals/ending-coercive-peace.png", "高压和平的结局档案图"),
+  low_credibility_miracle: asset("ending_low_credibility_miracle", "ending_visual", "/assets/ending-visuals/ending-low-credibility-miracle.png", "低可信奇迹的结局档案图"),
+  temporary_deescalation: asset("ending_temporary_deescalation", "ending_visual", "/assets/ending-visuals/ending-conference-freeze.png", "危机暂时降温的结局档案图"),
+};
+
+export const endingStampVisuals: Record<string, VisualAsset> = {
+  total_war: asset("stamp_total_war", "stamp", "/assets/stamps/stamp-total-war.svg", "全面战争结局印章"),
+  delayed_war: asset("stamp_delayed_war", "stamp", "/assets/stamps/stamp-delayed-war.svg", "延迟战争结局印章"),
+  localized_war: asset("stamp_localized_war", "stamp", "/assets/stamps/stamp-localized-war.svg", "局部战争结局印章"),
+  conference_freeze: asset("stamp_conference_freeze", "stamp", "/assets/stamps/stamp-conference-freeze.svg", "国际会议冻结结局印章"),
+  coercive_peace: asset("stamp_coercive_peace", "stamp", "/assets/stamps/stamp-coercive-peace.svg", "高压和平结局印章"),
+  low_credibility_miracle: asset("stamp_low_credibility_miracle", "stamp", "/assets/stamps/stamp-low-credibility-miracle.svg", "低可信奇迹结局印章"),
+  temporary_deescalation: asset("stamp_temporary_deescalation", "stamp", "/assets/stamps/stamp-conference-freeze.svg", "危机降温结局印章"),
+};
+
+export const visualAssets: Record<string, VisualAsset> = {
+  ...Object.fromEntries(Object.values(turnEventVisuals).map((item) => [item.id, item])),
+  ...Object.fromEntries(Object.values(intelDocumentVisuals).map((item) => [item.id, item])),
+  ...Object.fromEntries(Object.values(irreversibleEventVisuals).map((item) => [item.id, item])),
+  ...Object.fromEntries(Object.values(endingVisuals).map((item) => [item.id, item])),
+  ...Object.fromEntries(Object.values(endingStampVisuals).map((item) => [item.id, item])),
+};
+
+export function resolveTurnEventAsset(turn: Pick<TimelineTurn, "turn" | "title"> & ImageCapable): VisualAsset {
+  const explicit = fromImageFields(`turn_${turn.turn}_json`, "turn_event", turn, `${turn.title} 事件图`);
+  if (explicit) return explicit;
+  const mapped = turnEventVisuals[turn.turn];
+  if (mapped) return { ...mapped, fallback: legacyTurnEventVisuals[turn.turn] };
+  return asset("turn_event_fallback", "turn_event", "", `${turn.title} 事件图`);
+}
+
+export function resolveInterventionCardAsset(card: InterventionCard & ImageCapable): VisualAsset {
+  const explicit = fromImageFields(`${card.id}_json`, "card_illustration", card, `${card.name} 卡牌图`);
+  if (explicit) return explicit;
+  return asset(`${card.id}_type_illustration`, "card_illustration", getCardTypeIllustration(card.type), `${card.name} 类型图例`, formatCardTypes(card.type));
+}
+
+export function resolveIntelAsset(card: IntelCard & ImageCapable): VisualAsset {
+  const explicit = fromImageFields(`${card.id}_json`, "intel_document", card, `${card.title} 情报档案图`);
+  if (explicit) return explicit;
+  return intelDocumentVisuals[card.id] ?? asset(`${card.id}_type_document`, "intel_document", getCardTypeIllustration(card.type), `${card.title} 档案缩略图`, card.type);
+}
+
+export function resolveIrreversibleAsset(flag: string): VisualAsset {
+  return irreversibleEventVisuals[flag] ?? asset(`irrev_${flag}`, "irreversible_event", "", `${flag} 不可逆节点图`);
+}
+
+export function resolveEndingVisualAsset(ending: EndingDefinition & ImageCapable): VisualAsset {
+  const explicit = fromImageFields(`${ending.id}_visual`, "ending_visual", ending, `${ending.title} 结局主视觉`);
+  if (explicit) return explicit;
+  return endingVisuals[ending.type] ?? asset(`${ending.id}_ending_visual`, "ending_visual", "", `${ending.title} 结局主视觉`);
+}
+
+export function resolveEndingStampAsset(ending: EndingDefinition & ImageCapable): VisualAsset {
+  if (ending.stamp) return asset(`${ending.id}_stamp_json`, "stamp", ending.stamp, `${ending.title} 结局印章`);
+  return endingStampVisuals[ending.type] ?? endingStampVisuals.total_war;
+}
+
+export function resolveBackgroundAsset(status: TopStatusBarStatus): VisualAsset {
+  return asset(`background_${status}`, "background", getCrisisStageBackground(status), `${status} 危机阶段背景`);
+}
+
+export function getVisualFallback(kind: VisualAssetKind): string {
+  switch (kind) {
+    case "turn_event":
+      return "archive-map-gradient";
+    case "card_illustration":
+      return "card-paper-texture";
+    case "intel_document":
+      return "document-placeholder";
+    case "irreversible_event":
+      return "red-lock-archive";
+    case "ending_visual":
+      return "ending-report-placeholder";
+    case "background":
+      return "dark-archive-background";
+    case "stamp":
+      return "stamp-placeholder";
+  }
+}
+
+function asset(id: string, kind: VisualAssetKind, src: string, alt: string, caption?: string): VisualAsset {
+  return { id, kind, src, alt, caption, fallback: getVisualFallback(kind) };
+}
+
+function fromImageFields(id: string, kind: VisualAssetKind, item: ImageCapable, alt: string): VisualAsset | null {
+  const src = item.image ?? item.visual;
+  if (!src) return null;
+  return asset(id, kind, src, item.alt ?? alt, item.caption ?? item.imageCaption);
+}
+
+function formatCardTypes(type: string | string[]): string {
+  return Array.isArray(type) ? type.join(" / ") : type;
+}

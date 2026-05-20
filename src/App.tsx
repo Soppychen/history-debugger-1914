@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import {
   applyCard,
   applyTurnPressure,
@@ -17,7 +17,6 @@ import {
 import {
   ActionResultModal,
   AdvanceTurnConfirmModal,
-  AssetImage,
   AudioControlPanel,
   CardDetailModal,
   CausalGraphPanel,
@@ -34,7 +33,8 @@ import {
   UpcomingCrisisEvents,
   VariablePanel,
 } from "./components";
-import { getTurnEventImage } from "./design/artAssets";
+import { resolveBackgroundAsset, resolveTurnEventAsset } from "./assets/visualAssetManifest";
+import { VisualAssetImage } from "./components/VisualAssetImage";
 import { generateEndingReport } from "./engine/generateEndingReport";
 import { initializeSeededGameState } from "./engine/applyScenarioSeed";
 import {
@@ -750,7 +750,7 @@ function App() {
     : null;
 
   return (
-    <div className="app">
+    <div className="app" style={{ "--stage-bg-image": `url("${resolveBackgroundAsset(crisisStage).src}")` } as CSSProperties}>
       <TopStatusBar
         turn={state.turn}
         maxTurn={displayData.timeline.length}
@@ -796,7 +796,7 @@ function App() {
             <span>{t(language, "currentEvent")}</span>
             <strong>{currentTurn.title}</strong>
           </div>
-          <AssetImage className="event-hero-image" src={getTurnEventImage(state.turn)} fallbackLabel={`Turn ${state.turn}`} />
+          <VisualAssetImage className="event-hero-image" asset={resolveTurnEventAsset(currentTurn)} fallbackLabel={`Turn ${state.turn}`} showCaption />
           <div className="event-dateline">{currentTurn.dateRange}</div>
           <p>{currentTurn.narrative}</p>
           <p className="hint">{currentTurn.goalHint}</p>

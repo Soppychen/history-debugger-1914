@@ -12,7 +12,8 @@
     "preview": "vite preview",
     "validate:data": "node scripts/validate-game-data.mjs",
     "validate:ladder": "node scripts/validate-ladder-system.mjs",
-    "test": "npm run validate:data && npm run validate:ladder && npm run build"
+    "validate:visuals": "node scripts/validate-visual-assets.mjs",
+    "test": "npm run validate:data && npm run validate:ladder && npm run validate:visuals && npm run build"
   },
   "dependencies": {
     "react": "^19.0.0",
