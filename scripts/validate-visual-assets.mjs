@@ -1,4 +1,6 @@
-import { access, readdir } from "node:fs/promises";
+import { access, readdir, readFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import path from "node:path";
 
 const ROOT = new URL("../public/assets/", import.meta.url);
 
@@ -58,6 +60,14 @@ for (const path of requiredAssets) {
   if (!(await exists(path))) errors.push(`missing required visual asset: public/assets/${path}`);
 }
 
+const scannedReferences = await collectAssetReferences(["src", "public/data"]);
+for (const [reference, files] of scannedReferences) {
+  const normalized = reference.replace(/^\/assets\//, "");
+  if (!(await exists(normalized))) {
+    errors.push(`missing referenced visual asset: public${reference} (referenced by ${[...files].join(", ")})`);
+  }
+}
+
 for (const directory of fallbackDirectories) {
   if (!(await exists(`${directory}/`))) {
     errors.push(`missing visual asset directory: public/assets/${directory}/`);
@@ -82,4 +92,40 @@ if (errors.length > 0) {
 
 console.log("\nVisual asset validation passed:");
 console.log(`- Required art files found: ${requiredAssets.length}`);
+console.log(`- Referenced asset paths checked: ${scannedReferences.size}`);
 console.log(`- Fallback-ready directories checked: ${fallbackDirectories.length}`);
+
+async function collectAssetReferences(roots) {
+  const references = new Map();
+  const files = [];
+
+  for (const root of roots) {
+    await walk(root, files);
+  }
+
+  for (const file of files) {
+    const source = await readFile(file, "utf8");
+    const regex = /["'`]((?:\/assets\/)[^"'` )]+)/g;
+    let match;
+    while ((match = regex.exec(source))) {
+      const reference = match[1].replace(/[\\,;]+$/, "");
+      if (!references.has(reference)) references.set(reference, new Set());
+      references.get(reference).add(file);
+    }
+  }
+
+  return references;
+}
+
+async function walk(directory, files) {
+  if (!existsSync(directory)) return;
+  const entries = await readdir(directory, { withFileTypes: true });
+  for (const entry of entries) {
+    const filePath = path.join(directory, entry.name);
+    if (entry.isDirectory()) {
+      await walk(filePath, files);
+      continue;
+    }
+    if (/\.(css|json|ts|tsx)$/.test(entry.name)) files.push(filePath);
+  }
+}

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">历史现场调试器：1914</string>
+    <string name="title_activity_main">历史现场调试器：1914</string>
+    <string name="package_name">com.historydebugger.case1914</string>
+    <string name="custom_url_scheme">com.historydebugger.case1914</string>
+</resources>

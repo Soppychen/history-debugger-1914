@@ -13,9 +13,19 @@
     "validate:data": "node scripts/validate-game-data.mjs",
     "validate:ladder": "node scripts/validate-ladder-system.mjs",
     "validate:visuals": "node scripts/validate-visual-assets.mjs",
-    "test": "npm run validate:data && npm run validate:ladder && npm run validate:visuals && npm run build"
+    "art:check-missing": "node scripts/check-missing-art.mjs",
+    "art:finalize-missing": "node scripts/finalize-missing-art.mjs",
+    "art:watch": "node scripts/watch-art-and-publish.mjs --publish",
+    "test": "npm run validate:data && npm run validate:ladder && npm run validate:visuals && npm run build",
+    "android:sync": "npm run build && npx cap sync android",
+    "android:copy": "npm run build && npx cap copy android",
+    "android:open": "npx cap open android",
+    "android:run": "npm run build && npx cap run android"
   },
   "dependencies": {
+    "@capacitor/android": "^8.3.4",
+    "@capacitor/cli": "^8.3.4",
+    "@capacitor/core": "^8.3.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },

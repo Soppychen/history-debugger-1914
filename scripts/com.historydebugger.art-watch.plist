@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "https://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.historydebugger.art-watch</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/local/bin/node</string>
+    <string>scripts/watch-art-and-publish.mjs</string>
+    <string>--publish</string>
+    <string>--interval-ms</string>
+    <string>60000</string>
+  </array>
+
+  <key>WorkingDirectory</key>
+  <string>/Users/soppy/Projects/CODEX/1914</string>
+
+  <key>StandardOutPath</key>
+  <string>/Users/soppy/Projects/CODEX/1914/logs/art-watch-launchd.out.log</string>
+
+  <key>StandardErrorPath</key>
+  <string>/Users/soppy/Projects/CODEX/1914/logs/art-watch-launchd.err.log</string>
+
+  <key>RunAtLoad</key>
+  <true/>
+</dict>
+</plist>

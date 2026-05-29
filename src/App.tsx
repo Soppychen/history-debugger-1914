@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { Capacitor } from "@capacitor/core";
 import {
   applyCard,
   applyTurnPressure,
@@ -90,6 +91,8 @@ const DATA_FILES = {
   endings: "/data/endings_1914.json",
 } as const;
 
+const isNativeAndroid = Capacitor.getPlatform() === "android";
+
 async function loadJson<T>(url: string): Promise<T> {
   const response = await fetch(url);
   if (!response.ok) {
@@ -146,7 +149,7 @@ function App() {
   const [recoveryCodeOpen, setRecoveryCodeOpen] = useState(false);
   const [loadByCodeOpen, setLoadByCodeOpen] = useState(false);
   const [privacyOpen, setPrivacyOpen] = useState(() => loadConsentState().decidedAt === null);
-  const [isAdminPage, setIsAdminPage] = useState(() => window.location.hash === "#admin");
+  const [isAdminPage, setIsAdminPage] = useState(() => !isNativeAndroid && window.location.hash === "#admin");
   const [adminSnapshot, setAdminSnapshot] = useState(() => getAdminAnalyticsSnapshot());
   const [gameMode, setGameMode] = useState<GameMode>("standard");
   const [runSeed, setRunSeed] = useState<string>(() => makeStandardSeed());
@@ -169,6 +172,11 @@ function App() {
 
   useEffect(() => {
     const onHashChange = () => {
+      if (isNativeAndroid && window.location.hash === "#admin") {
+        window.location.hash = "";
+        setIsAdminPage(false);
+        return;
+      }
       const nextIsAdmin = window.location.hash === "#admin";
       setIsAdminPage(nextIsAdmin);
       if (nextIsAdmin) setAdminSnapshot(getAdminAnalyticsSnapshot());

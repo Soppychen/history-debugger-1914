@@ -15,17 +15,17 @@ export const cardTypeIllustrationMap: Record<string, string> = {
 
 const intelTypeFallbacks: Array<[RegExp, keyof typeof cardTypeIllustrationMap]> = [
   [/军事|动员|战略|战争|同盟/, "military"],
+  [/制度|内部|会议|评估/, "institutional"],
   [/媒体|社会|国内|政府|政治|信誉/, "domestic_politics"],
   [/国际法|法律|司法/, "international_law"],
   [/外交|电报|声明|文件|观察/, "diplomacy"],
-  [/制度|内部|会议|评估/, "institutional"],
   [/情报|警报|事件|历史|记忆/, "intelligence"],
 ];
 
 export function getCardTypeIllustration(type: string | string[] | undefined): string {
-  const key = Array.isArray(type) ? type[0] : type;
+  const key = Array.isArray(type) ? type.join(" ") : type;
   if (!key) return cardTypeIllustrationMap.intelligence;
-  if (cardTypeIllustrationMap[key]) return cardTypeIllustrationMap[key];
+  if (!Array.isArray(type) && cardTypeIllustrationMap[key]) return cardTypeIllustrationMap[key];
   const matched = intelTypeFallbacks.find(([pattern]) => pattern.test(key));
   return matched ? cardTypeIllustrationMap[matched[1]] : cardTypeIllustrationMap.intelligence;
 }

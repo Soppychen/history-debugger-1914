@@ -1,5 +1,6 @@
 import { getCardTypeIllustration } from "./cardTypeIllustrationMap";
 import { getCrisisStageBackground } from "./crisisStageBackgroundMap";
+import { deliveredIntelDocumentVisuals } from "./deliveredIntelDocumentVisuals";
 import type { TopStatusBarStatus } from "../design/componentVariants";
 import type { EndingDefinition, IntelCard, InterventionCard, TimelineTurn } from "../types";
 
@@ -55,22 +56,9 @@ export const legacyTurnEventVisuals: Record<number, string> = {
   12: "/assets/turn-events/turn-12-system-collapse-check.png",
 };
 
-export const intelDocumentVisuals: Record<string, VisualAsset> = {
-  I02: asset("intel_blank_check_telegram", "intel_document", "/assets/intel-documents/intel-blank-check-telegram.png", "空白支票电报档案"),
-  I06: asset("intel_british_cabinet_note", "intel_document", "/assets/intel-documents/intel-british-cabinet-note.png", "英国内阁讨论摘要"),
-  I08: asset("intel_russian_mobilization_memo", "intel_document", "/assets/intel-documents/intel-russian-mobilization-memo.png", "俄国动员备忘录"),
-  I12: asset("intel_serbian_reply_dossier", "intel_document", "/assets/intel-documents/intel-serbian-reply-dossier.png", "塞尔维亚回应档案"),
-  I18: asset("intel_belgium_neutrality_treaty", "intel_document", "/assets/intel-documents/intel-belgium-neutrality-treaty.png", "比利时中立条约档案"),
-};
+export const intelDocumentVisuals: Record<string, VisualAsset> = deliveredIntelDocumentVisuals;
 
-export const irreversibleEventVisuals: Record<string, VisualAsset> = {
-  ultimatum_harshness: asset("irrev_ultimatum_issued", "irreversible_event", "/assets/irreversible-events/irrev-ultimatum-issued.png", "最后通牒不可逆锁定"),
-  austria_declared_war: asset("irrev_austria_declares_war", "irreversible_event", "/assets/irreversible-events/irrev-austria-declares-war.png", "奥匈宣战不可逆节点"),
-  russian_general_mobilization: asset("irrev_russian_general_mobilization", "irreversible_event", "/assets/irreversible-events/irrev-russian-general-mobilization.png", "俄国总动员不可逆节点"),
-  german_ultimatum: asset("irrev_german_ultimatum", "irreversible_event", "/assets/irreversible-events/irrev-german-ultimatum.png", "德国最后通牒不可逆节点"),
-  germany_invaded_belgium: asset("irrev_belgium_invasion", "irreversible_event", "/assets/irreversible-events/irrev-belgium-invasion.png", "比利时入侵不可逆节点"),
-  britain_enters_war: asset("irrev_britain_enters_war", "irreversible_event", "/assets/irreversible-events/irrev-britain-enters-war.png", "英国参战不可逆节点"),
-};
+export const irreversibleEventVisuals: Record<string, VisualAsset> = {};
 
 export const endingVisuals: Record<string, VisualAsset> = {
   total_war: asset("ending_total_war", "ending_visual", "/assets/ending-visuals/ending-total-war.png", "欧洲系统进入全面战争的结局档案图", "系统崩溃：全面战争。"),
@@ -117,7 +105,7 @@ export function resolveInterventionCardAsset(card: InterventionCard & ImageCapab
 export function resolveIntelAsset(card: IntelCard & ImageCapable): VisualAsset {
   const explicit = fromImageFields(`${card.id}_json`, "intel_document", card, `${card.title} 情报档案图`);
   if (explicit) return explicit;
-  return intelDocumentVisuals[card.id] ?? asset(`${card.id}_type_document`, "intel_document", getCardTypeIllustration(card.type), `${card.title} 档案缩略图`, card.type);
+  return intelDocumentVisuals[card.id] ?? asset(`${card.id}_type_document`, "intel_document", getCardTypeIllustration([card.type, card.title]), `${card.title} 档案缩略图`, card.type);
 }
 
 export function resolveIrreversibleAsset(flag: string): VisualAsset {
