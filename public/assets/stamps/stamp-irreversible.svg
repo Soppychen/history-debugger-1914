@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 140" fill="none" role="img" aria-label="irreversible stamp">
+  <g transform="rotate(-8 190 70)" stroke="#b52b2f" stroke-width="6" stroke-linejoin="round">
+    <rect x="18" y="22" width="344" height="96" rx="4"/>
+    <rect x="30" y="34" width="320" height="72" rx="2" stroke-width="2"/>
+    <path d="M44 50h292M44 94h292" stroke-width="2"/>
+  </g>
+  <text x="190" y="72" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="35" font-weight="700" letter-spacing="2" fill="#b52b2f" transform="rotate(-8 190 70)">IRREVERSIBLE</text>
+  <text x="190" y="99" text-anchor="middle" font-family="ui-monospace, Menlo, monospace" font-size="16" font-weight="700" letter-spacing="3" fill="#b52b2f" transform="rotate(-8 190 70)">NODE LOCKED</text>
+</svg>

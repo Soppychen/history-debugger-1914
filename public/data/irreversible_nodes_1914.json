@@ -1,0 +1,124 @@
+[
+  {
+    "id": "ultimatum_sent",
+    "title": "最后通牒正式发出",
+    "triggerTurn": 5,
+    "conditions": [
+      { "type": "variable_min", "key": "austrian_hardline", "value": 58 }
+    ],
+    "effects": [
+      { "variable": "war_probability", "delta": 5, "reason": "最后通牒发出后，措辞窗口关闭" },
+      { "variable": "diplomatic_trust", "delta": -4, "reason": "强硬文本削弱外交互信" }
+    ],
+    "lockedCardIds": ["C10"],
+    "unlockedCardIds": ["C17", "C19"],
+    "variableImpactSummary": [
+      "最后通牒措辞已无法再修改。",
+      "后续行动只能处理最后通牒造成的后果。"
+    ],
+    "reportText": "最后通牒已经从草案变成正式外交文本。历史窗口关闭：文本不再可调，只能处理回应与动员。"
+  },
+  {
+    "id": "serbian_core_rejection",
+    "title": "塞尔维亚拒绝核心条款",
+    "triggerTurn": 6,
+    "conditions": [
+      { "type": "node_active", "key": "ultimatum_sent", "value": true },
+      { "type": "variable_max", "key": "serbian_compromise", "value": 48 }
+    ],
+    "effects": [
+      { "variable": "austrian_hardline", "delta": 6, "reason": "奥匈将回应解释为拒绝核心条款" },
+      { "variable": "war_probability", "delta": 6, "reason": "回应争议打开军事惩戒路径" }
+    ],
+    "lockedCardIds": ["C17"],
+    "unlockedCardIds": ["C20", "C21"],
+    "variableImpactSummary": [
+      "塞尔维亚让步窗口缩小。",
+      "奥匈国内强硬派获得新的理由。"
+    ],
+    "reportText": "塞尔维亚接受了部分条款，但拒绝核心主权让渡。维也纳将其解释为拒绝，局部战争路径开始成形。"
+  },
+  {
+    "id": "austria_declares_war",
+    "title": "奥匈宣战",
+    "triggerTurn": 7,
+    "conditions": [
+      { "type": "node_active", "key": "serbian_core_rejection", "value": true },
+      { "type": "variable_min", "key": "austrian_hardline", "value": 68 }
+    ],
+    "effects": [
+      { "variable": "russian_mobilization_pressure", "delta": 8, "reason": "奥匈宣战后，俄国保护塞尔维亚压力上升" },
+      { "variable": "alliance_lock_in", "delta": 5, "reason": "局部战争开始牵动同盟义务" },
+      { "variable": "war_probability", "delta": 8, "reason": "局部战争显著提升扩大战争风险" }
+    ],
+    "lockedCardIds": ["C16", "C20", "C24"],
+    "unlockedCardIds": ["C22", "C23", "C25"],
+    "variableImpactSummary": [
+      "局部战争之门打开。",
+      "停表式外交窗口关闭，后续只能限制扩大战争。"
+    ],
+    "reportText": "奥匈宣战让危机离开文本阶段。局部战争不等于全面战争，但它为动员和同盟反应提供了轨道。"
+  },
+  {
+    "id": "russian_general_mobilization",
+    "title": "俄国总动员",
+    "triggerTurn": 8,
+    "conditions": [
+      { "type": "variable_min", "key": "russian_mobilization_pressure", "value": 68 },
+      { "type": "variable_min", "key": "military_timetable_rigidity", "value": 48 }
+    ],
+    "effects": [
+      { "variable": "military_timetable_rigidity", "delta": 10, "reason": "俄国总动员使军事时间表接管政治" },
+      { "variable": "german_risk_perception", "delta": -7, "reason": "德国将俄国动员视为迫近威胁" },
+      { "variable": "war_probability", "delta": 10, "reason": "总动员使全面战争风险越过新台阶" }
+    ],
+    "lockedCardIds": ["C21", "C23", "C25"],
+    "unlockedCardIds": ["C26", "C28"],
+    "variableImpactSummary": [
+      "军事时间表刚性大幅上升。",
+      "德国风险判断转向恐惧与抢先行动。"
+    ],
+    "reportText": "俄国总动员启动后，危机节奏不再由外交照会完全控制。铁路、预案和总参谋部开始改变政治。"
+  },
+  {
+    "id": "german_ultimatum",
+    "title": "德国最后通牒",
+    "triggerTurn": 10,
+    "conditions": [
+      { "type": "node_active", "key": "russian_general_mobilization", "value": true },
+      { "type": "variable_min", "key": "military_timetable_rigidity", "value": 62 }
+    ],
+    "effects": [
+      { "variable": "alliance_lock_in", "delta": 8, "reason": "德国最后通牒推动同盟链条锁定" },
+      { "variable": "war_probability", "delta": 9, "reason": "最后通牒将危机推向战争阈值" }
+    ],
+    "lockedCardIds": ["C26", "C28"],
+    "unlockedCardIds": ["C29", "C30"],
+    "variableImpactSummary": [
+      "德俄外交热线窗口关闭。",
+      "后续重点转向西线与英国红线。"
+    ],
+    "reportText": "德国最后通牒将动员危机转化为战争时钟。谈判仍可能存在，但不再控制主要节奏。"
+  },
+  {
+    "id": "belgium_path_open",
+    "title": "德国入侵比利时 / 英国参战路径打开",
+    "triggerTurn": 11,
+    "conditions": [
+      { "type": "node_active", "key": "german_ultimatum", "value": true },
+      { "type": "variable_max", "key": "british_redline_clarity", "value": 58 }
+    ],
+    "effects": [
+      { "variable": "british_redline_clarity", "delta": 12, "reason": "比利时中立问题迫使英国红线清晰" },
+      { "variable": "alliance_lock_in", "delta": 6, "reason": "英国介入路径牵动欧洲同盟结构" },
+      { "variable": "war_probability", "delta": 12, "reason": "英国参战路径打开，全面战争概率急升" }
+    ],
+    "lockedCardIds": ["C29", "C30"],
+    "unlockedCardIds": [],
+    "variableImpactSummary": [
+      "英国红线从模糊变成参战条件。",
+      "最后的冻结窗口基本关闭。"
+    ],
+    "reportText": "比利时中立问题把英国从犹豫推向介入路径。全面战争不再只是东欧危机的外溢，而成为欧洲系统崩溃。"
+  }
+]

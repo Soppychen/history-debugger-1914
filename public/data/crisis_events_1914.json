@@ -1,0 +1,137 @@
+[
+  {
+    "id": "sarajevo_aftershock",
+    "title": "刺杀冲击扩散",
+    "turn": 1,
+    "description": "刺杀从司法事件转入帝国威信与民族主义叙事。",
+    "eventType": "media_pressure",
+    "effectsPreview": [
+      { "variable": "nationalist_pressure", "delta": 5, "reason": "刺杀激化民族主义情绪" },
+      { "variable": "war_probability", "delta": 3, "reason": "局部危机出现扩散迹象" }
+    ],
+    "relatedCardIds": ["C01", "C02", "C03", "C04"],
+    "interventionWindow": { "startTurn": 1, "endTurn": 2 }
+  },
+  {
+    "id": "blank_check_signal",
+    "title": "德国支持信号形成",
+    "turn": 2,
+    "description": "若支持没有边界，奥匈将更敢把惩罚升级为战争威胁。",
+    "eventType": "diplomatic_window",
+    "effectsPreview": [
+      { "variable": "german_risk_perception", "delta": -4, "reason": "德国低估全面战争风险" },
+      { "variable": "alliance_lock_in", "delta": 4, "reason": "同盟承诺推动危机绑定" }
+    ],
+    "relatedCardIds": ["C05", "C06", "C07", "C08"],
+    "interventionWindow": { "startTurn": 2, "endTurn": 4 }
+  },
+  {
+    "id": "ultimatum_drafted",
+    "title": "最后通牒草案成形",
+    "turn": 3,
+    "description": "文本越严厉，后续可回滚空间越小。",
+    "eventType": "ultimatum",
+    "effectsPreview": [
+      { "variable": "austrian_hardline", "delta": 5, "reason": "奥匈继续草拟强硬文本" },
+      { "variable": "serbian_compromise", "delta": -3, "reason": "塞尔维亚预期条款侵犯主权" }
+    ],
+    "relatedCardIds": ["C09", "C10", "C11", "C12"],
+    "interventionWindow": { "startTurn": 3, "endTurn": 5 }
+  },
+  {
+    "id": "press_pressure_chain",
+    "title": "报刊压力压缩外交空间",
+    "turn": 4,
+    "description": "舆论将退让解释为软弱，外交成本上升。",
+    "eventType": "media_pressure",
+    "effectsPreview": [
+      { "variable": "media_agitation", "delta": 7, "reason": "欧洲媒体连锁报道放大危机" },
+      { "variable": "diplomatic_trust", "delta": -3, "reason": "各国信号被舆论噪声扭曲" }
+    ],
+    "relatedCardIds": ["C03", "C13", "C14", "C15"],
+    "interventionWindow": { "startTurn": 4, "endTurn": 6 }
+  },
+  {
+    "id": "ultimatum_sent",
+    "title": "最后通牒正式发出",
+    "turn": 5,
+    "description": "措辞窗口关闭，后续只能处理最后通牒造成的后果。",
+    "eventType": "irreversible",
+    "effectsPreview": [
+      { "variable": "war_probability", "delta": 6, "reason": "最后通牒发出，危机显著升级" }
+    ],
+    "relatedCardIds": ["C10", "C16", "C17", "C18"],
+    "interventionWindow": { "startTurn": 3, "endTurn": 5 },
+    "irreversibleNodeId": "ultimatum_sent"
+  },
+  {
+    "id": "serbian_reply_deadline",
+    "title": "塞尔维亚回应期限",
+    "turn": 6,
+    "description": "接受多少才算接受，将决定危机是否进入武力惩戒路径。",
+    "eventType": "ultimatum",
+    "effectsPreview": [
+      { "variable": "serbian_compromise", "delta": -4, "reason": "主权争议条款压低妥协空间" },
+      { "variable": "war_probability", "delta": 5, "reason": "回应争议推高战争概率" }
+    ],
+    "relatedCardIds": ["C17", "C19", "C20", "C21"],
+    "interventionWindow": { "startTurn": 5, "endTurn": 6 },
+    "irreversibleNodeId": "serbian_core_rejection"
+  },
+  {
+    "id": "austria_declares_war",
+    "title": "奥匈宣战窗口",
+    "turn": 7,
+    "description": "局部战争之门打开，外部大国红线开始靠近。",
+    "eventType": "irreversible",
+    "effectsPreview": [
+      { "variable": "russian_mobilization_pressure", "delta": 6, "reason": "俄国保护塞尔维亚压力上升" },
+      { "variable": "war_probability", "delta": 7, "reason": "局部战争打开升级路径" }
+    ],
+    "relatedCardIds": ["C21", "C22", "C23", "C24"],
+    "interventionWindow": { "startTurn": 6, "endTurn": 7 },
+    "irreversibleNodeId": "austria_declares_war"
+  },
+  {
+    "id": "russian_mobilization_slope",
+    "title": "俄国动员滑坡",
+    "turn": 8,
+    "description": "动员压力开始改变各国对时间的感知。",
+    "eventType": "mobilization",
+    "effectsPreview": [
+      { "variable": "russian_mobilization_pressure", "delta": 8, "reason": "俄国动员压力显著提高" },
+      { "variable": "military_timetable_rigidity", "delta": 5, "reason": "铁路与动员计划开始压缩政治时间" }
+    ],
+    "relatedCardIds": ["C25", "C26", "C23", "C27"],
+    "interventionWindow": { "startTurn": 8, "endTurn": 9 },
+    "irreversibleNodeId": "russian_general_mobilization"
+  },
+  {
+    "id": "german_ultimatum_gate",
+    "title": "德国最后通牒",
+    "turn": 10,
+    "description": "德国把动员解读为战争准备，政治空间被总参谋部时间表挤压。",
+    "eventType": "war_threshold",
+    "effectsPreview": [
+      { "variable": "military_timetable_rigidity", "delta": 7, "reason": "德国战争时间表加速" },
+      { "variable": "war_probability", "delta": 8, "reason": "最后通牒打开全面战争闸门" }
+    ],
+    "relatedCardIds": ["C28", "C29", "C30"],
+    "interventionWindow": { "startTurn": 9, "endTurn": 10 },
+    "irreversibleNodeId": "german_ultimatum"
+  },
+  {
+    "id": "belgium_path_open",
+    "title": "比利时路径打开",
+    "turn": 11,
+    "description": "比利时中立问题可能把英国从犹豫推向介入。",
+    "eventType": "irreversible",
+    "effectsPreview": [
+      { "variable": "british_redline_clarity", "delta": 8, "reason": "比利时问题迫使英国红线清晰" },
+      { "variable": "war_probability", "delta": 8, "reason": "英国介入路径打开" }
+    ],
+    "relatedCardIds": ["C29", "C30", "C27"],
+    "interventionWindow": { "startTurn": 9, "endTurn": 11 },
+    "irreversibleNodeId": "belgium_path_open"
+  }
+]

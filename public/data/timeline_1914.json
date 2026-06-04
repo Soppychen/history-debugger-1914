@@ -62,7 +62,28 @@
           }
         ]
       }
-    ]
+    ],
+    "briefing": {
+      "briefingTitle": "火星落下",
+      "briefingText": "费迪南大公遇刺后，维也纳内部开始讨论如何惩罚塞尔维亚。各国表面哀悼，实则观望奥匈反应。",
+      "keyRisks": [
+        "奥匈内部要求强硬回应（austrian_hardline +6）",
+        "刺杀激化民族主义情绪（nationalist_pressure +5）",
+        "报刊开始煽动复仇叙事（media_agitation +4）"
+      ],
+      "focusVariableIds": [
+        "austrian_hardline",
+        "nationalist_pressure",
+        "media_agitation",
+        "diplomatic_trust"
+      ],
+      "expiringCardIds": [],
+      "upcomingEventIds": [
+        "sarajevo_aftershock",
+        "blank_check_signal",
+        "ultimatum_drafted"
+      ]
+    }
   },
   {
     "turn": 2,
@@ -127,7 +148,28 @@
           }
         ]
       }
-    ]
+    ],
+    "briefing": {
+      "briefingTitle": "盟友的承诺",
+      "briefingText": "奥匈向德国寻求支持。德国可能给出强力背书，使奥匈更敢冒险。",
+      "keyRisks": [
+        "德国支持增强奥匈信心（austrian_hardline +5）",
+        "德国低估全面战争风险（german_risk_perception -4）",
+        "同盟承诺推动危机绑定（alliance_lock_in +4）"
+      ],
+      "focusVariableIds": [
+        "german_risk_perception",
+        "austrian_hardline",
+        "alliance_lock_in",
+        "war_probability"
+      ],
+      "expiringCardIds": [],
+      "upcomingEventIds": [
+        "blank_check_signal",
+        "ultimatum_drafted",
+        "press_pressure_chain"
+      ]
+    }
   },
   {
     "turn": 3,
@@ -187,7 +229,28 @@
           }
         ]
       }
-    ]
+    ],
+    "briefing": {
+      "briefingTitle": "文字里的战争",
+      "briefingText": "奥匈开始准备对塞尔维亚的最后通牒。措辞越严厉，塞尔维亚接受可能性越低，但奥匈国内越满意。",
+      "keyRisks": [
+        "奥匈继续草拟强硬文本（austrian_hardline +5）",
+        "塞尔维亚预期条款侵犯主权（serbian_compromise -3）",
+        "报刊继续追逐强硬叙事（media_agitation +3）"
+      ],
+      "focusVariableIds": [
+        "austrian_hardline",
+        "serbian_compromise",
+        "media_agitation",
+        "war_probability"
+      ],
+      "expiringCardIds": [],
+      "upcomingEventIds": [
+        "ultimatum_drafted",
+        "press_pressure_chain",
+        "ultimatum_sent"
+      ]
+    }
   },
   {
     "turn": 4,
@@ -257,7 +320,28 @@
           }
         ]
       }
-    ]
+    ],
+    "briefing": {
+      "briefingTitle": "报纸比外交官更快",
+      "briefingText": "各国媒体不断放大荣誉、复仇、民族屈辱。外交退让的国内成本变高。",
+      "keyRisks": [
+        "欧洲媒体连锁报道放大危机（media_agitation +7）",
+        "街头与报刊强化民族主义压力（nationalist_pressure +6）",
+        "舆论压力推动强硬政策（war_probability +4）"
+      ],
+      "focusVariableIds": [
+        "nationalist_pressure",
+        "media_agitation",
+        "diplomatic_trust",
+        "serbian_compromise"
+      ],
+      "expiringCardIds": [],
+      "upcomingEventIds": [
+        "press_pressure_chain",
+        "ultimatum_sent",
+        "serbian_reply_deadline"
+      ]
+    }
   },
   {
     "turn": 5,
@@ -333,7 +417,31 @@
           }
         ]
       }
-    ]
+    ],
+    "briefing": {
+      "briefingTitle": "倒计时开始",
+      "briefingText": "奥匈向塞尔维亚发出最后通牒。危机进入正式倒计时。",
+      "keyRisks": [
+        "期限压力显著提高升级风险（war_probability +6）",
+        "最后通牒使同盟压力具体化（alliance_lock_in +5）",
+        "军事准备开始压缩外交时间（military_timetable_rigidity +4）"
+      ],
+      "focusVariableIds": [
+        "alliance_lock_in",
+        "military_timetable_rigidity",
+        "serbian_compromise",
+        "war_probability"
+      ],
+      "expiringCardIds": [
+        "C10",
+        "C16"
+      ],
+      "upcomingEventIds": [
+        "ultimatum_sent",
+        "serbian_reply_deadline",
+        "austria_declares_war"
+      ]
+    }
   },
   {
     "turn": 6,
@@ -398,7 +506,30 @@
           }
         ]
       }
-    ]
+    ],
+    "briefing": {
+      "briefingTitle": "接受多少才算接受",
+      "briefingText": "塞尔维亚回应最后通牒。它可能接受大部分条款，但拒绝侵犯主权的部分。",
+      "keyRisks": [
+        "奥匈强硬派认为回应仍不够彻底（austrian_hardline +4）",
+        "俄国保护塞尔维亚压力提高（russian_mobilization_pressure +4）",
+        "奥匈与塞尔维亚分歧仍未解决（war_probability +4）"
+      ],
+      "focusVariableIds": [
+        "austrian_hardline",
+        "russian_mobilization_pressure",
+        "diplomatic_trust",
+        "war_probability"
+      ],
+      "expiringCardIds": [
+        "C17"
+      ],
+      "upcomingEventIds": [
+        "serbian_reply_deadline",
+        "austria_declares_war",
+        "russian_mobilization_slope"
+      ]
+    }
   },
   {
     "turn": 7,
@@ -464,7 +595,29 @@
           }
         ]
       }
-    ]
+    ],
+    "briefing": {
+      "briefingTitle": "局部战争之门",
+      "briefingText": "奥匈可能对塞尔维亚宣战。局部战争本身未必引发全面战争，但会显著提高俄国介入压力。",
+      "keyRisks": [
+        "俄国保护塞尔维亚压力进一步上升（russian_mobilization_pressure +7）",
+        "局部危机逼近扩散边界（war_probability +6）",
+        "宣战压力上升（austrian_hardline +5）"
+      ],
+      "focusVariableIds": [
+        "austrian_hardline",
+        "russian_mobilization_pressure",
+        "alliance_lock_in",
+        "war_probability"
+      ],
+      "expiringCardIds": [
+        "C24"
+      ],
+      "upcomingEventIds": [
+        "austria_declares_war",
+        "russian_mobilization_slope"
+      ]
+    }
   },
   {
     "turn": 8,
@@ -540,7 +693,27 @@
           }
         ]
       }
-    ]
+    ],
+    "briefing": {
+      "briefingTitle": "动员不是按钮，是滑坡",
+      "briefingText": "俄国面临保护塞尔维亚和维护大国信誉的压力。局部动员和总动员的边界变得危险。",
+      "keyRisks": [
+        "俄国信誉与保护压力继续上升（russian_mobilization_pressure +8）",
+        "军事系统开始接管时间表（military_timetable_rigidity +8）",
+        "动员讨论接近不可逆区（war_probability +7）"
+      ],
+      "focusVariableIds": [
+        "russian_mobilization_pressure",
+        "german_risk_perception",
+        "military_timetable_rigidity",
+        "alliance_lock_in"
+      ],
+      "expiringCardIds": [],
+      "upcomingEventIds": [
+        "russian_mobilization_slope",
+        "german_ultimatum_gate"
+      ]
+    }
   },
   {
     "turn": 9,
@@ -611,7 +784,27 @@
           }
         ]
       }
-    ]
+    ],
+    "briefing": {
+      "briefingTitle": "时间表接管政治",
+      "briefingText": "德国向俄国和法国施压。若俄国动员不停止，德国军事系统将进入更刚性的预案。",
+      "keyRisks": [
+        "德俄战争路径逼近（war_probability +8）",
+        "德国军事时间表压缩政治选择（military_timetable_rigidity +7）",
+        "德俄法关系逐渐锁死（alliance_lock_in +6）"
+      ],
+      "focusVariableIds": [
+        "german_risk_perception",
+        "military_timetable_rigidity",
+        "alliance_lock_in",
+        "diplomatic_trust"
+      ],
+      "expiringCardIds": [],
+      "upcomingEventIds": [
+        "german_ultimatum_gate",
+        "belgium_path_open"
+      ]
+    }
   },
   {
     "turn": 10,
@@ -687,7 +880,27 @@
           }
         ]
       }
-    ]
+    ],
+    "briefing": {
+      "briefingTitle": "第一道闸门打开",
+      "briefingText": "德国可能对俄国宣战。若德俄开战，法国被卷入概率大幅上升。",
+      "keyRisks": [
+        "第一道大战闸门即将打开（war_probability +10）",
+        "德俄对抗牵动法俄同盟（alliance_lock_in +8）",
+        "法国更难脱离俄国（franco_russian_coordination +6）"
+      ],
+      "focusVariableIds": [
+        "alliance_lock_in",
+        "franco_russian_coordination",
+        "war_probability",
+        "diplomatic_trust"
+      ],
+      "expiringCardIds": [],
+      "upcomingEventIds": [
+        "german_ultimatum_gate",
+        "belgium_path_open"
+      ]
+    }
   },
   {
     "turn": 11,
@@ -763,7 +976,26 @@
           }
         ]
       }
-    ]
+    ],
+    "briefing": {
+      "briefingTitle": "一条小国边界改变帝国选择",
+      "briefingText": "德国西线计划涉及比利时中立。英国是否参战，很大程度取决于德国是否越过这条红线。",
+      "keyRisks": [
+        "比利时节点接近触发（war_probability +8）",
+        "西线预案继续推动德国行动（military_timetable_rigidity +6）",
+        "比利时问题使英国红线更清晰（british_redline_clarity +5）"
+      ],
+      "focusVariableIds": [
+        "british_redline_clarity",
+        "military_timetable_rigidity",
+        "war_probability",
+        "alliance_lock_in"
+      ],
+      "expiringCardIds": [],
+      "upcomingEventIds": [
+        "belgium_path_open"
+      ]
+    }
   },
   {
     "turn": 12,
@@ -867,6 +1099,21 @@
           }
         ]
       }
-    ]
+    ],
+    "briefing": {
+      "briefingTitle": "系统是否崩溃",
+      "briefingText": "英国是否参战，欧洲是否进入全面战争，取决于前 11 回合形成的变量状态。",
+      "keyRisks": [],
+      "focusVariableIds": [
+        "war_probability"
+      ],
+      "expiringCardIds": [
+        "C29",
+        "C30",
+        "C18",
+        "C27"
+      ],
+      "upcomingEventIds": []
+    }
   }
 ]

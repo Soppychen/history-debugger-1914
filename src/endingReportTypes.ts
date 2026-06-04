@@ -16,6 +16,13 @@ export interface EndingReport {
   finalVariables: FinalVariableReport[];
   keyCausalChain: CausalChainNode[];
   keyPlayerActions: PlayerActionSummary[];
+  missedWindows: string[];
+  irreversibleNodesTriggered: string[];
+  finalVariableHighlights: Array<{
+    variableId: string;
+    value: number;
+    reason: string;
+  }>;
   analysis: EndingAnalysis;
   playerStyle: PlayerStyleSummary;
   shareCard: ShareCardData;

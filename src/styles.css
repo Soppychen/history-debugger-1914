@@ -529,6 +529,19 @@ h3 {
   color: var(--color-text-danger);
 }
 
+.visual-fallback[data-kind="event_icon"],
+.visual-fallback[data-kind="ui_state"] {
+  align-items: center;
+  aspect-ratio: 1;
+  background: color-mix(in srgb, var(--color-alert), transparent 86%);
+  border: var(--border-width) solid var(--color-border-subtle);
+  border-radius: 999px;
+  color: var(--color-text-danger);
+  display: inline-flex;
+  justify-content: center;
+  min-height: 0;
+}
+
 .visual-fallback[data-kind="ending_visual"] {
   background:
     linear-gradient(135deg, color-mix(in srgb, var(--color-archive-stamp), transparent 74%), var(--color-bg-panel)),
@@ -572,11 +585,35 @@ h3 {
   box-shadow: inset 0 0 0 1px var(--color-border-danger);
 }
 
-.upcoming-event > div:first-child {
-  align-items: baseline;
+.upcoming-event__topline {
+  align-items: center;
   display: flex;
   gap: var(--space-2);
   justify-content: space-between;
+}
+
+.upcoming-event__topline > div {
+  display: grid;
+  flex: 1;
+  gap: 2px;
+  min-width: 0;
+}
+
+.event-type-icon,
+.ui-state-icon {
+  border-radius: 999px;
+  color: var(--color-text-secondary);
+  flex: 0 0 auto;
+  height: 22px;
+  object-fit: contain;
+  width: 22px;
+}
+
+.upcoming-event[data-severity="critical"] .event-type-icon,
+.upcoming-event[data-severity="critical"] .ui-state-icon,
+.intervention-card.is-eventLocked .ui-state-icon,
+.intervention-card.is-expiredMissedWindow .ui-state-icon {
+  color: var(--color-text-danger);
 }
 
 .upcoming-event b,
@@ -764,6 +801,30 @@ h3 {
   display: flex;
   gap: var(--space-2);
   justify-content: space-between;
+}
+
+.card-footer-state .ui-state-label {
+  margin-right: auto;
+}
+
+.intervention-card.is-eventLocked {
+  border-color: var(--color-border-danger);
+  filter: saturate(0.72);
+  position: relative;
+}
+
+.intervention-card.is-eventLocked::after {
+  border: var(--border-width-strong) solid var(--color-border-danger);
+  color: var(--color-text-danger);
+  content: "IRREVERSIBLE";
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  letter-spacing: 0.08em;
+  padding: 2px 6px;
+  position: absolute;
+  right: var(--space-2);
+  top: calc(var(--space-2) + 34px);
+  transform: rotate(-7deg);
 }
 
 .intervention-card__meta-strip {
@@ -1195,6 +1256,25 @@ blockquote {
   color: var(--color-archive-stamp);
   min-height: auto;
   padding: var(--space-1) var(--space-3);
+}
+
+.irreversible-stamp-overlay {
+  border: var(--border-width-strong) solid var(--color-border-danger);
+  color: var(--color-text-danger);
+  display: inline-flex;
+  font-family: var(--font-mono);
+  height: auto;
+  margin: var(--space-2) 0;
+  max-width: 220px;
+  min-height: 44px;
+  object-fit: contain;
+  padding: var(--space-1) var(--space-3);
+  transform: rotate(-4deg);
+}
+
+.irreversible-stamp-overlay.asset-fallback {
+  background: transparent;
+  min-height: 44px;
 }
 
 .irreversible-visual-strip {

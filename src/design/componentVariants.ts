@@ -6,6 +6,7 @@ export type InterventionCardVariant =
   | "selected"
   | "apInsufficient"
   | "requirementLocked"
+  | "eventLocked"
   | "expiringThisTurn"
   | "expiredMissedWindow"
   | "used"

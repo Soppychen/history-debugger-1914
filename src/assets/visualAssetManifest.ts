@@ -9,6 +9,8 @@ export type VisualAssetKind =
   | "card_illustration"
   | "intel_document"
   | "irreversible_event"
+  | "event_icon"
+  | "ui_state"
   | "ending_visual"
   | "background"
   | "stamp";
@@ -58,7 +60,38 @@ export const legacyTurnEventVisuals: Record<number, string> = {
 
 export const intelDocumentVisuals: Record<string, VisualAsset> = deliveredIntelDocumentVisuals;
 
-export const irreversibleEventVisuals: Record<string, VisualAsset> = {};
+export const irreversibleEventVisuals: Record<string, VisualAsset> = {
+  ultimatum_sent: asset("irreversible_ultimatum_sent", "irreversible_event", "/assets/irreversible-events/irreversible-ultimatum-sent.png", "最后通牒正式发出不可逆节点图", "最后通牒已无法再修改。"),
+  serbian_core_rejection: asset("irreversible_serbian_rejection", "irreversible_event", "/assets/irreversible-events/irreversible-serbian-rejection.png", "塞尔维亚拒绝核心条款不可逆节点图"),
+  austria_declares_war: asset("irreversible_austria_declares_war", "irreversible_event", "/assets/irreversible-events/irreversible-austria-declares-war.png", "奥匈宣战不可逆节点图"),
+  russian_general_mobilization: asset("irreversible_russian_general_mobilization", "irreversible_event", "/assets/irreversible-events/irreversible-russian-general-mobilization.png", "俄国总动员不可逆节点图"),
+  german_ultimatum: asset("irreversible_german_ultimatum", "irreversible_event", "/assets/irreversible-events/irreversible-german-ultimatum.png", "德国最后通牒不可逆节点图"),
+  belgium_path_open: asset("irreversible_belgium_path_open", "irreversible_event", "/assets/irreversible-events/irreversible-belgium-path-open.png", "比利时路径打开不可逆节点图"),
+};
+
+export const irreversibleStampVisual = asset("stamp_irreversible", "stamp", "/assets/stamps/stamp-irreversible.svg", "IRREVERSIBLE node locked stamp");
+
+export const crisisEventIconVisuals: Record<string, VisualAsset> = {
+  diplomatic_window: asset("icon_event_diplomatic_window", "event_icon", "/assets/icons/icon-event-diplomatic-window.svg", "外交窗口事件图标"),
+  ultimatum: asset("icon_event_ultimatum", "event_icon", "/assets/icons/icon-event-ultimatum.svg", "最后通牒事件图标"),
+  mobilization: asset("icon_event_mobilization", "event_icon", "/assets/icons/icon-event-mobilization.svg", "动员事件图标"),
+  media_pressure: asset("icon_event_media_pressure", "event_icon", "/assets/icons/icon-event-media-pressure.svg", "舆论升温事件图标"),
+  irreversible: asset("icon_event_irreversible", "event_icon", "/assets/icons/icon-event-irreversible.svg", "不可逆节点事件图标"),
+  war_threshold: asset("icon_event_war_threshold", "event_icon", "/assets/icons/icon-event-war-threshold.svg", "战争阈值事件图标"),
+};
+
+export const uiStateIconVisuals: Record<string, VisualAsset> = {
+  countdown: asset("icon_countdown_marker", "ui_state", "/assets/icons/icon-countdown-marker.svg", "倒计时状态标记"),
+  red_lock: asset("icon_red_lock", "ui_state", "/assets/icons/icon-red-lock.svg", "红锁状态标记"),
+  window_closed: asset("icon_window_closed", "ui_state", "/assets/icons/icon-window-closed.svg", "窗口关闭状态标记"),
+};
+
+export const intelTemplateVisuals: Record<string, VisualAsset> = {
+  telegram: asset("intel_template_diplomatic_telegram", "intel_document", "/assets/intel-documents/template-diplomatic-telegram.png", "外交电报情报模板"),
+  newspaper: asset("intel_template_newspaper_clipping", "intel_document", "/assets/intel-documents/template-newspaper-clipping.png", "报纸剪报情报模板"),
+  cabinet: asset("intel_template_cabinet_minutes", "intel_document", "/assets/intel-documents/template-cabinet-minutes.png", "内阁会议纪要情报模板"),
+  dossier: asset("intel_template_secret_dossier", "intel_document", "/assets/intel-documents/template-secret-dossier.png", "密件档案情报模板"),
+};
 
 export const endingVisuals: Record<string, VisualAsset> = {
   total_war: asset("ending_total_war", "ending_visual", "/assets/ending-visuals/ending-total-war.png", "欧洲系统进入全面战争的结局档案图", "系统崩溃：全面战争。"),
@@ -84,6 +117,9 @@ export const visualAssets: Record<string, VisualAsset> = {
   ...Object.fromEntries(Object.values(turnEventVisuals).map((item) => [item.id, item])),
   ...Object.fromEntries(Object.values(intelDocumentVisuals).map((item) => [item.id, item])),
   ...Object.fromEntries(Object.values(irreversibleEventVisuals).map((item) => [item.id, item])),
+  ...Object.fromEntries(Object.values(crisisEventIconVisuals).map((item) => [item.id, item])),
+  ...Object.fromEntries(Object.values(uiStateIconVisuals).map((item) => [item.id, item])),
+  [irreversibleStampVisual.id]: irreversibleStampVisual,
   ...Object.fromEntries(Object.values(endingVisuals).map((item) => [item.id, item])),
   ...Object.fromEntries(Object.values(endingStampVisuals).map((item) => [item.id, item])),
 };
@@ -105,11 +141,24 @@ export function resolveInterventionCardAsset(card: InterventionCard & ImageCapab
 export function resolveIntelAsset(card: IntelCard & ImageCapable): VisualAsset {
   const explicit = fromImageFields(`${card.id}_json`, "intel_document", card, `${card.title} 情报档案图`);
   if (explicit) return explicit;
-  return intelDocumentVisuals[card.id] ?? asset(`${card.id}_type_document`, "intel_document", getCardTypeIllustration([card.type, card.title]), `${card.title} 档案缩略图`, card.type);
+  return intelDocumentVisuals[card.id] ?? resolveIntelTemplateAsset(card) ?? asset(`${card.id}_type_document`, "intel_document", getCardTypeIllustration([card.type, card.title]), `${card.title} 档案缩略图`, card.type);
 }
 
 export function resolveIrreversibleAsset(flag: string): VisualAsset {
   return irreversibleEventVisuals[flag] ?? asset(`irrev_${flag}`, "irreversible_event", "", `${flag} 不可逆节点图`);
+}
+
+export function resolveIrreversibleStampAsset(): VisualAsset {
+  return irreversibleStampVisual;
+}
+
+export function resolveCrisisEventIconAsset(eventType?: string): VisualAsset {
+  if (eventType && crisisEventIconVisuals[eventType]) return crisisEventIconVisuals[eventType];
+  return asset("icon_event_default", "event_icon", "/assets/icons/icon-event.svg", "危机事件图标");
+}
+
+export function resolveUiStateAsset(state: "countdown" | "red_lock" | "window_closed"): VisualAsset {
+  return uiStateIconVisuals[state];
 }
 
 export function resolveEndingVisualAsset(ending: EndingDefinition & ImageCapable): VisualAsset {
@@ -137,6 +186,10 @@ export function getVisualFallback(kind: VisualAssetKind): string {
       return "document-placeholder";
     case "irreversible_event":
       return "red-lock-archive";
+    case "event_icon":
+      return "event-icon-placeholder";
+    case "ui_state":
+      return "ui-state-placeholder";
     case "ending_visual":
       return "ending-report-placeholder";
     case "background":
@@ -144,6 +197,15 @@ export function getVisualFallback(kind: VisualAssetKind): string {
     case "stamp":
       return "stamp-placeholder";
   }
+}
+
+function resolveIntelTemplateAsset(card: IntelCard): VisualAsset | null {
+  const text = `${card.type} ${card.title} ${card.tags?.join(" ") ?? ""}`;
+  if (/报|媒体|新闻|press|media|newspaper/i.test(text)) return intelTemplateVisuals.newspaper;
+  if (/内阁|会议|cabinet|minutes/i.test(text)) return intelTemplateVisuals.cabinet;
+  if (/电报|外交|telegram|diplomatic/i.test(text)) return intelTemplateVisuals.telegram;
+  if (/密|备忘录|档案|dossier|memo|secret/i.test(text)) return intelTemplateVisuals.dossier;
+  return null;
 }
 
 function asset(id: string, kind: VisualAssetKind, src: string, alt: string, caption?: string): VisualAsset {

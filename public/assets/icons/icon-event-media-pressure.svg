@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="media pressure event">
+  <path d="M12 16h32v36H12z"/>
+  <path d="M44 24h8v24a4 4 0 0 1-4 4h-4"/>
+  <path d="M18 25h14"/>
+  <path d="M18 33h20"/>
+  <path d="M18 41h12"/>
+  <path d="M40 10l9-4"/>
+  <path d="M43 16h11"/>
+</svg>

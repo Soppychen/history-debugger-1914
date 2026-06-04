@@ -28,7 +28,8 @@ export interface Condition {
     | "turn_min"
     | "turn_max"
     | "card_used"
-    | "cards_used_min";
+    | "cards_used_min"
+    | "node_active";
   key?: string;
   value: boolean | string | number;
 }
@@ -66,13 +67,23 @@ export interface IntelCard {
   type: string;
   turnRange: [number, number];
   summary: string;
-  reveals: string[];
+  reveals: Array<string | IntelReveal>;
   unlocks: string[];
   tags: string[];
   quote: string;
   image?: string;
   caption?: string;
   imageCaption?: string;
+}
+
+export type VariableVisibility = "hidden" | "unknown" | "rough" | "range" | "exact";
+
+export interface IntelReveal {
+  variableId: string;
+  visibility: VariableVisibility;
+  range?: [number, number];
+  confidence?: number;
+  note?: string;
 }
 
 export interface SpecialRule {
@@ -93,9 +104,57 @@ export interface TimelineTurn {
   recommendedCards: string[];
   goalHint: string;
   specialRules: SpecialRule[];
+  briefing?: TurnBriefing;
   image?: string;
   caption?: string;
   imageCaption?: string;
+}
+
+export interface TurnBriefing {
+  briefingTitle: string;
+  briefingText: string;
+  keyRisks: string[];
+  focusVariableIds: string[];
+  expiringCardIds: string[];
+  upcomingEventIds: string[];
+}
+
+export interface CrisisEvent {
+  id: string;
+  title: string;
+  turn: number;
+  description: string;
+  eventType:
+    | "diplomatic_window"
+    | "ultimatum"
+    | "mobilization"
+    | "media_pressure"
+    | "irreversible"
+    | "war_threshold";
+  effectsPreview: VariableEffect[];
+  relatedCardIds: string[];
+  interventionWindow?: {
+    startTurn: number;
+    endTurn: number;
+  };
+  irreversibleNodeId?: string;
+}
+
+export interface IrreversibleNode {
+  id: string;
+  title: string;
+  triggerTurn?: number;
+  conditions: Condition[];
+  effects: VariableEffect[];
+  lockedCardIds: string[];
+  unlockedCardIds: string[];
+  variableImpactSummary: string[];
+  reportText: string;
+  visual?: {
+    image?: string;
+    caption?: string;
+    stamp?: string;
+  };
 }
 
 export interface EndingDefinition {
@@ -125,6 +184,8 @@ export interface DataBundle {
   interventionCards: InterventionCard[];
   intelCards: IntelCard[];
   endings: EndingDefinition[];
+  crisisEvents: CrisisEvent[];
+  irreversibleNodes: IrreversibleNode[];
 }
 
 export interface ChangeRecord extends VariableEffect {
@@ -135,7 +196,8 @@ export interface ChangeRecord extends VariableEffect {
 export interface ActionLogEntry {
   id: string;
   turn: number;
-  kind: "card" | "turn";
+  kind: "card" | "turn" | "irreversible";
+  nodeId?: string;
   title: string;
   description: string;
   effects: ChangeRecord[];
@@ -157,6 +219,9 @@ export interface GameState {
   usedCardIds: string[];
   lowFeasibilityCardsUsed: number;
   revealedIntelIds: string[];
+  triggeredNodeIds: string[];
+  lockedCardIds: string[];
+  unlockedCardIds: string[];
   actionLog: ActionLogEntry[];
   ending: EndingDefinition | null;
   lastChangedVariables: string[];

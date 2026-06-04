@@ -7,6 +7,7 @@ import type {
   FlagEffect,
   GameState,
   InterventionCard,
+  IrreversibleNode,
   SpecialRule,
   VariableDefinition,
   VariableEffect,
@@ -26,6 +27,9 @@ export function createInitialState(definitions: VariableDefinition[]): GameState
     usedCardIds: [],
     lowFeasibilityCardsUsed: 0,
     revealedIntelIds: [],
+    triggeredNodeIds: [],
+    lockedCardIds: [],
+    unlockedCardIds: [],
     actionLog: [],
     ending: null,
     lastChangedVariables: [],
@@ -46,6 +50,7 @@ export function clampVariable(
 
 export function evaluateCondition(condition: Condition, state: GameState): boolean {
   const value = condition.key ? state.variables[condition.key] : undefined;
+  const triggeredNodeIds = state.triggeredNodeIds ?? [];
 
   switch (condition.type) {
     case "variable_min":
@@ -65,6 +70,8 @@ export function evaluateCondition(condition: Condition, state: GameState): boole
         return getLowFeasibilityCardCount(state) >= Number(condition.value);
       }
       return state.usedCardIds.length >= Number(condition.value);
+    case "node_active":
+      return Boolean(condition.key && triggeredNodeIds.includes(condition.key) === Boolean(condition.value));
     default:
       return false;
   }
@@ -75,10 +82,17 @@ export function evaluateConditions(conditions: Condition[] = [], state: GameStat
 }
 
 export function getRequirementFailure(card: InterventionCard, state: GameState): string | null {
+  const lockedCardIds = state.lockedCardIds ?? [];
   if (state.usedCardIds.includes(card.id)) {
     return "本局已使用";
   }
+  if (lockedCardIds.includes(card.id)) {
+    return "被不可逆节点锁死";
+  }
   if (state.turn < card.turnRange[0] || state.turn > card.turnRange[1]) {
+    if (state.turn > card.turnRange[1]) {
+      return `已错过：历史窗口已在第 ${card.turnRange[1]} 回合关闭`;
+    }
     return `仅限回合 ${card.turnRange[0]}-${card.turnRange[1]}`;
   }
   const failed = card.requirements.find((requirement) => !evaluateCondition(requirement, state));
@@ -96,6 +110,7 @@ export function explainCondition(condition: Condition): string {
   if (condition.type === "flag_exists") return `需要标记 ${condition.key} = ${String(condition.value)}`;
   if (condition.type === "card_used") return `需要已使用 ${condition.key}`;
   if (condition.type === "cards_used_min") return `需要已用卡数 >= ${condition.value}`;
+  if (condition.type === "node_active") return `需要不可逆节点 ${condition.key} ${condition.value ? "已触发" : "未触发"}`;
   return "条件不满足";
 }
 
@@ -238,6 +253,57 @@ export function applyTurnPressure(
   };
 }
 
+export function applyIrreversibleNodes(
+  state: GameState,
+  nodes: IrreversibleNode[],
+  definitions: VariableDefinition[],
+): { state: GameState; triggeredNodes: IrreversibleNode[] } {
+  let nextState: GameState = normalizeGameState(state);
+  const triggeredNodes: IrreversibleNode[] = [];
+
+  for (const node of nodes) {
+    if ((nextState.triggeredNodeIds ?? []).includes(node.id)) continue;
+    if (node.triggerTurn && nextState.turn < node.triggerTurn) continue;
+    if (!evaluateConditions(node.conditions, nextState)) continue;
+
+    const result = applyEffects(nextState.variables, node.effects, definitions);
+    const lockedCardIds = Array.from(new Set([...(nextState.lockedCardIds ?? []), ...node.lockedCardIds]));
+    const unlockedCardIds = Array.from(new Set([...(nextState.unlockedCardIds ?? []), ...node.unlockedCardIds]));
+    const log: ActionLogEntry = {
+      id: `node-${nextState.turn}-${node.id}-${nextState.actionLog.length + triggeredNodes.length + 1}`,
+      turn: nextState.turn,
+      kind: "irreversible",
+      nodeId: node.id,
+      title: node.title,
+      description: node.reportText,
+      effects: result.changes,
+      risks: [],
+      flagsAdded: [{ flag: node.id, value: true }],
+    };
+
+    nextState = {
+      ...nextState,
+      variables: result.variables,
+      flags: { ...nextState.flags, [node.id]: true },
+      triggeredNodeIds: [...(nextState.triggeredNodeIds ?? []), node.id],
+      lockedCardIds,
+      unlockedCardIds,
+      actionLog: [log, ...nextState.actionLog],
+      lastChangedVariables: Array.from(new Set([
+        ...nextState.lastChangedVariables,
+        ...result.changes.map((change) => change.variable),
+      ])),
+      lastChangeDeltas: {
+        ...nextState.lastChangeDeltas,
+        ...getChangeDeltas(result.changes),
+      },
+    };
+    triggeredNodes.push(node);
+  }
+
+  return { state: nextState, triggeredNodes };
+}
+
 export function findEnding(state: GameState, endings: EndingDefinition[]): EndingDefinition | null {
   const candidates = endings.filter((ending) => evaluateConditions(ending.conditions, state));
   return candidates.sort((a, b) => b.priority - a.priority)[0] ?? null;
@@ -259,12 +325,14 @@ export function getVisibleCards(data: DataBundle, state: GameState): Interventio
   const intelUnlocks = data.intelCards
     .filter((intel) => state.revealedIntelIds.includes(intel.id))
     .flatMap((intel) => intel.unlocks);
-  const unlocked = new Set([...intelUnlocks, ...state.usedCardIds]);
+  const unlocked = new Set([...intelUnlocks, ...state.usedCardIds, ...(state.unlockedCardIds ?? [])]);
+  const locked = new Set(state.lockedCardIds ?? []);
 
   return data.interventionCards.filter((card) => {
     const inTurnRange = state.turn >= card.turnRange[0] && state.turn <= card.turnRange[1];
     const recentlyMissed = card.turnRange[1] < state.turn && card.turnRange[1] >= state.turn - 2 && !state.usedCardIds.includes(card.id);
-    return (inTurnRange || recentlyMissed) && (recommended.has(card.id) || unlocked.has(card.id) || card.requirements.length === 0);
+    const eventLockedVisible = locked.has(card.id) && card.turnRange[1] >= state.turn - 2;
+    return (inTurnRange || recentlyMissed || eventLockedVisible) && (recommended.has(card.id) || unlocked.has(card.id) || card.requirements.length === 0 || locked.has(card.id));
   });
 }
 
@@ -302,6 +370,40 @@ export function getExpiringCards(cards: InterventionCard[], state: GameState): I
 }
 
 export function getUpcomingCrisisEvents(data: DataBundle, state: GameState, limit = 5) {
+  if (data.crisisEvents?.length) {
+    return data.crisisEvents
+      .filter((event) => event.turn > state.turn)
+      .sort((a, b) => a.turn - b.turn)
+      .slice(0, limit)
+      .map((event) => {
+        const warDelta = event.effectsPreview.find((effect) => effect.variable === "war_probability")?.delta ?? 0;
+        const maxDelta = Math.max(0, ...event.effectsPreview.map((effect) => effect.delta));
+        const turnsUntil = event.turn - state.turn;
+        const severity = event.eventType === "irreversible" || event.eventType === "war_threshold" || turnsUntil <= 1 || warDelta >= 7 || maxDelta >= 8
+          ? "critical"
+          : turnsUntil <= 2 || warDelta >= 5
+            ? "high"
+            : turnsUntil <= 3
+              ? "medium"
+              : "low";
+
+        return {
+          id: event.id,
+          title: event.title,
+          dateRange: data.timeline.find((turn) => turn.turn === event.turn)?.dateRange ?? `Turn ${event.turn}`,
+          turnsUntil,
+          riskSummary: event.description,
+          relatedVariables: Array.from(new Set(event.effectsPreview.map((effect) => effect.variable))).slice(0, 4),
+          severity,
+          eventType: event.eventType,
+          effectsPreview: event.effectsPreview,
+          relatedCardIds: event.relatedCardIds,
+          interventionWindow: event.interventionWindow,
+          irreversibleNodeId: event.irreversibleNodeId,
+        };
+      });
+  }
+
   return data.timeline
     .filter((turn) => turn.turn > state.turn)
     .slice(0, limit)
@@ -344,9 +446,22 @@ export function getOpportunityCosts(data: DataBundle, state: GameState, visibleC
 }
 
 export function getIrreversibleFlags(state: GameState): string[] {
-  return Object.keys(state.flags).filter((key) => {
+  const flagBased = Object.keys(state.flags).filter((key) => {
     return /mobilization|invaded|declared_war|rejected|harshness|irreversible/i.test(key);
   });
+  return Array.from(new Set([...(state.triggeredNodeIds ?? []), ...flagBased]));
+}
+
+export function normalizeGameState(state: GameState): GameState {
+  return {
+    ...state,
+    triggeredNodeIds: state.triggeredNodeIds ?? [],
+    lockedCardIds: state.lockedCardIds ?? [],
+    unlockedCardIds: state.unlockedCardIds ?? [],
+    revealedIntelIds: state.revealedIntelIds ?? [],
+    lastChangedVariables: state.lastChangedVariables ?? [],
+    lastChangeDeltas: state.lastChangeDeltas ?? {},
+  };
 }
 
 function getChangeDeltas(changes: ChangeRecord[]): Record<string, number> {

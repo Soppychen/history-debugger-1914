@@ -18,10 +18,13 @@ import { getCrisisStageLabel, getRequirementFailure } from "./gameLogic";
 import {
   resolveEndingStampAsset,
   resolveEndingVisualAsset,
+  resolveCrisisEventIconAsset,
   resolveIntelAsset,
   resolveInterventionCardAsset,
   resolveIrreversibleAsset,
+  resolveIrreversibleStampAsset,
   resolveTurnEventAsset,
+  resolveUiStateAsset,
 } from "./assets/visualAssetManifest";
 import { VisualAssetImage } from "./components/VisualAssetImage";
 import {
@@ -38,6 +41,8 @@ import type {
   EndingDefinition,
   GameState,
   IntelCard as IntelCardDefinition,
+  IntelReveal,
+  IrreversibleNode,
   InterventionCard as InterventionCardDefinition,
   TimelineTurn,
   VariableDefinition,
@@ -181,7 +186,7 @@ export function TimelineNode(props: { turn: TimelineTurn; logsCount: number; sta
   );
 }
 
-export function VariablePanel(props: { definitions: VariableDefinition[]; state: GameState; language: Language }) {
+export function VariablePanel(props: { definitions: VariableDefinition[]; state: GameState; intelCards?: IntelCardDefinition[]; language: Language }) {
   return (
     <aside className="variables panel">
       <div className="panel-title-row">
@@ -194,6 +199,7 @@ export function VariablePanel(props: { definitions: VariableDefinition[]; state:
         const delta = props.state.lastChangeDeltas[definition.key] ?? 0;
         const changed = delta !== 0 || props.state.lastChangedVariables.includes(definition.key);
         const status = getVariableBarStatus(delta, value);
+        const reveal = findVariableReveal(definition.key, props.intelCards ?? [], props.state, props.language);
         return (
           <div className={`variable-row ${changed ? "changed" : ""}`} key={definition.key} title={definition.description}>
             <div className="variable-label" data-status={status}>
@@ -204,11 +210,30 @@ export function VariablePanel(props: { definitions: VariableDefinition[]; state:
               </span>
             </div>
             <VariableBar percent={percent} status={status} />
+            {reveal && <small className="system-line">{reveal}</small>}
           </div>
         );
       })}
     </aside>
   );
+}
+
+function findVariableReveal(variableId: string, intelCards: IntelCardDefinition[], state: GameState, language: Language): string | null {
+  const read = new Set(state.revealedIntelIds ?? []);
+  for (const card of intelCards) {
+    if (!read.has(card.id)) continue;
+    const reveal = card.reveals.find((item) => typeof item !== "string" && item.variableId === variableId);
+    if (!reveal || typeof reveal === "string") continue;
+    const detail = reveal.visibility === "range" && reveal.range
+      ? `${language === "zh" ? "约" : "about"} ${reveal.range[0]}-${reveal.range[1]}`
+      : reveal.visibility === "rough"
+        ? (language === "zh" ? "粗略可见" : "rough signal")
+        : reveal.visibility === "exact"
+          ? (language === "zh" ? "精确可见" : "exact")
+          : (language === "zh" ? "未知" : "unknown");
+    return `${language === "zh" ? "情报" : "Intel"} ${card.id}: ${detail}${reveal.confidence ? ` / ${language === "zh" ? "可信度" : "confidence"} ${Math.round(reveal.confidence * 100)}%` : ""}`;
+  }
+  return null;
 }
 
 export function VariableBar(props: { percent: number; status: VariableBarStatus }) {
@@ -255,6 +280,8 @@ export function UpcomingCrisisEvents(props: {
     riskSummary: string;
     relatedVariables: string[];
     severity: string;
+    eventType?: string;
+    interventionWindow?: { startTurn: number; endTurn: number };
   }>;
   language: Language;
 }) {
@@ -267,9 +294,25 @@ export function UpcomingCrisisEvents(props: {
       <div className="upcoming-event-list">
         {props.events.map((event) => (
           <article className="upcoming-event" data-severity={event.severity} key={event.id}>
-            <div>
-              <b>{props.language === "en" ? `${event.turnsUntil} ${t(props.language, "turnsAfter")}: ${event.title}` : `${event.turnsUntil} 回合后：${event.title}`}</b>
-              <span>{event.dateRange}</span>
+            <div className="upcoming-event__topline">
+              <VisualAssetImage
+                className="event-type-icon"
+                asset={resolveCrisisEventIconAsset(event.eventType)}
+                fallbackLabel={event.eventType ?? "event"}
+                ariaHidden
+              />
+              <div>
+                <b>{props.language === "en" ? `${event.turnsUntil} ${t(props.language, "turnsAfter")}: ${event.title}` : `${event.turnsUntil} 回合后：${event.title}`}</b>
+                <span>{event.dateRange}</span>
+              </div>
+              {event.interventionWindow && event.turnsUntil <= 1 && (
+                <VisualAssetImage
+                  className="ui-state-icon"
+                  asset={resolveUiStateAsset("countdown")}
+                  fallbackLabel={props.language === "zh" ? "倒计时" : "countdown"}
+                  ariaHidden
+                />
+              )}
             </div>
             <p>{event.riskSummary}</p>
             <div className="intel-card__refs">
@@ -348,7 +391,7 @@ export function IntelCard(props: { card: IntelCardDefinition; variant: IntelCard
       <b>{props.card.title}</b>
       <p>{props.card.summary.slice(0, 78)}...</p>
       <div className="intel-card__refs">
-        {props.card.reveals.slice(0, 2).map((item) => <span key={item}>{translateText(item, props.language)}</span>)}
+        {props.card.reveals.slice(0, 2).map((item) => <span key={typeof item === "string" ? item : item.variableId}>{formatIntelReveal(item, props.language)}</span>)}
         {props.card.unlocks.length > 0 && <span>{t(props.language, "unlock")} {props.card.unlocks.join("/")}</span>}
       </div>
     </button>
@@ -376,10 +419,13 @@ export function InterventionCardTray(props: {
           const failure = getRequirementFailure(card, props.state);
           const apBlocked = props.state.ap < card.cost;
           const missed = card.turnRange[1] < props.state.turn && !props.state.usedCardIds.includes(card.id);
+          const eventLocked = (props.state.lockedCardIds ?? []).includes(card.id);
           const blockedReason = missed ? `${t(props.language, "missed")}：${t(props.language, "window")} T${card.turnRange[0]}-T${card.turnRange[1]}` : failure ?? (apBlocked ? `${t(props.language, "lockReason")}：AP ${card.cost}/${props.state.ap}` : null);
           const expiring = card.turnRange[1] === props.state.turn;
           const variant: InterventionCardVariant = props.state.usedCardIds.includes(card.id)
             ? "used"
+            : eventLocked
+              ? "eventLocked"
             : missed
               ? "expiredMissedWindow"
               : failure
@@ -446,7 +492,16 @@ export function InterventionCard(props: {
         </ul>
       )}
       <div className="card-footer-state">
-        {props.variant === "expiringThisTurn" ? <span className="ui-state-label">{t(props.language, "expiring")}</span> : props.variant === "expiredMissedWindow" ? <span className="ui-state-label">{t(props.language, "missed")}</span> : <span className="ui-state-label">{t(props.language, "requirementCheck")}</span>}
+        {props.variant === "eventLocked" && (
+          <VisualAssetImage className="ui-state-icon" asset={resolveUiStateAsset("red_lock")} fallbackLabel="locked" ariaHidden />
+        )}
+        {props.variant === "expiringThisTurn" && (
+          <VisualAssetImage className="ui-state-icon" asset={resolveUiStateAsset("countdown")} fallbackLabel="countdown" ariaHidden />
+        )}
+        {props.variant === "expiredMissedWindow" && (
+          <VisualAssetImage className="ui-state-icon" asset={resolveUiStateAsset("window_closed")} fallbackLabel="closed" ariaHidden />
+        )}
+        {props.variant === "eventLocked" ? <span className="ui-state-label">{props.language === "zh" ? "事件锁死" : "Event locked"}</span> : props.variant === "expiringThisTurn" ? <span className="ui-state-label">{t(props.language, "expiring")}</span> : props.variant === "expiredMissedWindow" ? <span className="ui-state-label">{t(props.language, "missed")}</span> : <span className="ui-state-label">{t(props.language, "requirementCheck")}</span>}
         {props.card.risks.length > 0 && <span className="risk-tag">{t(props.language, "riskCount")} {props.card.risks.length}</span>}
       </div>
     </button>
@@ -493,7 +548,7 @@ export function IntelModal({ intel, language, onClose }: { intel: IntelCardDefin
       />
       <p>{intel.summary}</p>
       {language === "zh" && <blockquote>{intel.quote}</blockquote>}
-      <p>{t(language, "revealedVariables")}：{intel.reveals.map((item) => translateText(item, language)).join("、") || t(language, "none")}</p>
+      <p>{t(language, "revealedVariables")}：{intel.reveals.map((item) => formatIntelReveal(item, language)).join("、") || t(language, "none")}</p>
       <p>{t(language, "unlockedCards")}：{intel.unlocks.join("、") || t(language, "none")}</p>
       {language === "zh" && <div className="tags">{intel.tags.map((tag) => <span key={tag}>{tag}</span>)}</div>}
     </Modal>
@@ -619,6 +674,31 @@ export function EndingReportModal(props: {
       </section>
 
       <section className="report-section">
+        <h3>{props.language === "zh" ? "错过窗口" : "Missed Windows"}</h3>
+        {props.report.missedWindows.length === 0 ? <p>{t(props.language, "none")}</p> : (
+          <ul>
+            {props.report.missedWindows.map((item) => <li key={item}>{item}</li>)}
+          </ul>
+        )}
+      </section>
+
+      <section className="report-section">
+        <h3>{props.language === "zh" ? "不可逆节点" : "Irreversible Nodes"}</h3>
+        {props.report.irreversibleNodesTriggered.length === 0 ? <p>{t(props.language, "none")}</p> : (
+          <div className="tags">
+            {props.report.irreversibleNodesTriggered.map((nodeId) => <span key={nodeId}>{flagLabel(nodeId, props.language)}</span>)}
+          </div>
+        )}
+      </section>
+
+      <section className="report-section">
+        <h3>{props.language === "zh" ? "最终变量高亮" : "Final Variable Highlights"}</h3>
+        {props.report.finalVariableHighlights.length === 0 ? <p>{t(props.language, "none")}</p> : props.report.finalVariableHighlights.map((item) => (
+          <p className="system-line" key={item.variableId}>{translateText(item.variableId, props.language)} {item.value}/100 · {item.reason}</p>
+        ))}
+      </section>
+
+      <section className="report-section">
         <h3>{t(props.language, "keyActions")}</h3>
         {props.report.keyPlayerActions.length === 0 ? <p>{t(props.language, "noInterventions")}</p> : (
           <div className="key-action-grid">
@@ -706,6 +786,17 @@ function riskLabel(risk: RiskLevel, language: Language): string {
   if (risk === "high") return "高";
   if (risk === "medium") return "中";
   return "低";
+}
+
+function formatIntelReveal(reveal: string | IntelReveal, language: Language): string {
+  if (typeof reveal === "string") return translateText(reveal, language);
+  const variable = translateText(reveal.variableId, language);
+  if (reveal.visibility === "range" && reveal.range) {
+    return `${variable} ${language === "zh" ? "约" : "about"} ${reveal.range[0]}-${reveal.range[1]}`;
+  }
+  if (reveal.visibility === "rough") return `${variable} ${language === "zh" ? "粗略可见" : "rough signal"}`;
+  if (reveal.visibility === "exact") return `${variable} ${language === "zh" ? "精确可见" : "exact"}`;
+  return `${variable} ${language === "zh" ? "未知" : "unknown"}`;
 }
 
 function buildShareCardSvg(report: EndingReport): string {
@@ -811,6 +902,59 @@ export function TimeAdvanceReportModal(props: {
   );
 }
 
+export function IrreversibleNodeModal(props: {
+  nodes: IrreversibleNode[];
+  cards: InterventionCardDefinition[];
+  language: Language;
+  onClose: () => void;
+}) {
+  if (props.nodes.length === 0) return null;
+  const lockedCardNames = new Map(props.cards.map((card) => [card.id, card.name]));
+  return (
+    <Modal onClose={props.onClose} className="ui-time-report" variant="irreversible">
+      <h2>{props.language === "zh" ? "不可逆节点已触发" : "Irreversible Node Triggered"}</h2>
+      {props.nodes.map((node) => (
+        <section className="report-section" key={node.id}>
+          <h3>{node.title}</h3>
+          <VisualAssetImage
+            className="modal-hero-image"
+            asset={resolveIrreversibleAsset(node.id)}
+            fallbackLabel={node.title}
+            showCaption
+          />
+          <VisualAssetImage
+            className="irreversible-stamp-overlay"
+            asset={resolveIrreversibleStampAsset()}
+            fallbackLabel="IRREVERSIBLE"
+            ariaHidden
+          />
+          <p>{node.reportText}</p>
+          <h4>{props.language === "zh" ? "变量影响" : "Variable impact"}</h4>
+          <ChangeList changes={node.effects.map((effect) => ({ ...effect, before: 0, after: 0 }))} language={props.language} preview />
+          <h4>{props.language === "zh" ? "窗口关闭" : "Closed windows"}</h4>
+          {node.lockedCardIds.length === 0 ? <p>{t(props.language, "none")}</p> : (
+            <ul>
+              {node.lockedCardIds.map((cardId) => <li key={cardId}>{cardId} {lockedCardNames.get(cardId) ?? ""}</li>)}
+            </ul>
+          )}
+          {node.unlockedCardIds.length > 0 && (
+            <>
+              <h4>{props.language === "zh" ? "新解锁窗口" : "New windows"}</h4>
+              <p>{node.unlockedCardIds.join(" / ")}</p>
+            </>
+          )}
+          {node.variableImpactSummary.length > 0 && (
+            <div className="system-line">{node.variableImpactSummary.map((item) => translateText(item, props.language)).join(" / ")}</div>
+          )}
+        </section>
+      ))}
+      <div className="modal-actions">
+        <button className="primary ui-button ui-button--primary" onClick={props.onClose}>{props.language === "zh" ? "确认" : "Confirm"}</button>
+      </div>
+    </Modal>
+  );
+}
+
 export function TurnBriefingModal(props: {
   state: GameState;
   currentTurn: TimelineTurn;
@@ -820,9 +964,10 @@ export function TurnBriefingModal(props: {
   language: Language;
   onClose: () => void;
 }) {
+  const briefing = props.currentTurn.briefing;
   return (
     <Modal onClose={props.onClose} className="ui-turn-briefing" variant="standard">
-      <h2>{props.language === "en" ? `Turn ${props.state.turn}: ${props.currentTurn.title}` : `第 ${props.state.turn} 回合：${props.currentTurn.title}`}</h2>
+      <h2>{props.language === "en" ? `Turn ${props.state.turn}: ${props.currentTurn.title}` : `第 ${props.state.turn} 回合：${briefing?.briefingTitle ?? props.currentTurn.title}`}</h2>
       <VisualAssetImage
         className="modal-hero-image"
         asset={resolveTurnEventAsset(props.currentTurn)}
@@ -830,10 +975,12 @@ export function TurnBriefingModal(props: {
         showCaption
       />
       <p className="modal-kicker">{props.currentTurn.dateRange} · AP {props.state.ap}/{props.state.maxAp}</p>
-      <p>{props.currentTurn.narrative}</p>
+      <p>{briefing?.briefingText ?? props.currentTurn.narrative}</p>
       <blockquote>{props.currentTurn.goalHint}</blockquote>
       <h3>{t(props.language, "briefingRisks")}</h3>
-      {props.opportunityCosts.length === 0 ? <p>{t(props.language, "noMajorRisks")}</p> : props.opportunityCosts.slice(0, 4).map((item) => <p className="system-line" key={item}>{translateText(item, props.language)}</p>)}
+      {(briefing?.keyRisks.length ? briefing.keyRisks : props.opportunityCosts).length === 0 ? <p>{t(props.language, "noMajorRisks")}</p> : (briefing?.keyRisks.length ? briefing.keyRisks : props.opportunityCosts).slice(0, 4).map((item) => <p className="system-line" key={item}>{translateText(item, props.language)}</p>)}
+      <h3>{props.language === "zh" ? "重点变量" : "Focus Variables"}</h3>
+      {(briefing?.focusVariableIds ?? props.currentTurn.defaultPressure.map((effect) => effect.variable)).slice(0, 4).map((variableId) => <p className="system-line" key={variableId}>{translateText(variableId, props.language)}</p>)}
       <h3>{t(props.language, "upcomingEvents")}</h3>
       {props.upcomingEvents.slice(0, 3).map((event) => <p className="system-line" key={event.id}>{props.language === "en" ? `${event.turnsUntil} ${t(props.language, "turnsAfter")}: ${event.title}` : `${event.turnsUntil} 回合后：${event.title}`}</p>)}
       <h3>{t(props.language, "possiblyExpire")}</h3>

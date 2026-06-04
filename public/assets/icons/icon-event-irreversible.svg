@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="irreversible event">
+  <rect x="15" y="29" width="34" height="24" rx="4"/>
+  <path d="M22 29v-8a10 10 0 0 1 20 0v8"/>
+  <path d="M32 39v6"/>
+  <path d="M18 13l-6-6"/>
+  <path d="M46 13l6-6"/>
+  <path d="M12 57h40"/>
+</svg>

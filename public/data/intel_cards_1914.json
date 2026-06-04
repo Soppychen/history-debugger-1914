@@ -77,7 +77,16 @@
     ],
     "summary": "德国倾向支持奥匈对塞尔维亚采取强硬措施，希望危机局部化，同时低估俄国与法国的反应。",
     "reveals": [
-      "german_risk_perception",
+      {
+        "variableId": "german_risk_perception",
+        "visibility": "range",
+        "range": [
+          28,
+          42
+        ],
+        "confidence": 0.72,
+        "note": "德国支持奥匈，但对俄法反应估计偏低。"
+      },
       "alliance_lock_in"
     ],
     "unlocks": [
@@ -100,7 +109,12 @@
     ],
     "summary": "德国部分决策者认为俄国未必会为塞尔维亚冒全面战争风险，即便战争发生，越早解决越有利。",
     "reveals": [
-      "german_risk_perception",
+      {
+        "variableId": "german_risk_perception",
+        "visibility": "rough",
+        "confidence": 0.68,
+        "note": "总参谋部倾向把低风险判断转化为抢先行动逻辑。"
+      },
       "military_timetable_rigidity"
     ],
     "unlocks": [
@@ -256,8 +270,22 @@
     ],
     "summary": "各国报纸互相引用、夸大、误读，使危机叙事更快跨国传播。",
     "reveals": [
-      "media_agitation",
-      "diplomatic_trust"
+      {
+        "variableId": "media_agitation",
+        "visibility": "range",
+        "range": [
+          58,
+          75
+        ],
+        "confidence": 0.76,
+        "note": "跨国报道正在放大荣誉和复仇叙事。"
+      },
+      {
+        "variableId": "diplomatic_trust",
+        "visibility": "rough",
+        "confidence": 0.62,
+        "note": "外交信号被舆论噪声削弱。"
+      }
     ],
     "unlocks": [
       "C13"
@@ -324,7 +352,16 @@
     ],
     "summary": "英国尚未明确表示会在何种情况下参战。德国可能将这种模糊解释为英国不会介入。",
     "reveals": [
-      "british_redline_clarity"
+      {
+        "variableId": "british_redline_clarity",
+        "visibility": "range",
+        "range": [
+          30,
+          48
+        ],
+        "confidence": 0.7,
+        "note": "英国仍在犹豫，但比利时问题可能改变红线。"
+      }
     ],
     "unlocks": [
       "C18"
@@ -479,7 +516,16 @@
     ],
     "summary": "俄国在局部动员和总动员之间存在制度难题。局部动员不一定可执行，总动员又会刺激德国。",
     "reveals": [
-      "russian_mobilization_pressure",
+      {
+        "variableId": "russian_mobilization_pressure",
+        "visibility": "range",
+        "range": [
+          60,
+          78
+        ],
+        "confidence": 0.74,
+        "note": "局部动员与总动员分歧正在缩小。"
+      },
       "military_timetable_rigidity"
     ],
     "unlocks": [

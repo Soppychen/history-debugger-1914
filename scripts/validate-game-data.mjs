@@ -9,6 +9,7 @@ const SUPPORTED_CONDITIONS = new Set([
   "turn_max",
   "card_used",
   "cards_used_min",
+  "node_active",
 ]);
 
 const ROUTES = {
@@ -80,6 +81,8 @@ const data = {
   interventionCards: await readJson("intervention_cards_1914.json"),
   intelCards: await readJson("intel_cards_1914.json"),
   endings: await readJson("endings_1914.json"),
+  crisisEvents: await readJson("crisis_events_1914.json"),
+  irreversibleNodes: await readJson("irreversible_nodes_1914.json"),
 };
 
 const errors = [];
@@ -88,6 +91,8 @@ const variableKeys = new Set(data.variables.map((variable) => variable.key));
 const cardIds = new Set(data.interventionCards.map((card) => card.id));
 const intelIds = new Set(data.intelCards.map((intel) => intel.id));
 const endingIds = new Set(data.endings.map((ending) => ending.id));
+const eventIds = new Set(data.crisisEvents.map((event) => event.id));
+const nodeIds = new Set(data.irreversibleNodes.map((node) => node.id));
 const variableDefs = Object.fromEntries(data.variables.map((variable) => [variable.key, variable]));
 
 function fail(message) {
@@ -113,6 +118,9 @@ function validateCondition(condition, context) {
   }
   if (condition.type === "card_used" && !cardIds.has(condition.key)) {
     fail(`${context}: unknown card id ${condition.key}`);
+  }
+  if (condition.type === "node_active" && !nodeIds.has(condition.key)) {
+    fail(`${context}: unknown irreversible node id ${condition.key}`);
   }
   if (condition.type === "flag_exists" && typeof condition.key !== "string") {
     fail(`${context}: flag_exists missing key`);
@@ -150,6 +158,9 @@ function createState() {
     variables: Object.fromEntries(data.variables.map((variable) => [variable.key, variable.initialValue])),
     flags: {},
     usedCardIds: [],
+    triggeredNodeIds: [],
+    lockedCardIds: [],
+    unlockedCardIds: [],
     lowFeasibilityCardsUsed: 0,
   };
 }
@@ -171,6 +182,8 @@ function evaluateCondition(condition, state) {
       return state.usedCardIds.includes(condition.key);
     case "cards_used_min":
       return (condition.key === "low_feasibility_cards" ? state.lowFeasibilityCardsUsed : state.usedCardIds.length) >= condition.value;
+    case "node_active":
+      return state.triggeredNodeIds.includes(condition.key) === Boolean(condition.value);
     default:
       return false;
   }
@@ -205,6 +218,7 @@ function prepareStateForConditions(conditions, baseTurn = 1, options = {}) {
     if (condition.type === "variable_max") state.variables[condition.key] = condition.value;
     if (condition.type === "flag_exists") state.flags[condition.key] = condition.value;
     if (condition.type === "card_used") state.usedCardIds.push(condition.key);
+    if (condition.type === "node_active" && condition.value) state.triggeredNodeIds.push(condition.key);
     if (condition.type === "cards_used_min") {
       if (condition.key === "low_feasibility_cards") state.lowFeasibilityCardsUsed = condition.value;
       while (state.usedCardIds.length < condition.value) state.usedCardIds.push(`synthetic_${state.usedCardIds.length}`);
@@ -217,6 +231,7 @@ function useCard(state, cardId) {
   const card = data.interventionCards.find((item) => item.id === cardId);
   if (!card) throw new Error(`unknown card ${cardId}`);
   if (state.usedCardIds.includes(card.id)) throw new Error(`card ${cardId} used twice`);
+  if (state.lockedCardIds.includes(card.id)) throw new Error(`card ${cardId} locked by irreversible node`);
   if (state.ap < card.cost) throw new Error(`not enough AP for ${cardId}`);
   if (state.turn < card.turnRange[0] || state.turn > card.turnRange[1]) throw new Error(`card ${cardId} outside turn range on turn ${state.turn}`);
   if (!evaluateConditions(card.requirements, state)) throw new Error(`requirements failed for ${cardId}`);
@@ -230,6 +245,7 @@ function useCard(state, cardId) {
   applyFlags(state, card.flags);
   state.usedCardIds.push(card.id);
   if (card.feasibility === "C") state.lowFeasibilityCardsUsed += 1;
+  applyIrreversibleNodes(state);
 }
 
 function advanceTurn(state) {
@@ -242,9 +258,23 @@ function advanceTurn(state) {
       applyFlags(state, rule.flags);
     }
   }
+  applyIrreversibleNodes(state);
   if (state.turn < data.timeline.length) {
     state.turn += 1;
     state.ap = state.maxAp;
+  }
+}
+
+function applyIrreversibleNodes(state) {
+  for (const node of data.irreversibleNodes) {
+    if (state.triggeredNodeIds.includes(node.id)) continue;
+    if (node.triggerTurn && state.turn < node.triggerTurn) continue;
+    if (!evaluateConditions(node.conditions, state)) continue;
+    applyEffects(state, node.effects);
+    state.triggeredNodeIds.push(node.id);
+    state.lockedCardIds = Array.from(new Set([...state.lockedCardIds, ...node.lockedCardIds]));
+    state.unlockedCardIds = Array.from(new Set([...state.unlockedCardIds, ...node.unlockedCardIds]));
+    state.flags[node.id] = true;
   }
 }
 
@@ -268,6 +298,8 @@ assertUnique(data.timeline.map((turn) => turn.turn), "timeline");
 assertUnique(data.interventionCards.map((card) => card.id), "intervention cards");
 assertUnique(data.intelCards.map((intel) => intel.id), "intel cards");
 assertUnique(data.endings.map((ending) => ending.id), "endings");
+assertUnique(data.crisisEvents.map((event) => event.id), "crisis events");
+assertUnique(data.irreversibleNodes.map((node) => node.id), "irreversible nodes");
 
 if (data.timeline.length !== 12) fail(`timeline should contain 12 turns, found ${data.timeline.length}`);
 data.timeline.forEach((turn, index) => {
@@ -284,6 +316,17 @@ data.timeline.forEach((turn, index) => {
     rule.effects.forEach((effect) => validateEffect(effect, `timeline ${turn.turn} specialRule ${rule.id}`));
     (rule.flags ?? []).forEach((flag) => validateFlag(flag, `timeline ${turn.turn} specialRule ${rule.id}`));
   });
+  if (turn.briefing) {
+    turn.briefing.focusVariableIds.forEach((variableId) => {
+      if (!variableKeys.has(variableId)) fail(`timeline ${turn.turn} briefing: unknown focus variable ${variableId}`);
+    });
+    turn.briefing.expiringCardIds.forEach((cardId) => {
+      if (!cardIds.has(cardId)) fail(`timeline ${turn.turn} briefing: unknown expiring card ${cardId}`);
+    });
+    turn.briefing.upcomingEventIds.forEach((eventId) => {
+      if (!eventIds.has(eventId)) fail(`timeline ${turn.turn} briefing: unknown upcoming event ${eventId}`);
+    });
+  }
 });
 
 data.interventionCards.forEach((card) => {
@@ -304,11 +347,43 @@ data.interventionCards.forEach((card) => {
 });
 
 data.intelCards.forEach((intel) => {
-  intel.reveals.forEach((variable) => {
-    if (!variableKeys.has(variable)) fail(`intel ${intel.id}: unknown revealed variable ${variable}`);
+  intel.reveals.forEach((reveal) => {
+    const variableId = typeof reveal === "string" ? reveal : reveal.variableId;
+    if (!variableKeys.has(variableId)) fail(`intel ${intel.id}: unknown revealed variable ${variableId}`);
+    if (typeof reveal !== "string") {
+      if (!["hidden", "unknown", "rough", "range", "exact"].includes(reveal.visibility)) {
+        fail(`intel ${intel.id}: unsupported reveal visibility ${reveal.visibility}`);
+      }
+      if (reveal.visibility === "range" && (!Array.isArray(reveal.range) || reveal.range.length !== 2)) {
+        fail(`intel ${intel.id}: range reveal for ${variableId} must include [min,max]`);
+      }
+    }
   });
   intel.unlocks.forEach((cardId) => {
     if (!cardIds.has(cardId)) fail(`intel ${intel.id}: unknown unlocked card ${cardId}`);
+  });
+});
+
+data.crisisEvents.forEach((event) => {
+  const turn = data.timeline.find((item) => item.turn === event.turn);
+  if (!turn) fail(`crisis event ${event.id}: unknown turn ${event.turn}`);
+  event.effectsPreview.forEach((effect) => validateEffect(effect, `crisis event ${event.id}`));
+  event.relatedCardIds.forEach((cardId) => {
+    if (!cardIds.has(cardId)) fail(`crisis event ${event.id}: unknown related card ${cardId}`);
+  });
+  if (event.irreversibleNodeId && !nodeIds.has(event.irreversibleNodeId)) {
+    fail(`crisis event ${event.id}: unknown irreversible node ${event.irreversibleNodeId}`);
+  }
+});
+
+data.irreversibleNodes.forEach((node) => {
+  node.conditions.forEach((condition) => validateCondition(condition, `irreversible node ${node.id}`));
+  node.effects.forEach((effect) => validateEffect(effect, `irreversible node ${node.id}`));
+  node.lockedCardIds.forEach((cardId) => {
+    if (!cardIds.has(cardId)) fail(`irreversible node ${node.id}: unknown locked card ${cardId}`);
+  });
+  node.unlockedCardIds.forEach((cardId) => {
+    if (!cardIds.has(cardId)) fail(`irreversible node ${node.id}: unknown unlocked card ${cardId}`);
   });
 });
 
@@ -338,6 +413,7 @@ for (const [name, route] of Object.entries(ROUTES)) {
 
 const noAction = simulateRoute({});
 if (noAction.state.turn !== 12) fail(`timeline simulation should end on turn 12, got ${noAction.state.turn}`);
+if (noAction.state.triggeredNodeIds.length < 1) fail("no-action route should trigger at least one irreversible node");
 
 if (warnings.length > 0) {
   console.warn("\nWarnings:");

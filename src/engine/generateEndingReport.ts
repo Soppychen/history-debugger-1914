@@ -2,6 +2,7 @@ import type {
   ActionLogEntry,
   EndingDefinition,
   GameState,
+  InterventionCard,
   TimelineTurn,
   VariableDefinition,
 } from "../types";
@@ -49,6 +50,7 @@ export function generateEndingReport(input: {
   finalGameState: GameState;
   variables: VariableDefinition[];
   timeline: TimelineTurn[];
+  interventionCards?: InterventionCard[];
   ending: EndingDefinition;
   language: Language;
 }): EndingReport {
@@ -62,6 +64,15 @@ export function generateEndingReport(input: {
   const keyCausalChain = buildCausalChain(input, finalVariables, keyPlayerActions, irreversibleFlags);
   const playerStyle = buildPlayerStyle(input.finalGameState, input.language);
   const executiveSummary = buildExecutiveSummary(input.ending, finalVariables, keyPlayerActions, input.language);
+  const missedWindows = buildMissedWindows(input.finalGameState, input.interventionCards ?? [], input.language);
+  const finalVariableHighlights = finalVariables
+    .filter((variable) => variable.riskLevel === "critical" || variable.riskLevel === "high")
+    .slice(0, 4)
+    .map((variable) => ({
+      variableId: variable.id,
+      value: variable.value,
+      reason: localized(input.language, `${variable.label} 处于${variable.riskLevel === "critical" ? "临界" : "高压"}区间。`, `${variable.label} remains in a ${variable.riskLevel} band.`),
+    }));
 
   return {
     id: `ending-report-${input.finalGameState.turn}-${input.ending.id}`,
@@ -77,6 +88,9 @@ export function generateEndingReport(input: {
     finalVariables,
     keyCausalChain,
     keyPlayerActions,
+    missedWindows,
+    irreversibleNodesTriggered: input.finalGameState.triggeredNodeIds ?? irreversibleFlags,
+    finalVariableHighlights,
     analysis,
     playerStyle,
     shareCard: {
@@ -90,6 +104,22 @@ export function generateEndingReport(input: {
     },
     createdAt: new Date().toISOString(),
   };
+}
+
+function buildMissedWindows(state: GameState, cards: InterventionCard[], language: Language): string[] {
+  const used = new Set(state.usedCardIds);
+  const locked = new Set(state.lockedCardIds ?? []);
+  const turn = state.turn;
+  const expired = cards
+    .filter((card) => !used.has(card.id) && card.turnRange[1] < turn)
+    .sort((a, b) => a.turnRange[1] - b.turnRange[1])
+    .slice(0, 4)
+    .map((card) => localized(language, `${card.id}「${card.name}」在第 ${card.turnRange[1]} 回合后失效。`, `${card.id} ${card.name} expired after turn ${card.turnRange[1]}.`));
+  const eventLocked = cards
+    .filter((card) => locked.has(card.id))
+    .slice(0, 3)
+    .map((card) => localized(language, `${card.id}「${card.name}」被不可逆节点关闭。`, `${card.id} ${card.name} was closed by an irreversible node.`));
+  return [...eventLocked, ...expired].slice(0, 6);
 }
 
 function buildFinalVariables(definitions: VariableDefinition[], state: GameState): FinalVariableReport[] {

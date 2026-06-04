@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react"
 import { Capacitor } from "@capacitor/core";
 import {
   applyCard,
+  applyIrreversibleNodes,
   applyTurnPressure,
   deriveCrisisStage,
   findEnding,
@@ -13,7 +14,7 @@ import {
   getRiskStage,
   getUpcomingCrisisEvents,
   getVisibleCards,
-  shouldEndImmediately,
+  normalizeGameState,
 } from "./gameLogic";
 import {
   ActionResultModal,
@@ -25,6 +26,7 @@ import {
   IntelModal,
   IntelTray,
   InterventionCardTray,
+  IrreversibleNodeModal,
   IrreversibleEventBanner,
   OpportunityCostPanel,
   TimelinePanel,
@@ -74,11 +76,13 @@ import { completeRunAndSubmit, createRunRecord } from "./leaderboard/mockLeaderb
 import type { RunRecord } from "./leaderboard/leaderboardTypes";
 import type {
   ActionLogEntry,
+  CrisisEvent,
   DataBundle,
   EndingDefinition,
   GameState,
   IntelCard,
   InterventionCard,
+  IrreversibleNode,
   TimelineTurn,
   VariableDefinition,
 } from "./types";
@@ -89,6 +93,8 @@ const DATA_FILES = {
   interventionCards: "/data/intervention_cards_1914.json",
   intelCards: "/data/intel_cards_1914.json",
   endings: "/data/endings_1914.json",
+  crisisEvents: "/data/crisis_events_1914.json",
+  irreversibleNodes: "/data/irreversible_nodes_1914.json",
 } as const;
 
 const isNativeAndroid = Capacitor.getPlatform() === "android";
@@ -136,6 +142,7 @@ function App() {
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
   const [selectedIntelId, setSelectedIntelId] = useState<string | null>(null);
   const [lastAction, setLastAction] = useState<ActionLogEntry | null>(null);
+  const [lastTriggeredNodes, setLastTriggeredNodes] = useState<IrreversibleNode[]>([]);
   const [advanceConfirmOpen, setAdvanceConfirmOpen] = useState(false);
   const [briefingTurn, setBriefingTurn] = useState<number | null>(1);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -199,9 +206,11 @@ function App() {
       loadJson<InterventionCard[]>(DATA_FILES.interventionCards),
       loadJson<IntelCard[]>(DATA_FILES.intelCards),
       loadJson<EndingDefinition[]>(DATA_FILES.endings),
+      loadJson<CrisisEvent[]>(DATA_FILES.crisisEvents),
+      loadJson<IrreversibleNode[]>(DATA_FILES.irreversibleNodes),
     ])
-      .then(([variables, timeline, interventionCards, intelCards, endings]) => {
-        const bundle = { variables, timeline, interventionCards, intelCards, endings };
+      .then(([variables, timeline, interventionCards, intelCards, endings, crisisEvents, irreversibleNodes]) => {
+        const bundle = { variables, timeline, interventionCards, intelCards, endings, crisisEvents, irreversibleNodes };
         const seedResult = initializeSeededGameState(variables, runSeed, gameMode);
         setData(bundle);
         setState(seedResult.state);
@@ -451,6 +460,7 @@ function App() {
     setSelectedCardId(null);
     setSelectedIntelId(null);
     setLastAction(null);
+    setLastTriggeredNodes([]);
     setAdvanceConfirmOpen(false);
     setBriefingTurn(1);
     setModeSelectOpen(false);
@@ -478,12 +488,14 @@ function App() {
   }
 
   function readIntel(intelId: string) {
-    const alreadyRead = state?.revealedIntelIds.includes(intelId);
+    const alreadyRead = state?.revealedIntelIds?.includes(intelId);
     playSfx(alreadyRead ? "intel_open" : "telegram_received");
     setSelectedIntelId(intelId);
     setState((prev) => {
-      if (!prev || prev.revealedIntelIds.includes(intelId)) return prev;
-      return { ...prev, revealedIntelIds: [...prev.revealedIntelIds, intelId] };
+      if (!prev) return prev;
+      const normalized = normalizeGameState(prev);
+      if (normalized.revealedIntelIds.includes(intelId)) return normalized;
+      return { ...normalized, revealedIntelIds: [...normalized.revealedIntelIds, intelId] };
     });
     recordEvent("intel_opened", { intelId, alreadyRead: Boolean(alreadyRead) }, false);
   }
@@ -512,12 +524,14 @@ function App() {
     if (failure || state.ap < selectedCard.cost) return;
 
     const beforeWarProbability = state.variables.war_probability ?? 0;
-    const next = applyCard(state, selectedCard, data.variables);
-    const immediateEnding = shouldEndImmediately(next, data.endings);
-    const finalState = immediateEnding ? { ...next, ending: immediateEnding } : next;
-    const action = finalState.actionLog[0];
+    const next = applyCard(normalizeGameState(state), selectedCard, data.variables);
+    const nodeResult = applyIrreversibleNodes(next, data.irreversibleNodes, data.variables);
+    const immediateEnding = nodeResult.state.turn >= data.timeline.length ? findEnding(nodeResult.state, data.endings) : null;
+    const finalState = immediateEnding ? { ...nodeResult.state, ending: immediateEnding } : nodeResult.state;
+    const action = next.actionLog[0];
     setState(finalState);
     setLastAction(action);
+    setLastTriggeredNodes(nodeResult.triggeredNodes);
     setSelectedCardId(null);
     playSfx("card_use");
     playChangeCue(action);
@@ -561,22 +575,25 @@ function App() {
 
     const beforeWarProbability = state.variables.war_probability ?? 0;
     const beforeIrreversible = new Set(getIrreversibleFlags(state));
-    const pressured = applyTurnPressure(state, currentTurn, data.variables);
-    const ending = pressured.turn >= data.timeline.length ? findEnding(pressured, data.endings) : shouldEndImmediately(pressured, data.endings);
+    const pressured = applyTurnPressure(normalizeGameState(state), currentTurn, data.variables);
+    const turnAction = pressured.actionLog[0];
+    const nodeResult = applyIrreversibleNodes(pressured, data.irreversibleNodes, data.variables);
+    const ending = nodeResult.state.turn >= data.timeline.length ? findEnding(nodeResult.state, data.endings) : null;
     const nextState = ending
-      ? { ...pressured, ending }
+      ? { ...nodeResult.state, ending }
       : {
-          ...pressured,
-          turn: Math.min(pressured.turn + 1, data.timeline.length),
-          ap: pressured.maxAp,
+          ...nodeResult.state,
+          turn: Math.min(nodeResult.state.turn + 1, data.timeline.length),
+          ap: nodeResult.state.maxAp,
         };
     setState(nextState);
-    setLastAction(nextState.actionLog[0]);
+    setLastAction(turnAction);
+    setLastTriggeredNodes(nodeResult.triggeredNodes);
     setSelectedCardId(null);
     setAdvanceConfirmOpen(false);
     if (!ending) setBriefingTurn(nextState.turn);
     playSfx("time_advance");
-    const action = nextState.actionLog[0];
+    const action = turnAction;
     playChangeCue(action);
     if (getExpiredCards(data, nextState, 1).length > 0) playSfx("card_expired");
     const afterWarProbability = nextState.variables.war_probability ?? 0;
@@ -630,13 +647,15 @@ function App() {
     setPlayerSession(recovered);
     setSaves(recoveredSaves);
     if (latestSave) {
-      setState(latestSave.gameState);
+      const recoveredState = normalizeGameState(latestSave.gameState);
+      setState(recoveredState);
       setSelectedCardId(null);
       setSelectedIntelId(null);
       setLastAction(null);
+      setLastTriggeredNodes([]);
       setAdvanceConfirmOpen(false);
-      setBriefingTurn(latestSave.gameState.ending ? null : latestSave.gameState.turn);
-      lastEndingCueRef.current = latestSave.gameState.ending?.id ?? null;
+      setBriefingTurn(recoveredState.ending ? null : recoveredState.turn);
+      lastEndingCueRef.current = recoveredState.ending?.id ?? null;
     }
     recordAnalyticsEvent(
       {
@@ -702,14 +721,16 @@ function App() {
   function handleLoadSave(save: SaveGame) {
     if (!getGameModeDefinition(gameMode).allowsLoad) return;
     const previousTurn = state?.turn ?? save.turn;
+    const loadedState = normalizeGameState(save.gameState);
     setReloadCount((count) => count + 1);
-    setState(save.gameState);
+    setState(loadedState);
     setSelectedCardId(null);
     setSelectedIntelId(null);
     setLastAction(null);
+    setLastTriggeredNodes([]);
     setAdvanceConfirmOpen(false);
-    setBriefingTurn(save.gameState.ending ? null : save.gameState.turn);
-    lastEndingCueRef.current = save.gameState.ending?.id ?? null;
+    setBriefingTurn(loadedState.ending ? null : loadedState.turn);
+    lastEndingCueRef.current = loadedState.ending?.id ?? null;
     recordEvent("save_loaded", {
       saveId: save.id,
       slotType: save.slotType,
@@ -752,6 +773,7 @@ function App() {
         finalGameState: state,
         variables: displayData.variables,
         timeline: displayData.timeline,
+        interventionCards: displayData.interventionCards,
         ending: displayEnding,
         language,
       })
@@ -812,7 +834,7 @@ function App() {
           <UpcomingCrisisEvents events={upcomingEvents} language={language} />
           <CausalGraphPanel state={state} language={language} />
         </section>
-        <VariablePanel definitions={displayData.variables} state={state} language={language} />
+        <VariablePanel definitions={displayData.variables} state={state} intelCards={displayData.intelCards} language={language} />
       </main>
 
       <section className="bottom-dock">
@@ -857,7 +879,15 @@ function App() {
       {lastAction && !selectedCard && lastAction.kind === "turn" && (
         <TimeAdvanceReportModal action={lastAction} turn={lastAction.turn} turnTitle={lastAction.title} expiredCards={expiredCards} language={language} onClose={() => setLastAction(null)} />
       )}
-      {!lastAction && !selectedCard && !selectedIntel && !advanceConfirmOpen && briefingTurn === state.turn && (
+      {lastTriggeredNodes.length > 0 && !selectedCard && !selectedIntel && !advanceConfirmOpen && !state.ending && (
+        <IrreversibleNodeModal
+          nodes={lastTriggeredNodes}
+          cards={displayData.interventionCards}
+          language={language}
+          onClose={() => setLastTriggeredNodes([])}
+        />
+      )}
+      {!lastAction && lastTriggeredNodes.length === 0 && !selectedCard && !selectedIntel && !advanceConfirmOpen && briefingTurn === state.turn && (
         <TurnBriefingModal
           state={state}
           currentTurn={currentTurn}

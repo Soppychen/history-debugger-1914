@@ -436,6 +436,7 @@ export function localizeDataBundle(data: DataBundle, language: Language): DataBu
   }
 
   return {
+    ...data,
     variables: data.variables.map(localizeVariableEn),
     timeline: data.timeline.map((turn) => ({ ...turn, ...timelineEn[turn.turn] })),
     interventionCards: data.interventionCards.map((card) => ({ ...card, ...cardEn[card.id] })),

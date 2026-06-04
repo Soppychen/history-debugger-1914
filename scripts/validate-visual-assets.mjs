@@ -37,6 +37,29 @@ const requiredAssets = [
   "ending-visuals/ending-low-credibility-miracle.png",
 ];
 
+const plannedOptionalAssets = new Set([
+  "irreversible-events/irreversible-ultimatum-sent.png",
+  "irreversible-events/irreversible-serbian-rejection.png",
+  "irreversible-events/irreversible-austria-declares-war.png",
+  "irreversible-events/irreversible-russian-general-mobilization.png",
+  "irreversible-events/irreversible-german-ultimatum.png",
+  "irreversible-events/irreversible-belgium-path-open.png",
+  "stamps/stamp-irreversible.svg",
+  "icons/icon-event-diplomatic-window.svg",
+  "icons/icon-event-ultimatum.svg",
+  "icons/icon-event-mobilization.svg",
+  "icons/icon-event-media-pressure.svg",
+  "icons/icon-event-irreversible.svg",
+  "icons/icon-event-war-threshold.svg",
+  "icons/icon-red-lock.svg",
+  "icons/icon-countdown-marker.svg",
+  "icons/icon-window-closed.svg",
+  "intel-documents/template-diplomatic-telegram.png",
+  "intel-documents/template-newspaper-clipping.png",
+  "intel-documents/template-cabinet-minutes.png",
+  "intel-documents/template-secret-dossier.png",
+]);
+
 const fallbackDirectories = [
   "intel-documents",
   "irreversible-events",
@@ -64,7 +87,11 @@ const scannedReferences = await collectAssetReferences(["src", "public/data"]);
 for (const [reference, files] of scannedReferences) {
   const normalized = reference.replace(/^\/assets\//, "");
   if (!(await exists(normalized))) {
-    errors.push(`missing referenced visual asset: public${reference} (referenced by ${[...files].join(", ")})`);
+    if (plannedOptionalAssets.has(normalized)) {
+      warnings.push(`planned v0.2 visual asset not delivered yet: public${reference} (referenced by ${[...files].join(", ")})`);
+    } else {
+      errors.push(`missing referenced visual asset: public${reference} (referenced by ${[...files].join(", ")})`);
+    }
   }
 }
 
@@ -94,6 +121,7 @@ console.log("\nVisual asset validation passed:");
 console.log(`- Required art files found: ${requiredAssets.length}`);
 console.log(`- Referenced asset paths checked: ${scannedReferences.size}`);
 console.log(`- Fallback-ready directories checked: ${fallbackDirectories.length}`);
+console.log(`- Planned v0.2 optional assets tracked warn-only: ${plannedOptionalAssets.size}`);
 
 async function collectAssetReferences(roots) {
   const references = new Map();
